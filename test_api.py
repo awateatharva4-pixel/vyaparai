@@ -52,6 +52,17 @@ def test_endpoints():
     assert r6.status_code == 200
     print(f"Quick Add Dairy SKU OK! Item: {r6.json()['item']['name_mr']}")
 
+    print("--- 7. Testing POST /api/v1/webhook/whatsapp (Twilio TwiML Ingress) ---")
+    r7 = client.post(
+        "/api/v1/webhook/whatsapp",
+        data={"From": "whatsapp:+919579869506", "Body": "१ साखर विकली", "MessageSid": "SM_TEST_API_001"},
+        headers={"Content-Type": "application/x-www-form-urlencoded"}
+    )
+    assert r7.status_code == 200
+    assert "application/xml" in r7.headers.get("content-type", "")
+    assert "<Response>" in r7.text and "<Message>" in r7.text
+    print("Twilio Webhook Ingress OK! (Returned TwiML XML Response)")
+
     print("\n>>> ALL API ENDPOINTS VERIFIED 100% OPERATIONAL! <<<")
 
 if __name__ == "__main__":
