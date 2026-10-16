@@ -1,0 +1,23 @@
+# Environment and secrets
+.env
+*.env.local
+
+# Python bytecode & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# Databases & local storage
+*.db
+*.sqlite3
+*.db-journal
+*.db-wal
+
+# Logs & temp files
+*.log
+.DS_Store
+.vscode/
+.idea/

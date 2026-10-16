@@ -1,0 +1,112 @@
+[
+  {
+    "sku": "GROC-SUG-001",
+    "name_mr": "साखर (Madhur Sugar)",
+    "name_en": "Sugar",
+    "category": "Grains & Sweeteners / धान्य व साखर",
+    "stock": 50.0,
+    "unit": "kg",
+    "unit_price": 42.0,
+    "min_threshold": 10.0,
+    "aliases": ["साखर", "sakhar", "sugar", "shakkar", "madhur sugar"]
+  },
+  {
+    "sku": "FMCG-PARLE-100G",
+    "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
+    "name_en": "Parle-G 100g",
+    "category": "Packaged Snacks / पॅकेज्ड स्नॅक्स",
+    "stock": 60.0,
+    "unit": "packet",
+    "unit_price": 10.0,
+    "min_threshold": 15.0,
+    "aliases": ["पार्ले", "पार्ले-जी", "parle", "parle-g", "parle ji", "biscuit", "पुडा"]
+  },
+  {
+    "sku": "OIL-FORT-1L",
+    "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+    "name_en": "Fortune Sunflower Oil 1L",
+    "category": "Edible Oils / खाद्यतेल",
+    "stock": 25.0,
+    "unit": "pouch",
+    "unit_price": 135.0,
+    "min_threshold": 5.0,
+    "aliases": ["तेल", "फॉर्च्युन", "oil", "fortune oil", "tel", "surajmukhi tel", "sunflower oil"]
+  },
+  {
+    "sku": "BAK-PAV-LADI",
+    "name_mr": "लादी पाव (Fresh Bakery Pav)",
+    "name_en": "Bakery Pav (Ladi)",
+    "category": "Bakery & Fresh / बेकरी व ताजे पदार्थ",
+    "stock": 30.0,
+    "unit": "ladi",
+    "unit_price": 20.0,
+    "min_threshold": 8.0,
+    "aliases": ["पाव", "लादी पाव", "ladi pav", "pav", "bread pav", "fresh pav"]
+  },
+  {
+    "sku": "DAL-TUR-001",
+    "name_mr": "गावरान तूर डाळ (Polished Tur Dal)",
+    "name_en": "Tur Dal",
+    "category": "Pulses & Lentils / डाळी व कडधान्ये",
+    "stock": 40.0,
+    "unit": "kg",
+    "unit_price": 160.0,
+    "min_threshold": 10.0,
+    "aliases": ["तूर डाळ", "डाळ", "tur dal", "toor dal", "dal", "tur daal"]
+  },
+  {
+    "sku": "GROC-SALT-1K",
+    "name_mr": "टाटा मीठ (Tata Salt 1kg)",
+    "name_en": "Tata Salt 1kg",
+    "category": "Spices & Essentials / मसाले व आवश्यक वस्तू",
+    "stock": 45.0,
+    "unit": "packet",
+    "unit_price": 28.0,
+    "min_threshold": 10.0,
+    "aliases": ["मीठ", "टाटा मीठ", "salt", "tata salt", "mith", "namak"]
+  },
+  {
+    "sku": "GROC-ATTA-5K",
+    "name_mr": "आशीर्वाद चक्की आटा (Aashirvaad Atta 5kg)",
+    "name_en": "Aashirvaad Atta 5kg",
+    "category": "Grains & Sweeteners / धान्य व साखर",
+    "stock": 18.0,
+    "unit": "bag",
+    "unit_price": 240.0,
+    "min_threshold": 5.0,
+    "aliases": ["आटा", "पीठ", "गहू पीठ", "atta", "aashirvaad atta", "wheat flour", "pith"]
+  },
+  {
+    "sku": "FMCG-MAGGI-70G",
+    "name_mr": "मॅगी २-मिनिट नूडल्स (Maggi 70g)",
+    "name_en": "Maggi Noodles 70g",
+    "category": "Packaged Snacks / पॅकेज्ड स्नॅक्स",
+    "stock": 50.0,
+    "unit": "packet",
+    "unit_price": 14.0,
+    "min_threshold": 12.0,
+    "aliases": ["मॅगी", "नूडल्स", "maggi", "maggi noodles", "noodles"]
+  },
+  {
+    "sku": "VEG-KANDA-001",
+    "name_mr": "गावठी लाल कांदा (Fresh Onion)",
+    "name_en": "Red Onion",
+    "category": "Fresh Vegetables / ताजी भाजी",
+    "stock": 70.0,
+    "unit": "kg",
+    "unit_price": 35.0,
+    "min_threshold": 15.0,
+    "aliases": ["कांदा", "kanda", "onion", "pyaz", "lal kanda"]
+  },
+  {
+    "sku": "VEG-BATATA-001",
+    "name_mr": "इंदूर बटाटा (Fresh Potato)",
+    "name_en": "Potato",
+    "category": "Fresh Vegetables / ताजी भाजी",
+    "stock": 65.0,
+    "unit": "kg",
+    "unit_price": 30.0,
+    "min_threshold": 15.0,
+    "aliases": ["बटाटा", "batata", "potato", "aloo", "batate"]
+  }
+]

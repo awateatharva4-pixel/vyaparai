@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VyaparAI - Local Vendor Inventory Digitization</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', 'Noto Sans Devanagari', sans-serif; }
+    .pulse-glow { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .6; } }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Top Navigation Header -->
+  <header class="bg-slate-800/90 border-b border-slate-700/80 sticky top-0 z-50 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center font-bold text-slate-950 text-xl shadow-lg shadow-emerald-500/20">
+          V
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 id="dashTitle" class="text-lg font-bold text-white tracking-tight">VyaparAI &bull; व्यापारी साठा व्यवस्थापन</h1>
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">LIVE</span>
+          </div>
+          <p id="dashSub" class="text-xs text-slate-400">Kolhapur Kirana Retail Ingress &bull; WhatsApp/SMS Voice &amp; Text</p>
+        </div>
+      </div>
+
+      <!-- Action Button Group -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button id="langBtn" onclick="toggleLanguage()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 transition">
+          मराठी / English
+        </button>
+        <a href="/test-console" target="_blank" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-slate-950 flex items-center gap-1.5 shadow-md shadow-emerald-600/20 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          <span id="txtSim">WhatsApp Simulator</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- KPI Metric Cards Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
+          <span id="kpiSkus">Total SKUs (एकूण वस्तू)</span>
+          <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+        </div>
+        <div id="statSkus" class="text-2xl font-bold text-white">{{ metrics.total_skus }}</div>
+        <p class="text-[11px] text-slate-400 mt-1">Catalog items tracked</p>
+      </div>
+
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
+          <span id="kpiValuation">Inventory Valuation (साठा मूल्य)</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        </div>
+        <div id="statValuation" class="text-2xl font-bold text-emerald-400">₹{{ metrics.total_valuation }}</div>
+        <p class="text-[11px] text-slate-400 mt-1">Current stock valuation</p>
+      </div>
+
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
+          <span id="kpiSales">Today's Sales (आजची विक्री)</span>
+          <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span id="statSalesCount" class="text-2xl font-bold text-white">{{ metrics.today_sales_count }}</span>
+          <span id="statRevenue" class="text-sm font-semibold text-purple-400">(₹{{ metrics.today_revenue }})</span>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-1">Transactions recorded</p>
+      </div>
+
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
+          <span id="kpiAlerts">Low Stock Alerts (कमी साठा)</span>
+          <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+        </div>
+        <div id="statAlerts" class="text-2xl font-bold text-amber-400">{{ metrics.low_stock_count }}</div>
+        <p class="text-[11px] text-slate-400 mt-1">Items below safety threshold</p>
+      </div>
+    </div>
+
+    <!-- Inventory Table Container -->
+    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl overflow-hidden shadow-sm">
+      <div class="px-5 py-3.5 border-b border-slate-700/60 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 id="tableTitle" class="text-sm font-bold text-white">Live Stock Register &bull; सद्य साठा नोंदवही</h2>
+          <p class="text-[11px] text-slate-400">Updated automatically via WhatsApp webhook events</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Hook 1: Quick Add Dairy Category -->
+          <button onclick="addDairySKU()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 transition flex items-center gap-1">
+            <span>+ Dairy SKU</span>
+          </button>
+          <!-- Hook 2: Export GST CSV -->
+          <button onclick="exportGSTCSV()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>GST CSV</span>
+          </button>
+          <!-- Reset Demo Button -->
+          <button onclick="resetDemo()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-700/50 hover:bg-slate-700 text-slate-300 border border-slate-600 transition" title="Reset Demo Catalog">
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- Table View -->
+      <div class="overflow-x-auto">
+        <table id="inventoryTable" class="w-full text-left text-xs">
+          <thead class="bg-slate-900/60 text-slate-400 border-b border-slate-700/60 font-medium uppercase tracking-wider">
+            <tr>
+              <th class="py-3 px-4">SKU</th>
+              <th class="py-3 px-4">Item Name (माल / वस्तू)</th>
+              <th class="py-3 px-4">Category</th>
+              <th class="py-3 px-4 text-right">Available Stock</th>
+              <th class="py-3 px-4 text-right">Rate (₹)</th>
+              <th class="py-3 px-4 text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryBody" class="divide-y divide-slate-700/40 text-slate-200">
+            {% for p in metrics.products %}
+            <tr class="hover:bg-slate-750/30 transition">
+              <td class="py-3 px-4 font-mono text-slate-400">{{ p.sku }}</td>
+              <td class="py-3 px-4 font-medium">
+                <div>{{ p.name_mr }}</div>
+                <div class="text-[11px] text-slate-400 font-normal">{{ p.name_en }}</div>
+              </td>
+              <td class="py-3 px-4 text-slate-400">{{ p.category }}</td>
+              <td class="py-3 px-4 text-right font-semibold text-white">
+                {{ p.stock }} <span class="text-xs font-normal text-slate-400">{{ p.unit }}</span>
+              </td>
+              <td class="py-3 px-4 text-right text-emerald-400 font-mono">₹{{ p.unit_price }}</td>
+              <td class="py-3 px-4 text-center">
+                {% if p.is_low_stock %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  ⚠️ Low Stock
+                </span>
+                {% else %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  Healthy
+                </span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Transactions Ledger Feed -->
+    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+      <div class="flex items-center justify-between mb-3 border-b border-slate-700/60 pb-2">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Live Transaction Audit Log &bull; व्यवहार नोंद</h3>
+        <span class="text-[11px] text-slate-400 font-mono">Event-Sourced Ledger</span>
+      </div>
+      <div id="txList" class="space-y-2 text-xs">
+        {% for tx in metrics.recent_transactions %}
+        <div class="flex items-center justify-between p-2 rounded bg-slate-900/40 border border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold font-mono {% if tx.type == 'SALE' %}bg-purple-500/20 text-purple-300{% elif tx.type == 'ROLLBACK' %}bg-rose-500/20 text-rose-300{% else %}bg-blue-500/20 text-blue-300{% endif %}">
+              {{ tx.type }}
+            </span>
+            <span class="font-medium text-white">{{ tx.item_name }}</span>
+            <span class="text-slate-400">({{ tx.delta }} units)</span>
+          </div>
+          <div class="flex items-center gap-3">
+            {% if tx.amount > 0 %}
+            <span class="text-emerald-400 font-semibold font-mono">₹{{ tx.amount }}</span>
+            {% endif %}
+            <span class="text-[11px] text-slate-400 font-mono">{{ tx.time }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Client-side Bilingual Localization Engine
+    let currentLang = 'en';
+    const dict = {
+      en: {
+        title: "VyaparAI • Local Vendor Inventory Digitization",
+        sub: "Kolhapur Kirana Retail Ingress • WhatsApp/SMS Voice & Text",
+        skus: "Total SKUs (एकूण वस्तू)",
+        val: "Inventory Valuation (साठा मूल्य)",
+        sales: "Today's Sales (आजची विक्री)",
+        alerts: "Low Stock Alerts (कमी साठा)",
+        table: "Live Stock Register • सद्य साठा नोंदवही"
+      },
+      mr: {
+        title: "व्यापार AI • स्थानिक दुकानदार साठा व्यवस्थापन",
+        sub: "कोल्हापूर किराणा रिटेल • व्हॉट्सॲप / एसएमएस व्हॉइस व टेक्स्ट",
+        skus: "एकूण वस्तू (Total SKUs)",
+        val: "एकूण साठा मूल्य (Valuation)",
+        sales: "आजची विक्री (Today's Sales)",
+        alerts: "कमी साठा इशारा (Low Stock)",
+        table: "सद्य साठा नोंदवही (Stock Register)"
+      }
+    };
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'mr' : 'en';
+      document.getElementById('dashTitle').innerText = dict[currentLang].title;
+      document.getElementById('dashSub').innerText = dict[currentLang].sub;
+      document.getElementById('kpiSkus').innerText = dict[currentLang].skus;
+      document.getElementById('kpiValuation').innerText = dict[currentLang].val;
+      document.getElementById('kpiSales').innerText = dict[currentLang].sales;
+      document.getElementById('kpiAlerts').innerText = dict[currentLang].alerts;
+      document.getElementById('tableTitle').innerText = dict[currentLang].table;
+    }
+
+    // 1-Click Client-Side GST CSV Downloader (Hook 2)
+    function exportGSTCSV() {
+      window.location.href = "/api/export-gst-csv";
+    }
+
+    // 1-Click Quick Add Dairy SKU (Hook 1)
+    async function addDairySKU() {
+      const res = await fetch("/api/items/quick-add-dairy", { method: "POST" });
+      const data = await res.json();
+      alert("✅ " + data.message);
+      refreshData();
+    }
+
+    // Reset Demo Data
+    async function resetDemo() {
+      if (confirm("Reset demo catalog to initial Kolhapur Kirana seed values?")) {
+        await fetch("/api/reset-demo", { method: "POST" });
+        refreshData();
+      }
+    }
+
+    // Reactive Polling: Refreshes state every 3 seconds to keep UI live
+    async function refreshData() {
+      try {
+        const res = await fetch("/api/metrics");
+        const m = await res.json();
+        
+        document.getElementById("statSkus").innerText = m.total_skus;
+        document.getElementById("statValuation").innerText = "₹" + m.total_valuation;
+        document.getElementById("statSalesCount").innerText = m.today_sales_count;
+        document.getElementById("statRevenue").innerText = "(₹" + m.today_revenue + ")";
+        document.getElementById("statAlerts").innerText = m.low_stock_count;
+
+        // Render Table Rows
+        const tbody = document.getElementById("inventoryBody");
+        tbody.innerHTML = m.products.map(p => `
+          <tr class="hover:bg-slate-750/30 transition">
+            <td class="py-3 px-4 font-mono text-slate-400">${p.sku}</td>
+            <td class="py-3 px-4 font-medium">
+              <div>${p.name_mr}</div>
+              <div class="text-[11px] text-slate-400 font-normal">${p.name_en}</div>
+            </td>
+            <td class="py-3 px-4 text-slate-400">${p.category}</td>
+            <td class="py-3 px-4 text-right font-semibold text-white">
+              ${p.stock} <span class="text-xs font-normal text-slate-400">${p.unit}</span>
+            </td>
+            <td class="py-3 px-4 text-right text-emerald-400 font-mono">₹${p.unit_price}</td>
+            <td class="py-3 px-4 text-center">
+              ${p.is_low_stock 
+                ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">⚠️ Low Stock</span>'
+                : '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Healthy</span>'
+              }
+            </td>
+          </tr>
+        `).join("");
+
+        // Render Recent Transactions
+        const txDiv = document.getElementById("txList");
+        txDiv.innerHTML = m.recent_transactions.map(tx => `
+          <div class="flex items-center justify-between p-2 rounded bg-slate-900/40 border border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold font-mono ${tx.type === 'SALE' ? 'bg-purple-500/20 text-purple-300' : tx.type === 'ROLLBACK' ? 'bg-rose-500/20 text-rose-300' : 'bg-blue-500/20 text-blue-300'}">
+                ${tx.type}
+              </span>
+              <span class="font-medium text-white">${tx.item_name}</span>
+              <span class="text-slate-400">(${tx.delta} units)</span>
+            </div>
+            <div class="flex items-center gap-3">
+              ${tx.amount > 0 ? `<span class="text-emerald-400 font-semibold font-mono">₹${tx.amount}</span>` : ''}
+              <span class="text-[11px] text-slate-400 font-mono">${tx.time}</span>
+            </div>
+          </div>
+        `).join("");
+
+      } catch (err) {
+        console.error("Polling error:", err);
+      }
+    }
+
+    setInterval(refreshData, 3000);
+  </script>
+</body>
+</html>

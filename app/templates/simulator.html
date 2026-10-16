@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VyaparAI - WhatsApp Ingress Test Console</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', 'Noto Sans Devanagari', sans-serif; }
+    .chat-bg { background-color: #0b141a; }
+    .bubble-out { background-color: #005c4b; }
+    .bubble-in { background-color: #202c33; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-3 sm:p-6">
+
+  <!-- Mobile Simulator Frame -->
+  <div class="w-full max-w-md h-[92vh] max-h-[780px] bg-slate-900 border border-slate-700/80 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+    
+    <!-- WhatsApp Chat Header -->
+    <div class="bg-[#202c33] px-4 py-3 flex items-center justify-between border-b border-slate-700/60">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-white shadow">
+          V
+        </div>
+        <div>
+          <div class="font-semibold text-sm text-white flex items-center gap-1.5">
+            <span>VyaparAI Bot (व्यापारी मित्र)</span>
+            <svg class="w-3.5 h-3.5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          </div>
+          <div class="text-[11px] text-emerald-400">ऑनलाइन (Online) &bull; Verified Business</div>
+        </div>
+      </div>
+      <a href="/dashboard" target="_blank" class="text-xs text-slate-300 hover:text-white bg-slate-800 px-2.5 py-1 rounded border border-slate-700 transition">
+        Dashboard &rarr;
+      </a>
+    </div>
+
+    <!-- Quick Scenario Test Chips -->
+    <div class="bg-slate-850 px-3 py-2 border-b border-slate-800 overflow-x-auto flex gap-1.5 scrollbar-none text-[11px]">
+      <button onclick="setTest('५ साखर विकली')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 whitespace-nowrap border border-slate-700">
+        ५ साखर विकली
+      </button>
+      <button onclick="setTest('२ पुडे पार्ले-जी दिले')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 whitespace-nowrap border border-slate-700">
+        २ पुडे पार्ले-जी
+      </button>
+      <button onclick="setTest('१० फॉर्च्युन तेल आले')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 whitespace-nowrap border border-slate-700">
+        १० तेल आले
+      </button>
+      <button onclick="setTest('दोन पाव साखर')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 whitespace-nowrap border border-slate-700" title="Homophone: 2 pav = 500g">
+        दोन पाव साखर (500g)
+      </button>
+      <button onclick="setTest('चूक झाली')" class="px-2 py-1 rounded bg-rose-900/40 hover:bg-rose-900/60 text-rose-300 whitespace-nowrap border border-rose-800/60 font-semibold" title="1-Click Undo">
+        चूक झाली (Undo)
+      </button>
+      <button onclick="setTest('साठा दाखवा')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 whitespace-nowrap border border-slate-700">
+        साठा दाखवा
+      </button>
+    </div>
+
+    <!-- Chat Stream Container -->
+    <div id="chatBox" class="flex-1 chat-bg p-4 overflow-y-auto space-y-3 text-xs leading-relaxed">
+      <!-- Default Greeting -->
+      <div class="flex justify-start">
+        <div class="bubble-in text-slate-200 p-3 rounded-2xl rounded-tl-sm max-w-[85%] shadow">
+          <p class="font-medium text-white mb-1">नमस्कार बाबुराव! 🙏</p>
+          <p>मी तुमचा डिजिटल व्यापार सहाय्यक आहे. तुम्ही मराठी, हिंदी किंवा इंग्लिशमध्ये बोलून किंवा लिहून विक्री किंवा नवीन साठा नोंदवू शकता.</p>
+          <span class="block text-[10px] text-slate-400 text-right mt-1.5">10:00 AM</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message Input Bar -->
+    <div class="bg-[#202c33] p-2.5 flex items-center gap-2 border-t border-slate-800">
+      <input 
+        id="msgInput" 
+        type="text" 
+        placeholder="इथे संदेश लिहा किंवा टेस्ट चिप दाबा..."
+        class="flex-1 bg-slate-800 text-white placeholder-slate-400 text-xs px-3.5 py-2.5 rounded-full border border-slate-700 focus:outline-none focus:border-emerald-500"
+        onkeydown="if(event.key === 'Enter') sendMessage()"
+      >
+      <button 
+        id="sendBtn" 
+        onclick="sendMessage()" 
+        class="w-10 h-10 rounded-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 flex items-center justify-center font-bold shadow transition flex-shrink-0"
+      >
+        <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    function setTest(txt) {
+      document.getElementById('msgInput').value = txt;
+      sendMessage();
+    }
+
+    function appendMessage(text, isOut = false) {
+      const box = document.getElementById('chatBox');
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      const div = document.createElement('div');
+      div.className = `flex ${isOut ? 'justify-end' : 'justify-start'}`;
+      
+      div.innerHTML = `
+        <div class="${isOut ? 'bubble-out text-white' : 'bubble-in text-slate-200'} p-3 rounded-2xl ${isOut ? 'rounded-tr-sm' : 'rounded-tl-sm'} max-w-[85%] shadow whitespace-pre-wrap">
+          <p>${text}</p>
+          <span class="block text-[10px] text-slate-400 text-right mt-1">${time} ${isOut ? '✓✓' : ''}</span>
+        </div>
+      `;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('msgInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendMessage(text, true);
+      input.value = '';
+
+      try {
+        const res = await fetch('/api/simulator/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text })
+        });
+        const data = await res.json();
+        appendMessage(data.reply, false);
+      } catch (err) {
+        appendMessage("❌ सर्व्हरशी संपर्क होऊ शकला नाही (Server connection error).", false);
+      }
+    }
+  </script>
+</body>
+</html>
