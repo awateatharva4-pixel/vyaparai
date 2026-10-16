@@ -8,7 +8,7 @@
     "unit": "kg",
     "unit_price": 42.0,
     "min_threshold": 10.0,
-    "aliases": ["साखर", "sakhar", "sugar", "shakkar", "madhur sugar"]
+    "aliases": ["साखर", "sakhar", "saakhar", "sugar", "shakkar", "sakhri", "madhur sugar", "shakkhar"]
   },
   {
     "sku": "FMCG-PARLE-100G",
@@ -19,7 +19,7 @@
     "unit": "packet",
     "unit_price": 10.0,
     "min_threshold": 15.0,
-    "aliases": ["पार्ले", "पार्ले-जी", "parle", "parle-g", "parle ji", "biscuit", "पुडा"]
+    "aliases": ["पार्ले", "पार्ले-जी", "parle", "parle-g", "parle ji", "biscuit", "biscuits", "बिस्कीट", "बिस्किट", "पुडा", "पुडे"]
   },
   {
     "sku": "OIL-FORT-1L",
@@ -30,7 +30,7 @@
     "unit": "pouch",
     "unit_price": 135.0,
     "min_threshold": 5.0,
-    "aliases": ["तेल", "फॉर्च्युन", "oil", "fortune oil", "tel", "surajmukhi tel", "sunflower oil"]
+    "aliases": ["तेल", "फॉर्च्युन", "oil", "fortune oil", "tel", "surajmukhi tel", "sunflower oil", "पिशवी", "पॉऊच"]
   },
   {
     "sku": "BAK-PAV-LADI",
@@ -41,7 +41,7 @@
     "unit": "ladi",
     "unit_price": 20.0,
     "min_threshold": 8.0,
-    "aliases": ["पाव", "लादी पाव", "ladi pav", "pav", "bread pav", "fresh pav"]
+    "aliases": ["लादी पाव", "ladi pav", "bread pav", "fresh pav", "बेकरी पाव", "ब्रेड"]
   },
   {
     "sku": "DAL-TUR-001",
@@ -52,7 +52,7 @@
     "unit": "kg",
     "unit_price": 160.0,
     "min_threshold": 10.0,
-    "aliases": ["तूर डाळ", "डाळ", "tur dal", "toor dal", "dal", "tur daal"]
+    "aliases": ["तूर डाळ", "डाळ", "tur dal", "toor dal", "dal", "tur daal", "daal"]
   },
   {
     "sku": "GROC-SALT-1K",
@@ -74,7 +74,7 @@
     "unit": "bag",
     "unit_price": 240.0,
     "min_threshold": 5.0,
-    "aliases": ["आटा", "पीठ", "गहू पीठ", "atta", "aashirvaad atta", "wheat flour", "pith"]
+    "aliases": ["आटा", "पीठ", "गहू पीठ", "atta", "aashirvaad atta", "wheat flour", "pith", "aata"]
   },
   {
     "sku": "FMCG-MAGGI-70G",
@@ -85,7 +85,7 @@
     "unit": "packet",
     "unit_price": 14.0,
     "min_threshold": 12.0,
-    "aliases": ["मॅगी", "नूडल्स", "maggi", "maggi noodles", "noodles"]
+    "aliases": ["मॅगी", "नूडल्स", "maggi", "maggi noodles", "noodles", "magi"]
   },
   {
     "sku": "VEG-KANDA-001",
@@ -96,7 +96,7 @@
     "unit": "kg",
     "unit_price": 35.0,
     "min_threshold": 15.0,
-    "aliases": ["कांदा", "kanda", "onion", "pyaz", "lal kanda"]
+    "aliases": ["कांदा", "kanda", "onion", "pyaz", "lal kanda", "kande"]
   },
   {
     "sku": "VEG-BATATA-001",
@@ -107,6 +107,6 @@
     "unit": "kg",
     "unit_price": 30.0,
     "min_threshold": 15.0,
-    "aliases": ["बटाटा", "batata", "potato", "aloo", "batate"]
+    "aliases": ["बटाटा", "batata", "potato", "aloo", "batate", "alu"]
   }
 ]

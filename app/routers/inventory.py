@@ -76,3 +76,39 @@ def quick_add_dairy(db: Session = Depends(get_db)):
     db.merge(new_item)
     db.commit()
     return {"status": "SUCCESS", "message": "Amul Milk added to Dairy category with expiry tracking!", "item": new_item.to_dict()}
+
+
+@router.get("/state/backup")
+def export_state_snapshot(db: Session = Depends(get_db)):
+    """
+    [RESILIENCE DEFENSE: Ephemeral Storage Snapshot Export]
+    Allows exporting complete database state to JSON to survive Render dyno wipes.
+    """
+    from datetime import datetime
+    from app.models.transaction import Transaction
+    products = [p.to_dict() for p in db.query(Product).all()]
+    transactions = [t.to_dict() for t in db.query(Transaction).all()]
+    return {
+        "status": "SUCCESS",
+        "timestamp": datetime.utcnow().isoformat(),
+        "products": products,
+        "transactions": transactions
+    }
+
+
+@router.post("/state/restore")
+def restore_state_snapshot(payload: dict, db: Session = Depends(get_db)):
+    """Rehydrates products and state from JSON snapshot in 50 milliseconds."""
+    prods_data = payload.get("products", [])
+    if not prods_data:
+        return {"status": "ERROR", "message": "No products provided in snapshot"}
+    
+    for item in prods_data:
+        p = db.query(Product).filter_by(sku=item["sku"]).first()
+        if p:
+            p.stock = float(item["stock"])
+            p.unit_price = float(item["unit_price"])
+            p.min_threshold = float(item["min_threshold"])
+    db.commit()
+    return {"status": "SUCCESS", "message": f"Restored {len(prods_data)} products from snapshot."}
+

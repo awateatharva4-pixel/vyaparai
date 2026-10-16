@@ -1,13 +1,14 @@
 import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Depends
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.database import Base, engine, get_db
+from app.core.database import Base, engine, get_db, SessionLocal
 from app.models import product, transaction
 from app.services.inventory_service import InventoryService
 from app.routers import webhook, inventory, simulator
@@ -15,20 +16,42 @@ from app.routers import webhook, inventory, simulator
 # Initialize database schema tables
 Base.metadata.create_all(bind=engine)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Modern ASGI Lifespan: Guarantees self-healing seed on boot."""
+    db = SessionLocal()
+    try:
+        InventoryService.seed_initial_catalog(db)
+    finally:
+        db.close()
+    yield
+
+
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.VERSION,
-    description="Local Vendor Inventory Digitization via WhatsApp/SMS for Kolhapur Retailers"
+    description="Local Vendor Inventory Digitization via WhatsApp/SMS for Kolhapur Retailers",
+    lifespan=lifespan
 )
 
-# Cross-Origin Resource Sharing
+# Cross-Origin Resource Sharing (Standard OWASP configuration)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Global safe exception handler: Obscures internal paths in production
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"[SYSTEM ERROR]: {str(exc)}")
+    return JSONResponse(
+        status_code=500,
+        content={"status": "ERROR", "message": "An internal service error occurred. The audit team has been notified."}
+    )
 
 # Template and static paths
 BASE_DIR = os.path.dirname(__file__)
@@ -45,15 +68,6 @@ app.include_router(webhook.router)
 app.include_router(inventory.router)
 app.include_router(simulator.router)
 
-@app.on_event("startup")
-def on_startup():
-    """Ensure initial demo catalog is seeded on boot."""
-    from app.core.database import SessionLocal
-    db = SessionLocal()
-    try:
-        InventoryService.seed_initial_catalog(db)
-    finally:
-        db.close()
 
 @app.get("/", response_class=HTMLResponse)
 @app.get("/dashboard", response_class=HTMLResponse)

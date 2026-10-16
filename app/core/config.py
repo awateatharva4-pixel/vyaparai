@@ -1,20 +1,24 @@
 import os
 from typing import List
 
-# Safe dotenv loading without hard dependency
+# Safe dotenv loading from explicit project root
+ENV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    if os.path.exists(ENV_PATH):
+        load_dotenv(dotenv_path=ENV_PATH, override=True)
 except ImportError:
-    # Minimal native parser for .env
-    env_file = os.path.join(os.path.dirname(__file__), "..", "..", ".env")
-    if os.path.exists(env_file):
-        with open(env_file, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    k, v = line.split("=", 1)
-                    os.environ.setdefault(k.strip(), v.strip().strip("'\""))
+    pass
+
+# Always perform native fallback parsing to guarantee all keys in .env are in os.environ
+if os.path.exists(ENV_PATH):
+    with open(ENV_PATH, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                os.environ[k.strip()] = v.strip().strip("'\"")
+
 
 class Settings:
     """
