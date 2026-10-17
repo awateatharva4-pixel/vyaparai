@@ -302,8 +302,38 @@ class GeminiService:
                 # Rotate key if all models failed on this key
                 settings.rotate_gemini_key()
 
-        # Offline Resilience Fallback
-        print("[AI FALLBACK] Gemini audio unavailable, using audio fallback")
+        # Stage 2: Google Speech Recognition (Gboard Voice Typing Engine - mr-IN, hi-IN, en-IN)
+        # Fast, robust, quota-free Google Voice Typing as used in Gboard for Indian languages
+        try:
+            import speech_recognition as sr
+            import io
+            from app.services.audio_service import AudioNormalizer
+
+            wav_bytes, _ = AudioNormalizer.normalize_audio(audio_bytes, input_format="ogg" if "ogg" in (mime_type or "").lower() else "wav")
+            r = sr.Recognizer()
+            with sr.AudioFile(io.BytesIO(wav_bytes)) as source:
+                audio_data = r.record(source)
+
+            stt_text = None
+            for lang in ["mr-IN", "hi-IN", "en-IN"]:
+                try:
+                    stt_text = r.recognize_google(audio_data, language=lang)
+                    if stt_text and stt_text.strip():
+                        print(f"[GOOGLE STT SUCCESS ({lang})]: '{stt_text}'")
+                        break
+                except (sr.UnknownValueError, sr.RequestError):
+                    continue
+
+            if stt_text and stt_text.strip():
+                parsed = cls._local_regex_parser(stt_text, catalog_items)
+                parsed["transcription"] = stt_text
+                parsed["source"] = "google-speech-stt"
+                return parsed
+        except Exception as e:
+            print(f"[GOOGLE STT FALLBACK WARN]: {e}")
+
+        # Stage 3: Offline Resilience Fallback
+        print("[AI FALLBACK] Gemini and Google STT unavailable, using offline fallback")
         return {
             "transcription": "ऑडिओ नोंद (Voice note received)",
             "intent": "SALE",

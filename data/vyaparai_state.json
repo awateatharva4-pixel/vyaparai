@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-17T19:14:57.378352+00:00",
+  "timestamp": "2026-10-17T19:28:16.384370+00:00",
   "vendor_id": "DEMO_KIRANA_KOP",
   "metrics": {
     "total_skus": 11,
-    "total_valuation": 20972.0,
+    "total_valuation": 20952.0,
     "low_stock_count": 1,
-    "today_sales_count": 19,
-    "today_revenue": 2648.0,
+    "today_sales_count": 20,
+    "today_revenue": 2668.0,
     "udhar_count": 3,
     "udhar_total": 1450.0
   },
@@ -119,7 +119,7 @@
       "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
       "name_en": "Parle-G 100g",
       "category": "Packaged Snacks / पॅकेज्ड स्नॅक्स",
-      "stock": 49.0,
+      "stock": 47.0,
       "unit": "packet",
       "unit_price": 10.0,
       "min_threshold": 15.0,
@@ -138,7 +138,7 @@
         "पुडे"
       ],
       "extra_meta": {},
-      "updated_at": "2026-10-17 19:14:42"
+      "updated_at": "2026-10-17 19:27:59"
     },
     {
       "id": 47,
@@ -758,6 +758,23 @@
       "is_reversed": false,
       "created_at": "2026-10-17T19:14:42.242541",
       "time": "19:14:42"
+    },
+    {
+      "id": 48,
+      "batch_id": "batch_c741ed5fb745",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 43,
+      "sku": "FMCG-PARLE-100G",
+      "item_name": "पार्ले-जी बिस्कीट (Parle-G 100g) (Parle-G 100g)",
+      "type": "SALE",
+      "delta": -2.0,
+      "stock_after": 47.0,
+      "unit_price": 10.0,
+      "amount": 20.0,
+      "raw_message": "२ पुडे पार्ले-जी दिले",
+      "is_reversed": false,
+      "created_at": "2026-10-17T19:27:59.763261",
+      "time": "19:27:59"
     }
   ],
   "customer_credits": [
@@ -794,7 +811,7 @@
       "status": "PENDING",
       "due_date": "2026-10-17",
       "notes": "महिनाअखेर किराणा सामान (Monthly Ration)",
-      "last_reminder_sent": "2026-10-17 19:14:45",
+      "last_reminder_sent": "2026-10-17 19:28:03",
       "created_at": "2026-10-17 18:23:49"
     }
   ]
