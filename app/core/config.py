@@ -36,6 +36,7 @@ class Settings:
     TWILIO_ACCOUNT_SID: str = os.getenv("TWILIO_ACCOUNT_SID", "")
     TWILIO_AUTH_TOKEN: str = os.getenv("TWILIO_AUTH_TOKEN", "")
     TWILIO_WHATSAPP_NUMBER: str = os.getenv("TWILIO_WHATSAPP_NUMBER", "whatsapp:+14155238886")
+    MERCHANT_WHATSAPP_NUMBER: str = os.getenv("MERCHANT_WHATSAPP_NUMBER", "")
     META_WEBHOOK_VERIFY_TOKEN: str = os.getenv("META_WEBHOOK_VERIFY_TOKEN", "vyaparai_hw2026_secret")
     
     # Green-API WhatsApp Gateway Credentials

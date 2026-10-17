@@ -162,21 +162,21 @@ def restore_state_snapshot(
 
 
 @router.get("/reports/daily-closing")
-def get_daily_closing_report(vendor_id: str = "DEMO_KIRANA_KOP", send_whatsapp: bool = False, db: Session = Depends(get_db)):
+def get_daily_closing_report(vendor_id: str = "DEMO_KIRANA_KOP", send_whatsapp: bool = False, phone: Optional[str] = None, db: Session = Depends(get_db)):
     """
     [Slide 2 & 5: Automated 8:00 PM Daily Ledger Closing]
     Returns closing summary containing revenue, transactions, top sellers, and low-stock reorder alerts.
     """
-    return InventoryService.generate_8pm_closing_summary(vendor_id=vendor_id, db=db, send_whatsapp=send_whatsapp)
+    return InventoryService.generate_8pm_closing_summary(vendor_id=vendor_id, db=db, send_whatsapp=send_whatsapp, phone=phone)
 
 
 @router.post("/reports/daily-closing")
-def trigger_daily_closing_report(vendor_id: str = "DEMO_KIRANA_KOP", send_whatsapp: bool = True, db: Session = Depends(get_db)):
+def trigger_daily_closing_report(vendor_id: str = "DEMO_KIRANA_KOP", send_whatsapp: bool = True, phone: Optional[str] = None, db: Session = Depends(get_db)):
     """
     [Slide 2 & 5: Automated 8:00 PM Daily Ledger Closing WhatsApp Push]
     Dispatches automated daily closing summary and supplier reorder alerts via WhatsApp.
     """
-    return InventoryService.generate_8pm_closing_summary(vendor_id=vendor_id, db=db, send_whatsapp=send_whatsapp)
+    return InventoryService.generate_8pm_closing_summary(vendor_id=vendor_id, db=db, send_whatsapp=send_whatsapp, phone=phone)
 
 
 @router.get("/udhar/ledger")

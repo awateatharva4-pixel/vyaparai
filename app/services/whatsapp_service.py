@@ -14,7 +14,11 @@ class WhatsAppService:
         cls._outbound_history.append({"to": to_phone, "message": message})
         
         # 1. Green API Outbound (Direct Native WhatsApp Delivery)
-        if settings.GREEN_API_HOST and settings.GREEN_API_INSTANCE_ID and settings.GREEN_API_TOKEN:
+        # Guard: Twilio sandbox number (+1 415 523 8886) is Twilio's system number, not a WhatsApp client.
+        # Never route it to Green-API as it wastes free correspondent quotas.
+        if "14155238886" in to_phone:
+            print(f"[WHATSAPP GUARD]: Skipped routing Twilio Sandbox number {to_phone} to Green-API.")
+        elif settings.GREEN_API_HOST and settings.GREEN_API_INSTANCE_ID and settings.GREEN_API_TOKEN:
             try:
                 chat_id = to_phone
                 if not chat_id.endswith("@c.us") and not chat_id.endswith("@g.us"):

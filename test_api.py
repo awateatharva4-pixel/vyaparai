@@ -88,7 +88,7 @@ def test_endpoints():
     print(f"8:00 PM Daily Ledger Preview OK! Revenue: Rs {d9['today_revenue']}, Sales Tx: {d9['today_sales_count']}")
 
     print("--- 10. Testing POST /api/reports/daily-closing (Slide 2 & 5 WhatsApp Push) ---")
-    r10 = client.post("/api/reports/daily-closing")
+    r10 = client.post("/api/reports/daily-closing?send_whatsapp=false")
     assert r10.status_code == 200
     d10 = r10.json()
     assert d10["status"] == "SUCCESS"
@@ -103,7 +103,7 @@ def test_endpoints():
 
     print("--- 12. Testing POST /api/udhar/remind/{id} (Slide 5 Polite WhatsApp Reminder) ---")
     first_credit = credits[0]
-    r12 = client.post(f"/api/udhar/remind/{first_credit['id']}")
+    r12 = client.post(f"/api/udhar/remind/{first_credit['id']}?send_whatsapp=false")
     assert r12.status_code == 200
     d12 = r12.json()
     assert d12["success"] is True

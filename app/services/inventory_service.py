@@ -664,7 +664,7 @@ class InventoryService:
         }
 
     @classmethod
-    def generate_8pm_closing_summary(cls, vendor_id: str, db: Session, send_whatsapp: bool = True) -> Dict[str, Any]:
+    def generate_8pm_closing_summary(cls, vendor_id: str, db: Session, send_whatsapp: bool = True, phone: Optional[str] = None) -> Dict[str, Any]:
         """
         Automated 8:00 PM Daily Ledger Closing & Supplier Reorder Alerts (Slide 2 & 5).
         Tallies today's revenue, transactions count, top sellers, and flags critical stockouts
@@ -739,8 +739,11 @@ class InventoryService:
 
         whatsapp_sent = False
         if send_whatsapp:
-            target_phone = settings.TWILIO_WHATSAPP_NUMBER or "whatsapp:+919579869506"
-            whatsapp_sent = WhatsAppService.send_message(target_phone, message)
+            target_phone = phone or settings.MERCHANT_WHATSAPP_NUMBER
+            if target_phone and "14155238886" not in target_phone:
+                whatsapp_sent = WhatsAppService.send_message(target_phone, message)
+            else:
+                print(f"[DAILY CLOSING]: WhatsApp dispatch skipped - no valid merchant phone number configured (avoided default sandbox sender number)")
 
         return {
             "status": "SUCCESS",
