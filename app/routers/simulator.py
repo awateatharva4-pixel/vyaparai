@@ -123,3 +123,57 @@ def process_simulator_audio(
         "parsed_audio": parsed_audio,
         "metrics": metrics
     }
+
+
+@router.post("/api/simulator/video")
+async def process_simulator_video(
+    file: UploadFile = File(...),
+    vendor_id: str = Form("DEMO_KIRANA_KOP"),
+    db: Session = Depends(get_db)
+):
+    """
+    Simulated WhatsApp Video Onboarding Pipeline (Specification 02).
+    Receives shop shelf sweep video (.mp4, .mov, .webm),
+    invokes Gemini 2.5 Flash Multimodal Video Digitizer,
+    inserts newly discovered products with vernacular Marathi aliases into database,
+    synchronizes sequence, saves durable snapshot, broadcasts CATALOG_ONBOARDED,
+    and returns formatted WhatsApp confirmation receipt.
+    """
+    video_bytes = await file.read()
+    if not video_bytes:
+        return {
+            "success": False,
+            "reply": "⚠️ व्हिडिओ फाइल रिकामी आहे. कृपया योग्य व्हिडिओ निवडा.",
+            "count": 0,
+            "products": [],
+            "metrics": InventoryService.get_dashboard_metrics(db)
+        }
+
+    mime_type = file.content_type or "video/mp4"
+    filename = file.filename or "video.mp4"
+    if "." in filename:
+        ext = filename.rsplit(".", 1)[-1].lower()
+        if ext in ("mp4", "m4v"):
+            mime_type = "video/mp4"
+        elif ext in ("mov", "qt"):
+            mime_type = "video/quicktime"
+        elif ext in ("webm",):
+            mime_type = "video/webm"
+
+    result = InventoryService.ingest_catalog_from_video(
+        video_bytes=video_bytes,
+        mime_type=mime_type,
+        vendor_id=vendor_id,
+        db=db
+    )
+
+    metrics = InventoryService.get_dashboard_metrics(db)
+    return {
+        "success": result.get("success", True),
+        "reply": result.get("reply_message", "🎉 दुकान डिजिटायझेशन यशस्वी!"),
+        "confirmation_receipt": result.get("confirmation_receipt", ""),
+        "count": result.get("count", len(result.get("products", []))),
+        "products": result.get("products", []),
+        "metrics": metrics
+    }
+

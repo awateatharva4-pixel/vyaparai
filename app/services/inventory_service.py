@@ -217,6 +217,160 @@ class InventoryService:
         }
 
     @classmethod
+    def ingest_catalog_from_video(
+        cls,
+        video_bytes: bytes,
+        mime_type: str = "video/mp4",
+        vendor_id: str = "DEMO_KIRANA_KOP",
+        db: Optional[Session] = None
+    ) -> Dict[str, Any]:
+        """
+        End-to-End Zero-Touch Video Onboarding Pipeline (Specification 02).
+        1. Invokes Gemini 2.5 Flash Multimodal Video Digitizer.
+        2. Generates collision-free SKUs ('AUTO-VID-XXXXXX') and assigns vernacular Marathi aliases.
+        3. Persists products ACID-compliantly into PostgreSQL/SQLite.
+        4. Re-synchronizes PostgreSQL primary key sequences.
+        5. Flushes durable state snapshot to data/vyaparai_state.json.
+        6. Emits CATALOG_ONBOARDED and METRICS_UPDATE WebSocket broadcast.
+        7. Returns structured confirmation and formatted WhatsApp Marathi receipt.
+        """
+        close_db = False
+        if db is None:
+            from app.core.database import SessionLocal
+            db = SessionLocal()
+            close_db = True
+
+        try:
+            # 1. Digitize catalog items from video sweep
+            extracted = GeminiService.digitize_catalog_from_video(
+                video_bytes=video_bytes,
+                mime_type=mime_type
+            )
+
+            if not extracted:
+                return {
+                    "success": False,
+                    "count": 0,
+                    "products": [],
+                    "reply_message": "⚠️ व्हिडिओमधून कोणत्याही वस्तू ओळखता आल्या नाहीत. कृपया चांगल्या प्रकाशात पुन्हा स्कॅन करा.",
+                    "confirmation_receipt": "⚠️ व्हिडिओमधून कोणत्याही वस्तू ओळखता आल्या नाहीत."
+                }
+
+            created_products: List[Product] = []
+            for item in extracted:
+                # Generate collision-free SKU
+                existing_sku = item.get("sku")
+                if not existing_sku or not str(existing_sku).startswith("AUTO-VID-"):
+                    sku = f"AUTO-VID-{uuid.uuid4().hex[:6].upper()}"
+                else:
+                    sku = str(existing_sku).strip()
+
+                while db.query(Product).filter_by(sku=sku).first():
+                    sku = f"AUTO-VID-{uuid.uuid4().hex[:6].upper()}"
+
+                name_mr = item.get("name_mr", "")
+                name_en = item.get("name_en", "")
+                category = item.get("category", "General Store")
+                stock = float(item.get("stock", 1.0))
+                unit = item.get("unit", "piece")
+                unit_price = float(item.get("unit_price", 10.0))
+                min_threshold = float(item.get("min_threshold", 1.0))
+                aliases = item.get("aliases", [])
+
+                prod = Product(
+                    vendor_id=vendor_id,
+                    sku=sku,
+                    name_mr=name_mr,
+                    name_en=name_en,
+                    category=category,
+                    stock=stock,
+                    unit=unit,
+                    unit_price=unit_price,
+                    min_threshold=min_threshold
+                )
+                prod.aliases = aliases
+                db.add(prod)
+                created_products.append(prod)
+
+            db.commit()
+
+            # Sequence sync on PostgreSQL to prevent primary key collision
+            if not is_sqlite:
+                from sqlalchemy import text
+                try:
+                    db.execute(text("SELECT setval(pg_get_serial_sequence('products', 'id'), COALESCE((SELECT MAX(id) FROM products), 1));"))
+                    db.commit()
+                except Exception as seq_err:
+                    db.rollback()
+                    print(f"[VIDEO INGEST] Sequence sync notice: {seq_err}")
+
+            checkpoint_wal(truncate=True)
+
+            # Persist durable state snapshot
+            cls.save_state_snapshot(db, vendor_id=vendor_id)
+
+            products_data = [p.to_dict() for p in created_products]
+
+            # Emit WebSocket broadcast
+            ws_payload = {
+                "event": "CATALOG_ONBOARDED",
+                "type": "CATALOG_ONBOARDED",
+                "count": len(created_products),
+                "products": products_data
+            }
+            try:
+                ws_manager.broadcast_sync(ws_payload)
+                m = cls.get_dashboard_metrics(db, vendor_id=vendor_id)
+                ws_manager.broadcast_sync({
+                    "type": "METRICS_UPDATE",
+                    "vendor_id": vendor_id,
+                    "metrics": m
+                })
+            except Exception as ws_err:
+                print(f"[VIDEO INGEST WS WARN]: {ws_err}")
+
+            # Build formatted WhatsApp Marathi confirmation receipt (Section 6 of spec)
+            first_alias = ""
+            for p in created_products:
+                if p.aliases:
+                    first_alias = p.aliases[0]
+                    break
+            if not first_alias and created_products:
+                first_alias = created_products[0].name_mr.split()[0]
+            if not first_alias:
+                first_alias = "पेन"
+
+            item_lines = []
+            for i, p in enumerate(created_products, 1):
+                stock_str = f"{p.stock:g}"
+                item_lines.append(
+                    f"{i}. *{p.name_mr}*\n"
+                    f"   • साठा: *{stock_str} {p.unit}* | दर: *₹{p.unit_price:.2f}*"
+                )
+            items_formatted = "\n".join(item_lines)
+
+            receipt = (
+                f"🎉 *दुकान डिजिटायझेशन यशस्वी (Store Digitized)!*\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🏪 *एकूण नवीन वस्तू:* {len(created_products)} जोडल्या\n\n"
+                f"{items_formatted}\n\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"👉 *आता आपण थेट व्हॉइस नोट पाठवून यांची विक्री करू शकता!*\n"
+                f"(उदा. *'२ {first_alias} दिले'* बोलून पहा)"
+            )
+
+            return {
+                "success": True,
+                "count": len(created_products),
+                "products": products_data,
+                "reply_message": receipt,
+                "confirmation_receipt": receipt
+            }
+        finally:
+            if close_db:
+                db.close()
+
+    @classmethod
     def seed_initial_catalog(cls, db: Session, force: bool = False):
         """Initializes or resets database with Kolhapur Kirana seed catalog."""
         if not force and db.query(Product).count() > 0:

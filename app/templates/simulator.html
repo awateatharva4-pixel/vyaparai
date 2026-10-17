@@ -68,6 +68,44 @@
       </button>
     </div>
 
+    <!-- 🎥 Store Video Sweep (व्हिडिओ ऑनबोर्डिंग) Card & Drop Zone -->
+    <div 
+      id="videoDropZone" 
+      class="bg-gradient-to-r from-emerald-950/70 via-slate-900 to-slate-850 border-b border-emerald-500/40 px-3.5 py-2.5 flex items-center justify-between gap-2.5 text-xs transition-all duration-200 select-none cursor-pointer hover:bg-slate-800/90 group"
+      onclick="triggerVideoUpload()"
+      title="व्हिडिओ फाइल निवडा किंवा इथे ड्रॅग करा (.mp4, .mov, .webm)"
+    >
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-8 h-8 rounded-lg bg-emerald-600/30 border border-emerald-500/40 flex items-center justify-center text-base flex-shrink-0 group-hover:scale-105 transition-transform">
+          🎥
+        </div>
+        <div class="truncate">
+          <div class="font-bold text-white flex items-center gap-1.5 text-[12px]">
+            <span>Store Video Sweep (व्हिडिओ ऑनबोर्डिंग)</span>
+            <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/30 text-emerald-300 border border-emerald-500/40">15s AI</span>
+          </div>
+          <div id="videoDropPrompt" class="text-[10px] text-slate-300 truncate">
+            दुकान रॅकचा व्हिडिओ ड्रॅग करा किंवा निवडा (.mp4, .mov, .webm)
+          </div>
+        </div>
+      </div>
+      <button 
+        type="button" 
+        onclick="event.stopPropagation(); triggerVideoUpload()" 
+        class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-500 text-slate-950 shadow-sm flex items-center gap-1 flex-shrink-0 transition active:scale-95"
+      >
+        <span>व्हिडिओ निवडा</span>
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+      </button>
+      <input 
+        type="file" 
+        id="videoFileInput" 
+        accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm" 
+        class="hidden" 
+        onchange="handleVideoFileUpload(event)"
+      >
+    </div>
+
     <!-- Chat Stream Container -->
     <div id="chatBox" class="flex-1 chat-bg p-4 overflow-y-auto space-y-3 text-xs leading-relaxed">
       <!-- Default Greeting -->
@@ -89,6 +127,30 @@
       <button onclick="stopRecording()" class="text-[11px] underline text-rose-400 hover:text-white">थांबवा (Stop)</button>
     </div>
 
+    <!-- Video Processing / Uploading Status Indicator -->
+    <div id="videoProcessingStatus" class="hidden bg-emerald-950/90 border-t border-emerald-500/60 px-4 py-2 flex items-center justify-between text-xs text-emerald-200 transition-all">
+      <div class="flex items-center gap-2.5">
+        <div class="relative flex items-center justify-center">
+          <svg class="animate-spin h-4 w-4 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          </svg>
+          <span class="absolute w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        </div>
+        <div>
+          <div id="videoStatusTitle" class="font-bold text-white flex items-center gap-1.5">
+            <span>🎥 व्हिडिओ ऑनबोर्डिंग प्रक्रिया चालू आहे...</span>
+          </div>
+          <div id="videoStatusDetail" class="text-[10px] text-emerald-300">
+            Gemini 2.5 Flash Decomposing Frames & Digitizing Catalog...
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="videoStatusTimer" class="font-mono text-[11px] text-emerald-300 bg-emerald-900/60 px-2 py-0.5 rounded border border-emerald-700/60">0s</span>
+      </div>
+    </div>
+
     <!-- Message Input Bar with Microphone -->
     <div class="bg-[#202c33] p-2.5 flex items-center gap-2 border-t border-slate-800">
       
@@ -103,6 +165,18 @@
         </svg>
         <input type="file" id="audioFileInput" accept="audio/*" class="hidden" onchange="handleAudioFileUpload(event)">
       </label>
+
+      <!-- Store Video Sweep Button (व्हिडिओ ऑनबोर्डिंग) next to audio recording -->
+      <button 
+        type="button" 
+        onclick="triggerVideoUpload()" 
+        title="🎥 Store Video Sweep (व्हिडिओ ऑनबोर्डिंग) (.mp4, .mov, .webm)"
+        class="w-9 h-9 rounded-full bg-slate-800 hover:bg-emerald-950/80 text-emerald-400 hover:text-emerald-300 border border-slate-700/80 hover:border-emerald-500/50 flex items-center justify-center cursor-pointer transition flex-shrink-0 shadow-sm group"
+      >
+        <svg class="w-4 h-4 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      </button>
 
       <!-- Text Input -->
       <input 
@@ -181,7 +255,7 @@
           const list = JSON.parse(cachedChat);
           if (Array.isArray(list) && list.length > 0) {
             chatHistory = list;
-            list.forEach(msg => appendMessageDOM(msg.text, msg.isOut, msg.time));
+            list.forEach(msg => appendMessageDOM(msg.text, msg.isOut, msg.time, msg.extraHtml || ''));
           }
         }
       } catch (e) {}
@@ -192,30 +266,35 @@
       sendMessage();
     }
 
-    function appendMessageDOM(text, isOut = false, time = null) {
+    function appendMessageDOM(text, isOut = false, time = null, extraHtml = '') {
       const box = document.getElementById('chatBox');
       const timeStr = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       
       const div = document.createElement('div');
       div.className = `flex ${isOut ? 'justify-end' : 'justify-start'}`;
       
+      const formattedText = String(text || '').replace(/\*([^*]+)\*/g, '<strong>$1</strong>');
+
       div.innerHTML = `
-        <div class="${isOut ? 'bubble-out text-white' : 'bubble-in text-slate-200'} p-3 rounded-2xl ${isOut ? 'rounded-tr-sm' : 'rounded-tl-sm'} max-w-[85%] shadow whitespace-pre-wrap">
-          <p>${text}</p>
-          <span class="block text-[10px] text-slate-400 text-right mt-1">${timeStr} ${isOut ? '✓✓' : ''}</span>
+        <div class="${isOut ? 'bubble-out text-white' : 'bubble-in text-slate-200'} p-3 rounded-2xl ${isOut ? 'rounded-tr-sm' : 'rounded-tl-sm'} max-w-[88%] shadow whitespace-pre-wrap">
+          <div>${formattedText}</div>
+          ${extraHtml ? `<div class="mt-2.5 pt-2 border-t border-slate-700/60 not-italic whitespace-normal">${extraHtml}</div>` : ''}
+          <span class="block text-[10px] text-slate-400 text-right mt-1.5">${timeStr} ${isOut ? '✓✓' : ''}</span>
         </div>
       `;
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
+      return div;
     }
 
-    function appendMessage(text, isOut = false) {
+    function appendMessage(text, isOut = false, extraHtml = '') {
       const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      appendMessageDOM(text, isOut, timeStr);
-      chatHistory.push({ text: text, isOut: isOut, time: timeStr });
+      const el = appendMessageDOM(text, isOut, timeStr, extraHtml);
+      chatHistory.push({ text: text, isOut: isOut, time: timeStr, extraHtml: extraHtml });
       try {
         localStorage.setItem('vyaparai_sim_chat', JSON.stringify(chatHistory.slice(-50)));
       } catch (e) {}
+      return el;
     }
 
     async function sendMessage() {
@@ -407,6 +486,272 @@
         appendMessage("❌ ऑडिओ प्रक्रिया अयशस्वी (Audio processing error).", false);
       }
     }
+
+    /* -------------------------------------------------------------
+       VIDEO STORE SWEEP (15s ONBOARDING) PIPELINE
+       ------------------------------------------------------------- */
+    let isUploadingVideo = false;
+    let videoTimerInterval = null;
+
+    function triggerVideoUpload() {
+      if (isUploadingVideo) return;
+      document.getElementById('videoFileInput').click();
+    }
+
+    function handleVideoFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      uploadVideoFile(file);
+      event.target.value = ''; // Reset input to allow re-selection
+    }
+
+    function renderExtractedProductsHtml(products) {
+      if (!products || !Array.isArray(products) || products.length === 0) return '';
+      
+      const cards = products.map((p, idx) => {
+        const sku = p.sku || `AUTO-VID-${idx + 1}`;
+        const nameMr = p.name_mr || p.name_en;
+        const nameEn = p.name_en || '';
+        const price = Number(p.unit_price || 0).toFixed(2);
+        const stock = p.stock !== undefined ? p.stock : 1.0;
+        const unit = p.unit || 'piece';
+        const aliases = Array.isArray(p.aliases) ? p.aliases : [];
+        const sampleAlias = aliases.length > 0 ? aliases[0] : (nameEn.split(' ')[0] || 'वस्तू');
+
+        return `
+          <div class="p-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/40 text-[11px] space-y-1.5 shadow-sm">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <div class="font-bold text-white flex items-center gap-1.5">
+                  <span class="text-emerald-400">🏷️</span>
+                  <span class="truncate">${nameMr}</span>
+                </div>
+                ${nameEn ? `<div class="text-[10px] text-slate-400 font-normal truncate">${nameEn}</div>` : ''}
+              </div>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex-shrink-0 font-mono">
+                ${stock} ${unit}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between text-[11px] pt-1 border-t border-slate-800">
+              <span class="text-emerald-400 font-bold font-mono">₹${price} <span class="text-[10px] text-slate-400 font-normal">/ ${unit}</span></span>
+              <span class="text-[10px] text-slate-400 font-mono">${sku}</span>
+            </div>
+
+            ${aliases.length > 0 ? `
+              <div class="flex items-center gap-1 overflow-x-auto scrollbar-none pt-0.5">
+                <span class="text-[9px] text-slate-500 font-semibold uppercase flex-shrink-0">Aliases:</span>
+                ${aliases.slice(0, 4).map(a => `<span class="px-1.5 py-0.2 rounded bg-slate-800/80 text-[9px] text-slate-300 font-mono">${a}</span>`).join('')}
+              </div>
+            ` : ''}
+
+            <div class="pt-1 flex items-center justify-between">
+              <span class="text-[10px] text-slate-400">थेट व्हॉइस विक्री:</span>
+              <button 
+                onclick="setTest('२ ${sampleAlias} दिले')" 
+                class="px-2 py-0.5 rounded bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/40 text-[10px] font-semibold transition"
+                title="1-Click Voice Sale Test"
+              >
+                👉 "२ ${sampleAlias} दिले"
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="space-y-2 mt-1">
+          <div class="text-[11px] font-bold text-emerald-300 flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+              <span>✨ डिजिटाईझ झालेल्या वस्तू (Store Digitized)</span>
+              <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/30 text-emerald-300">${products.length} Items</span>
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">Zero-Touch</span>
+          </div>
+          <div class="space-y-2 max-h-80 overflow-y-auto pr-0.5">
+            ${cards}
+          </div>
+        </div>
+      `;
+    }
+
+    async function uploadVideoFile(file) {
+      if (!file) return;
+
+      // Validate video format (.mp4, .mov, .webm)
+      const validExtensions = ['.mp4', '.mov', '.webm'];
+      const fileNameLower = file.name.toLowerCase();
+      const isValid = validExtensions.some(ext => fileNameLower.endsWith(ext)) || file.type.startsWith('video/');
+
+      if (!isValid) {
+        alert("⚠️ कृपया वैध व्हिडिओ फाइल निवडा (.mp4, .mov, .webm)\nPlease select a valid video file (.mp4, .mov, .webm).");
+        return;
+      }
+
+      isUploadingVideo = true;
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+
+      // Show outgoing user chat bubble
+      appendMessage(`🎥 [15s दुकान व्हिडिओ पाठवला: ${file.name} (${sizeMB} MB)... AI विश्लेषण सुरू आहे]`, true);
+
+      // Show temporary scanning spinner bubble in chat
+      const chatBox = document.getElementById('chatBox');
+      const tempSpinnerDiv = document.createElement('div');
+      tempSpinnerDiv.id = 'tempVideoSpinner';
+      tempSpinnerDiv.className = 'flex justify-start';
+      tempSpinnerDiv.innerHTML = `
+        <div class="bubble-in text-emerald-200 p-3 rounded-2xl rounded-tl-sm max-w-[85%] shadow border border-emerald-500/30 flex items-center gap-2.5">
+          <svg class="animate-spin h-4 w-4 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          </svg>
+          <div>
+            <div class="font-semibold text-white">🎥 व्हिडिओ प्राप्त झाला!</div>
+            <div class="text-[11px] text-emerald-300">Gemini 2.5 Flash दुकान रॅक स्कॅन करत आहे...</div>
+          </div>
+        </div>
+      `;
+      chatBox.appendChild(tempSpinnerDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // Activate Video Progress Bar & Timer
+      const statusBox = document.getElementById('videoProcessingStatus');
+      const timerEl = document.getElementById('videoStatusTimer');
+      if (statusBox) statusBox.classList.remove('hidden');
+
+      let elapsedSec = 0;
+      if (timerEl) timerEl.innerText = '0s';
+      videoTimerInterval = setInterval(() => {
+        elapsedSec++;
+        if (timerEl) timerEl.innerText = `${elapsedSec}s`;
+      }, 1000);
+
+      const formData = new FormData();
+      formData.append('file', file, file.name);
+      formData.append('vendor_id', 'DEMO_KIRANA_KOP');
+
+      try {
+        const res = await fetch('/api/simulator/video', {
+          method: 'POST',
+          body: formData
+        });
+
+        // Clear timer and spinner
+        clearInterval(videoTimerInterval);
+        if (statusBox) statusBox.classList.add('hidden');
+        if (tempSpinnerDiv && tempSpinnerDiv.parentNode) {
+          tempSpinnerDiv.parentNode.removeChild(tempSpinnerDiv);
+        }
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          const errMsg = errData.detail || errData.message || `HTTP ${res.status}`;
+          appendMessage(`❌ व्हिडिओ प्रक्रिया अयशस्वी (Video processing error): ${errMsg}`, false);
+          return;
+        }
+
+        const data = await res.json();
+
+        // Build or extract Marathi confirmation receipt
+        let replyText = data.reply || data.receipt;
+        const products = data.products || data.items || [];
+
+        if (!replyText && products.length > 0) {
+          const itemsList = products.map((p, i) => 
+            `${i + 1}. *${p.name_mr || p.name_en}*\n   • साठा: *${p.stock} ${p.unit || 'piece'}* | दर: *₹${Number(p.unit_price || 0).toFixed(2)}*`
+          ).join('\n');
+          const sampleAlias = (products[0].aliases && products[0].aliases[0]) || products[0].name_en;
+          replyText = `🎉 *दुकान डिजिटायझेशन यशस्वी (Store Digitized)!*\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🏪 *एकूण नवीन वस्तू:* ${products.length} जोडल्या\n\n${itemsList}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n👉 *आता आपण थेट व्हॉइस नोट पाठवून यांची विक्री करू शकता!*\n(उदा. *'२ ${sampleAlias} दिले'* बोलून पहा)`;
+        } else if (!replyText) {
+          replyText = "🎉 *दुकान डिजिटायझेशन यशस्वी (Store Digitized)!*\nसर्व वस्तूंची यशस्वी नोंद झाली.";
+        }
+
+        // Render rich product cards attachment
+        const extraHtml = renderExtractedProductsHtml(products);
+
+        // Display in simulator chat
+        appendMessage(replyText, false, extraHtml);
+
+        // Update simulator metrics banner cache
+        if (data.metrics) {
+          renderSimulatorMetrics(data.metrics);
+          try {
+            localStorage.setItem('vyaparai_cache', JSON.stringify(data.metrics));
+          } catch(e) {}
+        }
+        syncMetricsCache();
+
+      } catch (err) {
+        console.error("Video upload error:", err);
+        clearInterval(videoTimerInterval);
+        if (statusBox) statusBox.classList.add('hidden');
+        if (tempSpinnerDiv && tempSpinnerDiv.parentNode) {
+          tempSpinnerDiv.parentNode.removeChild(tempSpinnerDiv);
+        }
+        appendMessage(`❌ सर्व्हरशी संपर्क होऊ शकला नाही किंवा व्हिडिओ विश्लेषण अयशस्वी (Connection or Video Error): ${err.message || err}`, false);
+      } finally {
+        isUploadingVideo = false;
+      }
+    }
+
+    // Drag and Drop Event Setup
+    (function setupVideoDragAndDrop() {
+      const dropZone = document.getElementById('videoDropZone');
+      const promptEl = document.getElementById('videoDropPrompt');
+      const chatBox = document.getElementById('chatBox');
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        window.addEventListener(eventName, preventDefaults, false);
+      });
+
+      if (dropZone) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+          dropZone.addEventListener(eventName, () => {
+            dropZone.classList.add('ring-2', 'ring-emerald-400', 'bg-emerald-900/60', 'scale-[1.01]');
+            if (promptEl) promptEl.innerText = "📥 व्हिडिओ फाइल इथे सोडा (Drop video here)...";
+          }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+          dropZone.addEventListener(eventName, () => {
+            dropZone.classList.remove('ring-2', 'ring-emerald-400', 'bg-emerald-900/60', 'scale-[1.01]');
+            if (promptEl) promptEl.innerText = "दुकान रॅकचा व्हिडिओ ड्रॅग करा किंवा निवडा (.mp4, .mov, .webm)";
+          }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+          const dt = e.dataTransfer;
+          if (dt && dt.files && dt.files.length > 0) {
+            uploadVideoFile(dt.files[0]);
+          }
+        }, false);
+      }
+
+      if (chatBox) {
+        chatBox.addEventListener('dragover', (e) => {
+          e.preventDefault();
+        }, false);
+
+        chatBox.addEventListener('drop', (e) => {
+          e.preventDefault();
+          const dt = e.dataTransfer;
+          if (dt && dt.files && dt.files.length > 0) {
+            const file = dt.files[0];
+            const nameLower = file.name.toLowerCase();
+            if (nameLower.endsWith('.mp4') || nameLower.endsWith('.mov') || nameLower.endsWith('.webm') || file.type.startsWith('video/')) {
+              uploadVideoFile(file);
+            } else if (file.type.startsWith('audio/') || nameLower.endsWith('.ogg') || nameLower.endsWith('.wav') || nameLower.endsWith('.mp3')) {
+              uploadAudioBlob(file, file.name);
+            }
+          }
+        }, false);
+      }
+    })();
 
     // Initial background sync & periodic refresh
     syncMetricsCache();

@@ -34,6 +34,9 @@ class ConnectionManager:
             if loop.is_running():
                 loop.create_task(self.broadcast(message))
         except RuntimeError:
-            pass
+            try:
+                asyncio.run(self.broadcast(message))
+            except Exception:
+                pass
 
 ws_manager = ConnectionManager()

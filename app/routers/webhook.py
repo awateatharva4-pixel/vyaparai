@@ -62,6 +62,79 @@ def background_process_message(
         db.close()
 
 
+def background_process_video(
+    vendor_id: str,
+    message_id: str,
+    download_url: Optional[str] = None,
+    video_bytes: Optional[bytes] = None,
+    mime_type: str = "video/mp4",
+    to_phone: Optional[str] = None
+):
+    """
+    Asynchronous background worker for WhatsApp Video Ingress (Green-API / Meta).
+    Follows HTTP 302 redirects to stream video bytes, runs multimodal catalog ingestion,
+    and dispatches formatted Marathi WhatsApp confirmation receipt.
+    """
+    db: Session = SessionLocal()
+    try:
+        if message_id:
+            try:
+                db.add(IdempotencyRecord(message_id=message_id, vendor_id=vendor_id))
+                db.commit()
+            except IntegrityError:
+                db.rollback()
+                print(f"[IDEMPOTENCY DUPLICATE] Safely discarded duplicate video delivery for {message_id}")
+                return
+
+        # Download with redirect handling
+        if not video_bytes and download_url:
+            try:
+                with httpx.Client(timeout=60.0, follow_redirects=True) as client:
+                    resp = client.get(download_url)
+                    if resp.status_code == 200:
+                        video_bytes = resp.content
+                    else:
+                        print(f"[VIDEO DOWNLOAD WARN]: Status {resp.status_code} for URL {download_url}")
+            except Exception as e:
+                print(f"[VIDEO DOWNLOAD ERROR]: {e}")
+
+        # Fallback to Green-API downloadFile endpoint if downloadUrl was expired or missing
+        if not video_bytes and message_id and settings.GREEN_API_HOST and settings.GREEN_API_INSTANCE_ID and settings.GREEN_API_TOKEN:
+            try:
+                api_url = f"{settings.GREEN_API_HOST}/waInstance{settings.GREEN_API_INSTANCE_ID}/downloadFile/{settings.GREEN_API_TOKEN}"
+                chat_id = to_phone if ("@c.us" in (to_phone or "") or "@g.us" in (to_phone or "")) else f"{to_phone}@c.us"
+                with httpx.Client(timeout=60.0, follow_redirects=True) as client:
+                    res_api = client.post(api_url, json={"chatId": chat_id, "idMessage": message_id})
+                    if res_api.status_code == 200:
+                        fresh_url = res_api.json().get("downloadUrl")
+                        if fresh_url:
+                            resp2 = client.get(fresh_url)
+                            if resp2.status_code == 200:
+                                video_bytes = resp2.content
+            except Exception as e:
+                print(f"[GREEN-API VIDEO FALLBACK ERROR]: {e}")
+
+        if not video_bytes:
+            print("[VIDEO WORKER ERROR]: No video bytes could be retrieved.")
+            if to_phone:
+                WhatsAppService.send_message(to_phone=to_phone, message="⚠️ व्हिडिओ डाउनलोड करण्यात अडचण आली. कृपया पुन्हा पाठवा.")
+            return
+
+        result = InventoryService.ingest_catalog_from_video(
+            video_bytes=video_bytes,
+            mime_type=mime_type,
+            vendor_id=vendor_id,
+            db=db
+        )
+        reply_text = result.get("reply_message", "🎉 दुकान डिजिटायझेशन यशस्वी!")
+        target = to_phone or vendor_id
+        WhatsAppService.send_message(to_phone=target, message=reply_text)
+    except Exception as e:
+        print(f"[VIDEO WORKER ERROR]: {e}")
+    finally:
+        db.close()
+
+
 @router.get("/whatsapp")
 def verify_meta_webhook(
     mode: str = Query(None, alias="hub.mode"),
@@ -260,6 +333,33 @@ async def handle_whatsapp_webhook(
                     audio_transcription = transcription
                 else:
                     message_body = "ऑडिओ नोंद"
+
+            elif type_msg in ("videoMessage",):
+                download_url = (
+                    msg_data.get("fileMessageData", {}).get("downloadUrl")
+                    or msg_data.get("downloadUrl")
+                    or body_json.get("downloadUrl")
+                )
+                mime_type = (
+                    msg_data.get("fileMessageData", {}).get("mimeType")
+                    or msg_data.get("mimeType")
+                    or body_json.get("mimeType")
+                    or "video/mp4"
+                )
+                if sender_phone:
+                    WhatsAppService.send_message(
+                        to_phone=sender_phone,
+                        message="🎥 *व्हिडिओ प्राप्त झाला! दुकान स्कॅन करत आहे...*"
+                    )
+                background_tasks.add_task(
+                    background_process_video,
+                    vendor_id=vendor_id,
+                    message_id=message_id,
+                    download_url=download_url,
+                    mime_type=mime_type,
+                    to_phone=sender_phone
+                )
+                return Response(content="EVENT_RECEIVED", status_code=200)
 
         # B. Meta Cloud API Ingress
         elif "entry" in body_json:

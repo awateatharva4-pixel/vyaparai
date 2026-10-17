@@ -51,9 +51,30 @@ class Settings:
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "https://cxyaaffdvvsnitmyzrow.supabase.co")
     SUPABASE_KEY: str = os.getenv("SUPABASE_KEY", "sb_publishable_eFxVztNVgKeytabZxqQ52Q_PDyq3_z0")
     
+    # Dedicated Gemini Video API Key (Quota Isolation Invariant)
+    GEMINI_VIDEO_API_KEY: str = os.getenv("GEMINI_VIDEO_API_KEY", "")
+
     # Multi-Key Rotation Pool for Google Gemini API
     _api_keys: List[str] = []
     _current_key_index: int = 0
+
+    @classmethod
+    def get_video_gemini_key(cls) -> str:
+        """
+        Returns dedicated video API key if configured;
+        gracefully falls back to active general key pool to guarantee zero-crash execution.
+        """
+        key = ""
+        try:
+            from app.core.config import settings as _inst
+            key = getattr(_inst, "GEMINI_VIDEO_API_KEY", "").strip()
+        except Exception:
+            pass
+        if not key:
+            key = getattr(cls, "GEMINI_VIDEO_API_KEY", "").strip() or os.getenv("GEMINI_VIDEO_API_KEY", "").strip()
+        if key and not key.startswith("your_"):
+            return key
+        return cls.get_active_gemini_key()
 
     @classmethod
     def get_gemini_keys(cls) -> List[str]:

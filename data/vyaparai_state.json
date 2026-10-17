@@ -1,73 +1,19 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-17T22:17:48.868280+00:00",
+  "timestamp": "2026-10-17T22:29:01.515319+00:00",
   "vendor_id": "DEMO_KIRANA_KOP",
   "metrics": {
-    "total_skus": 11,
-    "total_valuation": 24174.27,
+    "total_skus": 10,
+    "total_valuation": 23692.27,
     "low_stock_count": 0,
-    "today_sales_count": 7,
-    "today_revenue": 208.75,
+    "today_sales_count": 4,
+    "today_revenue": 62.75,
     "udhar_count": 3,
     "udhar_total": 1450.0
   },
   "products": [
     {
-      "id": 366,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "DAIRY-AMUL-500ML",
-      "name_mr": "अमुल ताजा दूध ५०० मिली (Amul Milk)",
-      "name_en": "Amul Taaza Milk 500ml",
-      "category": "Dairy & Perishables / दुग्धजन्य पदार्थ",
-      "stock": 24.0,
-      "unit": "pouch",
-      "unit_price": 27.0,
-      "min_threshold": 6.0,
-      "is_low_stock": false,
-      "aliases": [
-        "दूध",
-        "amul milk",
-        "dudh",
-        "milk",
-        "taaza"
-      ],
-      "extra_meta": {
-        "expiry": "2026-10-18",
-        "is_perishable": true,
-        "refrigerated": true
-      },
-      "updated_at": "2026-10-17 22:17:43"
-    },
-    {
-      "id": 357,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "FMCG-PARLE-100G",
-      "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
-      "name_en": "Parle-G 100g",
-      "category": "Packaged Snacks / पॅकेज्ड स्नॅक्स",
-      "stock": 56.0,
-      "unit": "packet",
-      "unit_price": 10.0,
-      "min_threshold": 15.0,
-      "is_low_stock": false,
-      "aliases": [
-        "पार्ले",
-        "पार्ले-जी",
-        "parle",
-        "parle-g",
-        "parle ji",
-        "biscuit",
-        "biscuits",
-        "बिस्कीट",
-        "बिस्किट",
-        "पुडा",
-        "पुडे"
-      ],
-      "extra_meta": {},
-      "updated_at": "2026-10-17 22:17:42"
-    },
-    {
-      "id": 358,
+      "id": 609,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "OIL-FORT-1L",
       "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
@@ -90,10 +36,10 @@
         "पॉऊच"
       ],
       "extra_meta": {},
-      "updated_at": "2026-10-17 22:17:35"
+      "updated_at": "2026-10-17 22:28:57"
     },
     {
-      "id": 359,
+      "id": 610,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "BAK-PAV-LADI",
       "name_mr": "लादी पाव (Fresh Bakery Pav)",
@@ -113,10 +59,10 @@
         "ब्रेड"
       ],
       "extra_meta": {},
-      "updated_at": "2026-10-17 22:17:35"
+      "updated_at": "2026-10-17 22:28:57"
     },
     {
-      "id": 360,
+      "id": 611,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "DAL-TUR-001",
       "name_mr": "गावरान तूर डाळ (Polished Tur Dal)",
@@ -137,10 +83,10 @@
         "daal"
       ],
       "extra_meta": {},
-      "updated_at": "2026-10-17 22:17:35"
+      "updated_at": "2026-10-17 22:28:57"
     },
     {
-      "id": 361,
+      "id": 612,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "GROC-SALT-1K",
       "name_mr": "टाटा मीठ (Tata Salt 1kg)",
@@ -160,10 +106,10 @@
         "namak"
       ],
       "extra_meta": {},
-      "updated_at": "2026-10-17 22:17:35"
+      "updated_at": "2026-10-17 22:28:57"
     },
     {
-      "id": 362,
+      "id": 613,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "GROC-ATTA-5K",
       "name_mr": "आशीर्वाद चक्की आटा (Aashirvaad Atta 5kg)",
@@ -185,10 +131,10 @@
         "aata"
       ],
       "extra_meta": {},
-      "updated_at": "2026-10-17 22:17:35"
+      "updated_at": "2026-10-17 22:28:57"
     },
     {
-      "id": 363,
+      "id": 614,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "FMCG-MAGGI-70G",
       "name_mr": "मॅगी २-मिनिट नूडल्स (Maggi 70g)",
@@ -208,10 +154,10 @@
         "magi"
       ],
       "extra_meta": {},
-      "updated_at": "2026-10-17 22:17:35"
+      "updated_at": "2026-10-17 22:28:57"
     },
     {
-      "id": 365,
+      "id": 616,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "VEG-BATATA-001",
       "name_mr": "इंदूर बटाटा (Fresh Potato)",
@@ -231,16 +177,16 @@
         "alu"
       ],
       "extra_meta": {},
-      "updated_at": "2026-10-17 22:17:35"
+      "updated_at": "2026-10-17 22:28:57"
     },
     {
-      "id": 356,
+      "id": 607,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "GROC-SUG-001",
       "name_mr": "साखर (Madhur Sugar)",
       "name_en": "Sugar",
       "category": "Grains & Sweeteners / धान्य व साखर",
-      "stock": 45.8,
+      "stock": 48.8,
       "unit": "kg",
       "unit_price": 42.0,
       "min_threshold": 10.0,
@@ -256,10 +202,38 @@
         "shakkhar"
       ],
       "extra_meta": {},
-      "updated_at": "2026-10-17 22:17:48"
+      "updated_at": "2026-10-17 22:29:01"
     },
     {
-      "id": 364,
+      "id": 608,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "FMCG-PARLE-100G",
+      "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
+      "name_en": "Parle-G 100g",
+      "category": "Packaged Snacks / पॅकेज्ड स्नॅक्स",
+      "stock": 60.0,
+      "unit": "packet",
+      "unit_price": 10.0,
+      "min_threshold": 15.0,
+      "is_low_stock": false,
+      "aliases": [
+        "पार्ले",
+        "पार्ले-जी",
+        "parle",
+        "parle-g",
+        "parle ji",
+        "biscuit",
+        "biscuits",
+        "बिस्कीट",
+        "बिस्किट",
+        "पुडा",
+        "पुडे"
+      ],
+      "extra_meta": {},
+      "updated_at": "2026-10-17 22:29:01"
+    },
+    {
+      "id": 615,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "VEG-KANDA-001",
       "name_mr": "गावठी लाल कांदा (Fresh Onion)",
@@ -279,15 +253,15 @@
         "kande"
       ],
       "extra_meta": {},
-      "updated_at": "2026-10-17 22:17:39"
+      "updated_at": "2026-10-17 22:29:01"
     }
   ],
   "transactions": [
     {
-      "id": 172,
-      "batch_id": "batch_1921b11c1abc",
+      "id": 11,
+      "batch_id": "batch_d7a58fd81c89",
       "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 356,
+      "product_id": 607,
       "sku": "GROC-SUG-001",
       "item_name": "साखर (Madhur Sugar) (Sugar)",
       "type": "SALE",
@@ -297,14 +271,14 @@
       "amount": 20.0,
       "raw_message": "२० रुपयांची साखर",
       "is_reversed": false,
-      "created_at": "2026-10-17T22:17:36.573060",
-      "time": "22:17:36"
+      "created_at": "2026-10-17T22:28:58.060900",
+      "time": "22:28:58"
     },
     {
-      "id": 173,
-      "batch_id": "batch_16edb63301ae",
+      "id": 12,
+      "batch_id": "batch_dfa0c698c386",
       "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 356,
+      "product_id": 607,
       "sku": "GROC-SUG-001",
       "item_name": "साखर (Madhur Sugar) (Sugar)",
       "type": "SALE",
@@ -314,14 +288,14 @@
       "amount": 20.0,
       "raw_message": "20 chi sakhar",
       "is_reversed": false,
-      "created_at": "2026-10-17T22:17:37.155191",
-      "time": "22:17:37"
+      "created_at": "2026-10-17T22:28:58.603094",
+      "time": "22:28:58"
     },
     {
-      "id": 174,
-      "batch_id": "batch_8059814bba99",
+      "id": 13,
+      "batch_id": "batch_7fb500989e60",
       "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 364,
+      "product_id": 615,
       "sku": "VEG-KANDA-001",
       "item_name": "गावठी लाल कांदा (Fresh Onion) (Red Onion)",
       "type": "SALE",
@@ -331,14 +305,14 @@
       "amount": 12.25,
       "raw_message": "३५० ग्रॅम कांदा",
       "is_reversed": false,
-      "created_at": "2026-10-17T22:17:37.798545",
-      "time": "22:17:37"
+      "created_at": "2026-10-17T22:28:59.116558",
+      "time": "22:28:59"
     },
     {
-      "id": 175,
-      "batch_id": "batch_3be69bdd790e",
+      "id": 14,
+      "batch_id": "batch_265c882b2c6f",
       "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 356,
+      "product_id": 607,
       "sku": "GROC-SUG-001",
       "item_name": "साखर (Madhur Sugar) (Sugar)",
       "type": "SALE",
@@ -348,14 +322,14 @@
       "amount": 10.5,
       "raw_message": "पावशेर साखर",
       "is_reversed": false,
-      "created_at": "2026-10-17T22:17:38.362675",
-      "time": "22:17:38"
+      "created_at": "2026-10-17T22:28:59.560012",
+      "time": "22:28:59"
     },
     {
-      "id": 176,
-      "batch_id": "batch_e4f12c96815b",
+      "id": 15,
+      "batch_id": "batch_4725dd706bcb",
       "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 356,
+      "product_id": 607,
       "sku": "GROC-SUG-001",
       "item_name": "साखर (Madhur Sugar) (Sugar)",
       "type": "SALE",
@@ -365,14 +339,14 @@
       "amount": 20.0,
       "raw_message": "२० रुपयांची साखर आणि २ पार्ले बिस्कीट आणि ३५० ग्रॅम कांदा",
       "is_reversed": true,
-      "created_at": "2026-10-17T22:17:39.144894",
-      "time": "22:17:39"
+      "created_at": "2026-10-17T22:29:00.123521",
+      "time": "22:29:00"
     },
     {
-      "id": 177,
-      "batch_id": "batch_e4f12c96815b",
+      "id": 16,
+      "batch_id": "batch_4725dd706bcb",
       "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 357,
+      "product_id": 608,
       "sku": "FMCG-PARLE-100G",
       "item_name": "पार्ले-जी बिस्कीट (Parle-G 100g) (Parle-G 100g)",
       "type": "SALE",
@@ -382,14 +356,14 @@
       "amount": 20.0,
       "raw_message": "२० रुपयांची साखर आणि २ पार्ले बिस्कीट आणि ३५० ग्रॅम कांदा",
       "is_reversed": true,
-      "created_at": "2026-10-17T22:17:39.144894",
-      "time": "22:17:39"
+      "created_at": "2026-10-17T22:29:00.123521",
+      "time": "22:29:00"
     },
     {
-      "id": 178,
-      "batch_id": "batch_e4f12c96815b",
+      "id": 17,
+      "batch_id": "batch_4725dd706bcb",
       "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 364,
+      "product_id": 615,
       "sku": "VEG-KANDA-001",
       "item_name": "गावठी लाल कांदा (Fresh Onion) (Red Onion)",
       "type": "SALE",
@@ -399,14 +373,14 @@
       "amount": 12.25,
       "raw_message": "२० रुपयांची साखर आणि २ पार्ले बिस्कीट आणि ३५० ग्रॅम कांदा",
       "is_reversed": true,
-      "created_at": "2026-10-17T22:17:39.144894",
-      "time": "22:17:39"
+      "created_at": "2026-10-17T22:29:00.123521",
+      "time": "22:29:00"
     },
     {
-      "id": 179,
-      "batch_id": "undo_batch_e4f12c96815b",
+      "id": 18,
+      "batch_id": "undo_batch_4725dd706bcb",
       "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 356,
+      "product_id": 607,
       "sku": "GROC-SUG-001",
       "item_name": "साखर (Madhur Sugar) (Sugar)",
       "type": "ROLLBACK",
@@ -414,16 +388,16 @@
       "stock_after": 48.8,
       "unit_price": 42.0,
       "amount": -20.0,
-      "raw_message": "UNDO: Reverted Tx #176 (Batch batch_e4f12c96815b)",
+      "raw_message": "UNDO: Reverted Tx #15 (Batch batch_4725dd706bcb)",
       "is_reversed": true,
-      "created_at": "2026-10-17T22:17:40.145656",
-      "time": "22:17:40"
+      "created_at": "2026-10-17T22:29:01.306211",
+      "time": "22:29:01"
     },
     {
-      "id": 180,
-      "batch_id": "undo_batch_e4f12c96815b",
+      "id": 19,
+      "batch_id": "undo_batch_4725dd706bcb",
       "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 357,
+      "product_id": 608,
       "sku": "FMCG-PARLE-100G",
       "item_name": "पार्ले-जी बिस्कीट (Parle-G 100g) (Parle-G 100g)",
       "type": "ROLLBACK",
@@ -431,16 +405,16 @@
       "stock_after": 60.0,
       "unit_price": 10.0,
       "amount": -20.0,
-      "raw_message": "UNDO: Reverted Tx #177 (Batch batch_e4f12c96815b)",
+      "raw_message": "UNDO: Reverted Tx #16 (Batch batch_4725dd706bcb)",
       "is_reversed": true,
-      "created_at": "2026-10-17T22:17:40.145656",
-      "time": "22:17:40"
+      "created_at": "2026-10-17T22:29:01.306211",
+      "time": "22:29:01"
     },
     {
-      "id": 181,
-      "batch_id": "undo_batch_e4f12c96815b",
+      "id": 20,
+      "batch_id": "undo_batch_4725dd706bcb",
       "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 364,
+      "product_id": 615,
       "sku": "VEG-KANDA-001",
       "item_name": "गावठी लाल कांदा (Fresh Onion) (Red Onion)",
       "type": "ROLLBACK",
@@ -448,66 +422,15 @@
       "stock_after": 69.65,
       "unit_price": 35.0,
       "amount": -12.25,
-      "raw_message": "UNDO: Reverted Tx #178 (Batch batch_e4f12c96815b)",
+      "raw_message": "UNDO: Reverted Tx #17 (Batch batch_4725dd706bcb)",
       "is_reversed": true,
-      "created_at": "2026-10-17T22:17:40.145656",
-      "time": "22:17:40"
-    },
-    {
-      "id": 182,
-      "batch_id": "batch_17b1cf131e83",
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 357,
-      "sku": "FMCG-PARLE-100G",
-      "item_name": "पार्ले-जी बिस्कीट (Parle-G 100g) (Parle-G 100g)",
-      "type": "SALE",
-      "delta": -2.0,
-      "stock_after": 56.0,
-      "unit_price": 10.0,
-      "amount": 20.0,
-      "raw_message": "२ पुडे पार्ले-जी दिले",
-      "is_reversed": false,
-      "created_at": "2026-10-17T22:17:42.929465",
-      "time": "22:17:42"
-    },
-    {
-      "id": 183,
-      "batch_id": "batch_fe63a4b01d2a",
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 356,
-      "sku": "GROC-SUG-001",
-      "item_name": "साखर (Madhur Sugar) (Sugar)",
-      "type": "SALE",
-      "delta": -1.0,
-      "stock_after": 47.8,
-      "unit_price": 42.0,
-      "amount": 42.0,
-      "raw_message": "१ साखर विकली",
-      "is_reversed": false,
-      "created_at": "2026-10-17T22:17:45.884689",
-      "time": "22:17:45"
-    },
-    {
-      "id": 184,
-      "batch_id": "batch_45c8df6e71c5",
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 356,
-      "sku": "GROC-SUG-001",
-      "item_name": "साखर (Madhur Sugar) (Sugar)",
-      "type": "SALE",
-      "delta": -2.0,
-      "stock_after": 45.8,
-      "unit_price": 42.0,
-      "amount": 84.0,
-      "raw_message": "२ साखर विकली",
-      "is_reversed": false,
-      "created_at": "2026-10-17T22:17:48.415104",
-      "time": "22:17:48"
+      "created_at": "2026-10-17T22:29:01.306211",
+      "time": "22:29:01"
     }
   ],
   "customer_credits": [
     {
-      "id": 85,
+      "id": 115,
       "vendor_id": "DEMO_KIRANA_KOP",
       "customer_name": "तानाजी शेठ",
       "customer_phone": "+919822012345",
@@ -516,10 +439,10 @@
       "due_date": "2026-10-18",
       "notes": "गहू व साखर बिल (Wheat & Sugar)",
       "last_reminder_sent": null,
-      "created_at": "2026-10-17 22:17:36"
+      "created_at": "2026-10-17 22:28:57"
     },
     {
-      "id": 86,
+      "id": 116,
       "vendor_id": "DEMO_KIRANA_KOP",
       "customer_name": "आनंदराव",
       "customer_phone": "+919822067890",
@@ -528,10 +451,10 @@
       "due_date": "2026-10-19",
       "notes": "शेंगदाणा तेल व साबण (Oil & Soap)",
       "last_reminder_sent": null,
-      "created_at": "2026-10-17 22:17:36"
+      "created_at": "2026-10-17 22:28:57"
     },
     {
-      "id": 87,
+      "id": 117,
       "vendor_id": "DEMO_KIRANA_KOP",
       "customer_name": "बबनराव जाधव",
       "customer_phone": "+919822054321",
@@ -540,7 +463,7 @@
       "due_date": "2026-10-17",
       "notes": "महिनाअखेर किराणा सामान (Monthly Ration)",
       "last_reminder_sent": null,
-      "created_at": "2026-10-17 22:17:36"
+      "created_at": "2026-10-17 22:28:57"
     }
   ]
 }

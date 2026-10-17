@@ -56,6 +56,27 @@
     </div>
   </header>
 
+  <!-- Animated Video Store Onboarding Banner Notification -->
+  <div id="onboardingBanner" class="hidden transition-all duration-500 transform -translate-y-4 opacity-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+    <div class="bg-gradient-to-r from-emerald-950/95 via-slate-900 to-teal-950/95 border-2 border-emerald-400 text-emerald-100 rounded-2xl p-4 shadow-2xl shadow-emerald-950/60 flex items-center justify-between gap-4 ring-4 ring-emerald-500/20 backdrop-blur-md">
+      <div class="flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-2xl flex-shrink-0 animate-bounce">
+          ✨
+        </div>
+        <div>
+          <div class="text-sm font-bold text-white flex items-center gap-2">
+            <span id="onboardingBannerTitle">नवीन वस्तू डिजिटाईझ झाल्या (Store Auto-Digitized)!</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500 text-slate-950 uppercase tracking-wide">15s Live Video Sweep</span>
+          </div>
+          <div id="onboardingBannerSub" class="text-xs text-emerald-300 mt-0.5 font-medium">
+            नवीन वस्तू थेट कॅटलॉगमध्ये जोडल्या गेल्या.
+          </div>
+        </div>
+      </div>
+      <button onclick="dismissOnboardingBanner()" class="text-emerald-400 hover:text-white text-xl font-bold p-1 rounded-lg hover:bg-slate-800 transition flex-shrink-0" title="बंद करा (Dismiss)">&times;</button>
+    </div>
+  </div>
+
   <!-- Main Dashboard Content -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
@@ -173,7 +194,7 @@
           </thead>
           <tbody id="inventoryBody" class="divide-y divide-slate-700/40 text-slate-200">
             {% for p in metrics.products %}
-            <tr class="hover:bg-slate-750/30 transition">
+            <tr class="hover:bg-slate-750/30 transition" data-sku="{{ p.sku }}">
               <td class="py-3 px-4 font-mono text-slate-400">{{ p.sku }}</td>
               <td class="py-3 px-4 font-medium">
                 <div>{{ p.name_mr }}</div>
@@ -486,26 +507,35 @@
 
       // Render Table Rows
       const tbody = document.getElementById("inventoryBody");
-      tbody.innerHTML = m.products.map(p => `
-        <tr class="hover:bg-slate-750/30 transition">
-          <td class="py-3 px-4 font-mono text-slate-400">${p.sku}</td>
-          <td class="py-3 px-4 font-medium">
-            <div>${p.name_mr}</div>
-            <div class="text-[11px] text-slate-400 font-normal">${p.name_en}</div>
-          </td>
-          <td class="py-3 px-4 text-slate-400">${p.category}</td>
-          <td class="py-3 px-4 text-right font-semibold text-white">
-            ${p.stock} <span class="text-xs font-normal text-slate-400">${p.unit}</span>
-          </td>
-          <td class="py-3 px-4 text-right text-emerald-400 font-mono">₹${p.unit_price}</td>
-          <td class="py-3 px-4 text-center">
-            ${p.is_low_stock 
-              ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">⚠️ Low Stock</span>'
-              : '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Healthy</span>'
-            }
-          </td>
-        </tr>
-      `).join("");
+      tbody.innerHTML = m.products.map(p => {
+        const isNew = recentlyOnboardedSkus.has(p.sku);
+        return `
+          <tr class="${isNew ? 'bg-emerald-950/40 ring-2 ring-emerald-500 animate-pulse' : 'hover:bg-slate-750/30'} transition duration-500" data-sku="${p.sku}">
+            <td class="py-3 px-4 font-mono ${isNew ? 'text-emerald-300 font-semibold flex items-center gap-1.5' : 'text-slate-400'}">
+              ${isNew ? '<span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>' : ''}
+              <span>${p.sku}</span>
+            </td>
+            <td class="py-3 px-4 font-medium">
+              <div class="text-white flex items-center gap-2">
+                <span>${p.name_mr}</span>
+                ${isNew ? '<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/30 text-emerald-300 border border-emerald-500/40">NEW</span>' : ''}
+              </div>
+              <div class="text-[11px] text-slate-400 font-normal">${p.name_en}</div>
+            </td>
+            <td class="py-3 px-4 text-slate-400">${p.category}</td>
+            <td class="py-3 px-4 text-right font-semibold text-white">
+              ${p.stock} <span class="text-xs font-normal text-slate-400">${p.unit}</span>
+            </td>
+            <td class="py-3 px-4 text-right text-emerald-400 font-mono">₹${p.unit_price}</td>
+            <td class="py-3 px-4 text-center">
+              ${p.is_low_stock 
+                ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">⚠️ Low Stock</span>'
+                : '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Healthy</span>'
+              }
+            </td>
+          </tr>
+        `;
+      }).join("");
 
       // Render Udhar Ledger Cards if available
       if (m.udhar_ledger && m.udhar_ledger.length > 0) {
@@ -556,6 +586,161 @@
 
     // Module C: Real-Time WebSocket Synchronization with Automatic Fallback to Polling
     let ws = null;
+    const recentlyOnboardedSkus = new Set();
+
+    function showOnboardingBanner(count) {
+      const banner = document.getElementById("onboardingBanner");
+      if (!banner) return;
+      const sub = document.getElementById("onboardingBannerSub");
+      if (sub) sub.innerText = `✨ नवीन वस्तू थेट कॅटलॉगमध्ये जोडल्या (${count} items zero-touch digitized via Gemini Vision)`;
+      banner.classList.remove("hidden");
+      setTimeout(() => {
+        banner.classList.remove("-translate-y-4", "opacity-0");
+        banner.classList.add("translate-y-0", "opacity-100");
+      }, 20);
+      setTimeout(() => {
+        dismissOnboardingBanner();
+      }, 12000);
+    }
+
+    function dismissOnboardingBanner() {
+      const banner = document.getElementById("onboardingBanner");
+      if (!banner) return;
+      banner.classList.remove("translate-y-0", "opacity-100");
+      banner.classList.add("-translate-y-4", "opacity-0");
+      setTimeout(() => banner.classList.add("hidden"), 500);
+    }
+
+    function playSuccessChime() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.12); // A5
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.5);
+      } catch (e) {
+        console.warn("Audio chime prevented or unsupported:", e);
+      }
+    }
+
+    function handleCatalogOnboarded(data) {
+      console.log("[WEBSOCKET] Handling CATALOG_ONBOARDED:", data);
+      playSuccessChime();
+
+      const newProducts = data.products || data.items || [];
+      const count = data.count !== undefined ? data.count : newProducts.length;
+
+      // 1. Show animated toast/banner: "✨ नवीन वस्तू डिजिटाईझ झाल्या (Store Auto-Digitized)! [count] नवीन वस्तू जोडल्या."
+      const toastMsg = `✨ नवीन वस्तू डिजिटाईझ झाल्या (Store Auto-Digitized)! ${count} नवीन वस्तू जोडल्या.`;
+      showToast(toastMsg, "success");
+      showOnboardingBanner(count);
+
+      // 2. Prepend the new product cards to the inventory catalog table with a glowing pulse animation (`ring-2 ring-emerald-500 animate-pulse`)
+      const tbody = document.getElementById("inventoryBody");
+      if (tbody && newProducts.length > 0) {
+        // Prepend products in order
+        newProducts.forEach(p => {
+          if (!p.sku) return;
+          recentlyOnboardedSkus.add(p.sku);
+
+          // If a row with this SKU already exists, remove it first
+          const existingRow = tbody.querySelector(`tr[data-sku="${p.sku}"]`);
+          if (existingRow) existingRow.remove();
+
+          const tr = document.createElement("tr");
+          tr.className = "bg-emerald-950/40 ring-2 ring-emerald-500 animate-pulse hover:bg-slate-750/30 transition duration-700";
+          tr.setAttribute("data-sku", p.sku);
+
+          tr.innerHTML = `
+            <td class="py-3 px-4 font-mono text-emerald-300 font-semibold flex items-center gap-1.5">
+              <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span>${p.sku}</span>
+            </td>
+            <td class="py-3 px-4 font-medium">
+              <div class="text-white flex items-center gap-2">
+                <span>${p.name_mr || p.name_en}</span>
+                <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/30 text-emerald-300 border border-emerald-500/40">NEW</span>
+              </div>
+              <div class="text-[11px] text-slate-400 font-normal">${p.name_en || ''}</div>
+            </td>
+            <td class="py-3 px-4 text-slate-300">${p.category || 'General'}</td>
+            <td class="py-3 px-4 text-right font-semibold text-white">
+              ${p.stock} <span class="text-xs font-normal text-slate-400">${p.unit || 'piece'}</span>
+            </td>
+            <td class="py-3 px-4 text-right text-emerald-400 font-mono font-bold">₹${Number(p.unit_price || 0).toFixed(2)}</td>
+            <td class="py-3 px-4 text-center">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Healthy
+              </span>
+            </td>
+          `;
+
+          tbody.insertBefore(tr, tbody.firstChild);
+
+          // Smoothly remove glowing pulse animation after 10 seconds
+          setTimeout(() => {
+            tr.classList.remove("ring-2", "ring-emerald-500", "animate-pulse", "bg-emerald-950/40");
+            recentlyOnboardedSkus.delete(p.sku);
+          }, 10000);
+        });
+      }
+
+      // 3. Update total SKUs count and inventory valuation live without requiring manual page reload
+      const skuEl = document.getElementById("statSkus");
+      const valEl = document.getElementById("statValuation");
+      const alertsEl = document.getElementById("statAlerts");
+
+      if (data.metrics) {
+        if (data.metrics.total_skus !== undefined && skuEl) skuEl.innerText = data.metrics.total_skus;
+        if (data.metrics.total_valuation !== undefined && valEl) valEl.innerText = "₹" + data.metrics.total_valuation;
+        if (data.metrics.low_stock_count !== undefined && alertsEl) alertsEl.innerText = data.metrics.low_stock_count;
+      } else {
+        if (data.total_skus !== undefined && skuEl) {
+          skuEl.innerText = data.total_skus;
+        } else if (skuEl) {
+          const curSkus = parseInt(skuEl.innerText) || 0;
+          skuEl.innerText = curSkus + count;
+        }
+
+        if (data.total_valuation !== undefined && valEl) {
+          valEl.innerText = "₹" + data.total_valuation;
+        } else if (valEl) {
+          const curVal = parseFloat((valEl.innerText || "").replace(/[^0-9.]/g, '')) || 0;
+          let addedVal = 0;
+          newProducts.forEach(p => {
+            addedVal += (Number(p.stock) || 0) * (Number(p.unit_price) || 0);
+          });
+          valEl.innerText = "₹" + (curVal + addedVal).toFixed(2);
+        }
+      }
+
+      // Update LocalStorage cache immediately
+      try {
+        const cached = localStorage.getItem('vyaparai_cache');
+        if (cached) {
+          const m = JSON.parse(cached);
+          if (skuEl) m.total_skus = parseInt(skuEl.innerText) || m.total_skus;
+          if (valEl) m.total_valuation = parseFloat((valEl.innerText || "").replace(/[^0-9.]/g, '')) || m.total_valuation;
+          if (newProducts.length > 0) {
+            m.products = [...newProducts, ...(m.products || [])];
+          }
+          localStorage.setItem('vyaparai_cache', JSON.stringify(m));
+        }
+      } catch(e) {}
+
+      // Background refresh to ensure full database synchronization
+      setTimeout(refreshData, 1500);
+    }
+
     function connectWebSocket() {
       try {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -574,6 +759,13 @@
         ws.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
+
+            // Real-Time Video Onboarding Event (Slide 1 & Sequence #2)
+            if (data.event === "CATALOG_ONBOARDED" || data.type === "CATALOG_ONBOARDED") {
+              handleCatalogOnboarded(data);
+              return;
+            }
+
             if (data.type === "METRICS_UPDATE" && data.metrics) {
               updateDashboardUI(data.metrics);
             }
