@@ -50,6 +50,7 @@ class Product(Base):
     def to_dict(self):
         return {
             "id": self.id,
+            "vendor_id": self.vendor_id,
             "sku": self.sku,
             "name_mr": self.name_mr,
             "name_en": self.name_en,
@@ -59,6 +60,7 @@ class Product(Base):
             "unit_price": round(self.unit_price, 2),
             "min_threshold": self.min_threshold,
             "is_low_stock": self.stock <= self.min_threshold,
+            "aliases": self.aliases,
             "extra_meta": self.extra_meta,
             "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S") if self.updated_at else ""
         }

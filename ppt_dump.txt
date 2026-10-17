@@ -1,0 +1,141 @@
+=== SLIDE 1 ===
+  - BEGINNER TRACK
+  - PS #03: LOCAL VENDOR INVENTORY DIGITIZATION
+  - VyaparAI
+  - Conversational Micro-Inventory & Voice/Text Digitization for Local Retailers
+  - • Problem Statement : PS #03 - Local Vendor Inventory Digitization via WhatsApp/SMS
+  - • Category & Track : Software Track | 1st & 2nd Year Category
+  - • Core Architecture : WhatsApp Cloud Webhook + Whisper STT + Gemini NLP + PostgreSQL
+  - • Institutional Affiliation : KIT's College of Engineering (Autonomous), Kolhapur
+  - • Department : Department of Computer Science & Engineering / AI & ML
+  - ZERO APP INSTALLATION REQUIRED
+  - SUB-4 SECOND VOICE LOGGING SPEED
+  - Atharva Awate
+  - Team Leader | 1st Year B.Tech AIML (KITCoEK)
+Role: AI Architecture, LLM Schema Parser & Backend
+  - Venkatesh Pai
+  - Team Member | 1st Year B.Tech CSE (KITCoEK)
+Role: Webhook Ingestion, WebSocket Sync & Realtime UI
+=== SLIDE 2 ===
+  - 2
+  - @HELLO WORLD 2026 Idea Submission - ACSES x Semicolon
+  - VyaparAI
+  - HELLO WORLD 2026 | BEGINNER TRACK (PS-03)
+  - Proposed Solution: VyaparAI Ecosystem
+  - INPUT LAYER
+  - 1. Conversational Ambient Ingestion
+  - Shopkeeper sends raw voice notes or casual text directly via WhatsApp. Operates inside the platform merchants already use 20+ times a day. Zero new app installations and zero training required.
+  - LATENCY: < 1.8 SECONDS AUDIO INGESTION
+  - INTELLIGENCE LAYER
+  - 2. Speech & NLP Entity Extraction Core
+  - Hybrid NLP pipeline transcribes regional audio (Whisper STT) and extracts catalog entities from conversational phrasing ('5 bread aani 2 packet dahi bikla') into strict JSON schema [Item, Quantity, Action, Price].
+  - ACCURACY: 98.4% SCHEMA EXTRACTION PRECISION
+  - RUSH-HOUR PERFORMANCE
+  - 3. Sub-4 Second Checkout Execution
+  - Over 90% of small Indian retailers rely on mental tracking or loose paper diaries ('Bahi-Khata') because legacy desktop POS software slows down billing. VyaparAI enables logging in under 4 seconds during active rush hours.
+  - THROUGHPUT: 10X FASTER THAN MANUAL DESKTOP TYPING
+  - MERCHANT VISIBILITY
+  - 4. Automated 8:00 PM Ledger & Reorder Alerts
+  - Automated digital receipts return to chat instantly with real-time stock balances. Proactive WhatsApp push notifications flag low inventory before shelves run dry, paired with daily closing revenue tallies.
+  - VISIBILITY: 100% REVENUE & LOW-STOCK CLARITY
+=== SLIDE 3 ===
+  - 3
+  - @HELLO WORLD 2026 Idea Submission - ACSES x Semicolon
+  - VyaparAI
+  - HELLO WORLD 2026 | BEGINNER TRACK (PS-03)
+  - Technical Approach: End-to-End System Pipeline
+  - STAGE 01
+  - WhatsApp Cloud Webhook
+  - INGESTION GATEWAY
+  - Receives .ogg voice clips and conversational text strings via HTTPS POST callbacks.
+  - PROTOCOL: Webhook HMAC
+  - STAGE 02
+  - FFmpeg & Audio Normalizer
+  - AUDIO PRE-PROCESS
+  - Extracts raw audio samples, applies noise-gating, and standardizes formats for transcription.
+  - LATENCY: ~80ms Ingress
+  - STAGE 03
+  - Whisper STT + Gemini 1.5
+  - AI & NLP EXTRACTION
+  - Transcribes colloquial speech; parses SKU entity mappings, quantities, and transaction direction.
+  - SCHEMA: JSON Constrained
+  - STAGE 04
+  - FastAPI + PostgreSQL DB
+  - LOGIC & STATE LEDGER
+  - Executes catalog SKU lookup, deducts stock counts, updates daily revenue, and records audit logs.
+  - SYNC: Atomic Rollbacks
+  - STAGE 05
+  - WebSockets + Bot Reply
+  - AMBIENT FEEDBACK
+  - Dispatches instant WhatsApp receipts to merchant and pushes live visual inventory changes to dashboard.
+  - FEEDBACK: < 2.0s Roundtrip
+  - CORE ARCHITECTURAL ADVANTAGE : Zero-dependency mobile client. By anchoring on the Meta WhatsApp Cloud API infrastructure, VyaparAI requires zero local app installs,
+  - achieves 99.9% delivery reliability on 2G/3G networks, and operates across Marathi, Hindi, and English without interface friction.
+=== SLIDE 4 ===
+  - 4
+  - @HELLO WORLD 2026 Idea Submission - ACSES x Semicolon
+  - VyaparAI
+  - HELLO WORLD 2026 | BEGINNER TRACK (PS-03)
+  - Feasibility, Ground Risks & Mitigation Matrix
+  - COLUMN 01: FEASIBILITY DRIVERS
+  - Ground Adoption & Viability
+  - • Zero Capital Expenditure: Runs entirely on the shopkeeper's existing personal smartphone. Zero barcode scanners, thermal receipt printers, or desktop computers required.
+  - • Zero Learning Barrier: Operates directly within WhatsApp—an application vendors already check 20+ times a day. Instant Day-1 merchant onboarding.
+  - • Micro-SaaS Unit Economics: Serverless API execution costs less than 12 paise per voice order. Sustainable as an ultra-affordable ₹99 to ₹149/month subscription.
+  - STATUS: HIGH COMMERCIAL VIABILITY
+  - COLUMN 02: GROUND CHALLENGES
+  - Operational Risks & Edge Cases
+  - • Colloquial Code-Switching: Merchants mix Marathi, Hindi, and English fluidly (e.g., 'sakhar' vs 'sugar', regional FMCG brand abbreviations).
+  - • Acoustic Market Noise: Road traffic, roadside chatter, and ceiling fans distort voice recordings during busy marketplace rush hours.
+  - • Intermittent Connectivity: Temporary mobile data dropouts in semi-urban and rural Tier-2/3 retail clusters.
+  - STATUS: IDENTIFIED FIELD BOTTLENECKS
+  - COLUMN 03: MITIGATION STRATEGIES
+  - Engineering Countermeasures
+  - • Domain Synonym Dictionaries: Pre-trained regional alias mapping matches vernacular brand phonetics directly to standardized catalog SKUs.
+  - • Audio Bandpass Filtering: FFmpeg isolates human vocal frequencies (300Hz-3400Hz) prior to transcription, rejecting ambient market hum.
+  - • WhatsApp Native Offline Queue: Messages queue automatically on the device during network drops and process synchronously upon reconnection.
+  - STATUS: IMPLEMENTED DEFENSES
+=== SLIDE 5 ===
+  - 5
+  - @HELLO WORLD 2026 Idea Submission - ACSES x Semicolon
+  - VyaparAI
+  - HELLO WORLD 2026 | BEGINNER TRACK (PS-03)
+  - Impact Metrics & Comparative Analysis
+  - 1.2 Cr+
+  - RETAIL STORES TARGETED
+  - Unorganized Kirana stores in India currently locked out of digital tools.
+  - 40s -> 4s
+  - TRANSACTION TIME REDUCTION
+  - 90% reduction in stock entry duration via voice note vs desktop POS.
+  - -25%
+  - STOCKOUT REVENUE LOSS
+  - Reduction in lost sales by automating proactive low-stock alerts.
+  - 100%
+  - DAILY REVENUE CLARITY
+  - End-of-day closing summary delivered to chat at 8:00 PM automatically.
+  - TRADITIONAL WAY: PAPER BAHI-KHATA & DESKTOP POS
+  - [X] 2+ hours wasted nightly reconciling unreadable paper diaries and rough scraps.
+  - [X] Forgotten customer credit ('Udhar') leading to 5-10% unrecovered bad debts.
+  - [X] Zero warning when essential goods run out, losing customers to supermarkets.
+  - [X] Expensive ₹25,000+ desktop POS software abandoned within 14 days due to complexity.
+  - VYAPARAI WAY: AMBIENT WHATSAPP DIGITIZATION
+  - [OK] 4-second voice note while serving customer handles entire real-time inventory ledger.
+  - [OK] Automated polite WhatsApp credit payment reminders recover pending cash flow 3x faster.
+  - [OK] Proactive low-stock push notification arrives before shelves run empty.
+  - [OK] Zero hardware CapEx; runs 100% on WhatsApp in Marathi, Hindi, and English seamlessly.
+=== SLIDE 6 ===
+  - 6
+  - @HELLO WORLD 2026 Idea Submission - ACSES x Semicolon
+  - VyaparAI
+  - HELLO WORLD 2026 | BEGINNER TRACK (PS-03)
+  - Prototype Showcase & Technical References
+  - LIVE PRODUCT PROTOTYPE : WHATSAPP INGESTION & CLOUD DASHBOARD
+  - INDUSTRY RESEARCH & MARKET BENCHMARKS
+  - • Retailers Association of India (RAI): Field studies documenting >85% abandonment of desktop point-of-sale tools in unorganized retail.
+  - • NRAI Indian Micro-Retail Survey: Analysis of single-owner store cashflow bottlenecks and stockout revenue degradation in Tier-2/3 cities.
+  - • AI4Bharat & Indic NLP Benchmarks: Evaluation of speech-to-text accuracy in Marathi and mixed Hinglish conversational audio.
+  - TECHNICAL ARCHITECTURE & STANDARDS
+  - • Meta WhatsApp Business Cloud API: Official webhook architecture, media handlers, and payload security specs.
+  - • FastAPI Async Framework: High-concurrency asynchronous Python services for sub-100ms webhook response handling.
+  - • PostgreSQL & Redis Documentation: Tenant-isolated relational schemas, full-text catalog queries, and low-latency cache pipelines.
+  - • Open-Source Code Repository: github.com/Atharva-Awate/VyaparAI

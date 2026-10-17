@@ -1,3 +1,4 @@
+import os
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, declarative_base
 from app.core.config import settings
@@ -11,7 +12,7 @@ is_sqlite = "sqlite" in db_url
 
 engine_kwargs = {"pool_pre_ping": True}
 if is_sqlite:
-    engine_kwargs["connect_args"] = {"check_same_thread": False}
+    engine_kwargs["connect_args"] = {"check_same_thread": False, "timeout": 30.0}
 else:
     engine_kwargs.update({
         "pool_size": 10,
@@ -28,7 +29,7 @@ if is_sqlite:
     def set_sqlite_pragma(dbapi_connection, connection_record):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA journal_mode=WAL")
-        cursor.execute("PRAGMA busy_timeout=5000")
+        cursor.execute("PRAGMA busy_timeout=30000")
         cursor.execute("PRAGMA synchronous=NORMAL")
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.execute("PRAGMA temp_store=MEMORY")
@@ -55,6 +56,26 @@ def get_db():
 def checkpoint_wal(truncate: bool = False):
     """Utility to force WAL log checkpointing to disk for ephemeral storage resilience."""
     if is_sqlite:
-        with engine.connect() as conn:
-            mode = "TRUNCATE" if truncate else "PASSIVE"
-            conn.exec_driver_sql(f"PRAGMA wal_checkpoint({mode});")
+        try:
+            db_path = settings.DATABASE_URL.replace("sqlite:///", "").replace("sqlite://", "")
+            if os.path.exists(db_path):
+                import sqlite3
+                con = sqlite3.connect(db_path, timeout=1.0, autocommit=True)
+                con.execute("PRAGMA wal_checkpoint(PASSIVE);")
+                con.close()
+        except Exception:
+            pass
+
+def init_db():
+    """Initializes tables and handles safe forward migrations for existing databases."""
+    Base.metadata.create_all(bind=engine)
+    if is_sqlite:
+        with engine.begin() as conn:
+            try:
+                res = conn.exec_driver_sql("PRAGMA table_info(transactions);").fetchall()
+                cols = [r[1] for r in res]
+                if cols and "batch_id" not in cols:
+                    conn.exec_driver_sql("ALTER TABLE transactions ADD COLUMN batch_id VARCHAR(64);")
+                    conn.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_transactions_batch_id ON transactions (batch_id);")
+            except Exception as e:
+                print(f"[DB INIT] SQLite migration check notice: {e}")

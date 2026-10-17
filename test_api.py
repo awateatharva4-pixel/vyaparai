@@ -79,7 +79,67 @@ def test_endpoints():
     assert r8.text == "EVENT_RECEIVED"
     print("Green-API Webhook Ingress OK! (Status 200 EVENT_RECEIVED)")
 
-    print("\n>>> ALL API ENDPOINTS VERIFIED 100% OPERATIONAL! <<<")
+    print("--- 9. Testing GET /api/reports/daily-closing (Slide 2 & 5 Ledger Preview) ---")
+    r9 = client.get("/api/reports/daily-closing")
+    assert r9.status_code == 200
+    d9 = r9.json()
+    assert d9["status"] == "SUCCESS"
+    assert "formatted_message" in d9
+    print(f"8:00 PM Daily Ledger Preview OK! Revenue: Rs {d9['today_revenue']}, Sales Tx: {d9['today_sales_count']}")
+
+    print("--- 10. Testing POST /api/reports/daily-closing (Slide 2 & 5 WhatsApp Push) ---")
+    r10 = client.post("/api/reports/daily-closing")
+    assert r10.status_code == 200
+    d10 = r10.json()
+    assert d10["status"] == "SUCCESS"
+    print(f"8:00 PM Daily Ledger WhatsApp Push OK! Delivery to Merchant: {d10['whatsapp_sent']}")
+
+    print("--- 11. Testing GET /api/udhar/ledger (Slide 5 Customer Credit Ledger) ---")
+    r11 = client.get("/api/udhar/ledger")
+    assert r11.status_code == 200
+    credits = r11.json()
+    assert len(credits) >= 3
+    print(f"Udhar Credit Ledger OK! ({len(credits)} customer accounts loaded)")
+
+    print("--- 12. Testing POST /api/udhar/remind/{id} (Slide 5 Polite WhatsApp Reminder) ---")
+    first_credit = credits[0]
+    r12 = client.post(f"/api/udhar/remind/{first_credit['id']}")
+    assert r12.status_code == 200
+    d12 = r12.json()
+    assert d12["success"] is True
+    assert "बाबुराव किराणा स्टोअर्स" in d12["reminder_message"]
+    print(f"Polite Udhar Reminder OK! Customer: {d12['customer_name']}, Sent: {d12['whatsapp_sent']}")
+
+    print("--- 13. Testing WebSocket /ws/inventory (Slide 1 & 3 Live Sync Stream) ---")
+    with client.websocket_connect("/ws/inventory") as ws:
+        ws.send_text("ping")
+        pong = ws.receive_text()
+        assert pong == "pong"
+    print("WebSocket /ws/inventory Ping-Pong OK!")
+
+    print("--- 14. Testing POST /api/simulator/audio (Voice Pipeline Ingress) ---")
+    import io, wave, struct
+    buf = io.BytesIO()
+    with wave.open(buf, 'wb') as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)
+        wav_file.setframerate(16000)
+        wav_file.writeframes(b'\x00\x00' * 8000)
+    wav_bytes = buf.getvalue()
+    r14 = client.post(
+        "/api/simulator/audio",
+        files={"file": ("test_voice.wav", wav_bytes, "audio/wav")},
+        data={"vendor_id": "DEMO_KIRANA_KOP"}
+    )
+    assert r14.status_code == 200
+    d14 = r14.json()
+    assert "reply" in d14
+    assert "🎙️ *ऑडिओ ऐकले:*" in d14["reply"]
+    print(f"Simulator Audio Voice Note Pipeline OK! Reply: {d14['reply'].splitlines()[0]}")
+
+    print("\n>>> ALL API & PPT PARITY ENDPOINTS VERIFIED 100% OPERATIONAL! <<<")
 
 if __name__ == "__main__":
     test_endpoints()
+
+

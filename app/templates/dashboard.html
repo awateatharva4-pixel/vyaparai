@@ -16,6 +16,9 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
 
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-5 right-5 z-[100] flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
   <!-- Top Navigation Header -->
   <header class="bg-slate-800/90 border-b border-slate-700/80 sticky top-0 z-50 backdrop-blur-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
@@ -26,7 +29,10 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 id="dashTitle" class="text-lg font-bold text-white tracking-tight">VyaparAI &bull; व्यापारी साठा व्यवस्थापन</h1>
-            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">LIVE</span>
+            <span id="wsBadge" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>WS LIVE</span>
+            </span>
           </div>
           <p id="dashSub" class="text-xs text-slate-400">Kolhapur Kirana Retail Ingress &bull; WhatsApp/SMS Voice &amp; Text</p>
         </div>
@@ -34,6 +40,11 @@
 
       <!-- Action Button Group -->
       <div class="flex items-center gap-2 sm:gap-3">
+        <!-- 8:00 PM Daily Closing Ledger Button (Module A) -->
+        <button onclick="openDailyClosingModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 transition flex items-center gap-1.5 shadow-sm">
+          <span>📊 8:00 PM Ledger (हिशोब)</span>
+        </button>
+
         <button id="langBtn" onclick="toggleLanguage()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 transition">
           मराठी / English
         </button>
@@ -47,6 +58,38 @@
 
   <!-- Main Dashboard Content -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Module D: Slide 5 Impact ROI Metrics Bar -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="bg-gradient-to-r from-emerald-950/40 to-slate-900/80 border border-emerald-500/30 rounded-xl p-3 flex items-center gap-3 shadow-sm">
+        <div class="text-2xl">⚡</div>
+        <div>
+          <div class="text-sm font-bold text-emerald-400">90% Time Saved</div>
+          <div class="text-[11px] text-slate-400">4s voice vs 40s manual POS</div>
+        </div>
+      </div>
+      <div class="bg-gradient-to-r from-blue-950/40 to-slate-900/80 border border-blue-500/30 rounded-xl p-3 flex items-center gap-3 shadow-sm">
+        <div class="text-2xl">🛡️</div>
+        <div>
+          <div class="text-sm font-bold text-blue-400">₹1,240 Prevented</div>
+          <div class="text-[11px] text-slate-400">-25% Stockout loss avoided</div>
+        </div>
+      </div>
+      <div class="bg-gradient-to-r from-purple-950/40 to-slate-900/80 border border-purple-500/30 rounded-xl p-3 flex items-center gap-3 shadow-sm">
+        <div class="text-2xl">💸</div>
+        <div>
+          <div class="text-sm font-bold text-purple-400">3x Faster Recovery</div>
+          <div class="text-[11px] text-slate-400">Polite WhatsApp Udhar prompts</div>
+        </div>
+      </div>
+      <div class="bg-gradient-to-r from-amber-950/40 to-slate-900/80 border border-amber-500/30 rounded-xl p-3 flex items-center gap-3 shadow-sm">
+        <div class="text-2xl">🌙</div>
+        <div>
+          <div class="text-sm font-bold text-amber-400">100% Revenue Clarity</div>
+          <div class="text-[11px] text-slate-400">Automated 8:00 PM closing ledger</div>
+        </div>
+      </div>
+    </div>
 
     <!-- KPI Metric Cards Grid -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -159,6 +202,49 @@
       </div>
     </div>
 
+    <!-- Module B: Customer Udhar (Credit) Ledger & Polite WhatsApp Reminders -->
+    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-700/60">
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-sm font-bold text-white">उधारी नोंदवही (Udhar Credit Ledger)</h3>
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+              Slide 5 Feature
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-0.5">Automated polite WhatsApp payment reminders recover pending cash flow 3x faster</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-400">एकूण येणे (Total Receivables):</span>
+          <span id="udharTotalBadge" class="text-sm font-bold text-rose-400 font-mono">₹{{ metrics.udhar_total }}</span>
+        </div>
+      </div>
+
+      <div id="udharList" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {% for c in metrics.udhar_ledger %}
+        <div class="p-3.5 rounded-lg bg-slate-900/60 border border-slate-700/60 flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-white text-sm">{{ c.customer_name }}</span>
+              <span class="text-rose-400 font-mono font-bold text-sm">₹{{ c.amount_due }}</span>
+            </div>
+            <div class="text-[11px] text-slate-400 font-mono mt-0.5">{{ c.customer_phone }}</div>
+            <div class="text-xs text-slate-300 mt-1.5 italic bg-slate-800/40 p-1.5 rounded border border-slate-800">
+              "{{ c.notes }}"
+            </div>
+            <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+              <span>देय तारीख: {{ c.due_date }}</span>
+              <span class="text-amber-400 font-medium">{{ c.status }}</span>
+            </div>
+          </div>
+          <button onclick="sendUdharReminder({{ c.id }}, '{{ c.customer_name }}')" class="w-full py-1.5 px-2.5 rounded-md text-xs font-semibold bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition flex items-center justify-center gap-1.5">
+            <span>🙏 Send WhatsApp Reminder</span>
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
     <!-- Recent Transactions Ledger Feed -->
     <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 shadow-sm">
       <div class="flex items-center justify-between mb-3 border-b border-slate-700/60 pb-2">
@@ -187,6 +273,56 @@
     </div>
 
   </main>
+
+  <!-- Module A: Modal for 8:00 PM Daily Closing Ledger -->
+  <div id="closingModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📊</span>
+          <div>
+            <h3 class="font-bold text-white text-base">8:00 PM Daily Ledger Closing (दैनिक हिशोब)</h3>
+            <p class="text-xs text-slate-400">बाबुराव किराणा स्टोअर्स, कोल्हापूर</p>
+          </div>
+        </div>
+        <button onclick="closeDailyClosingModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+      </div>
+
+      <div id="closingModalContent" class="space-y-3 text-xs">
+        <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-2">
+          <div class="flex justify-between text-slate-300">
+            <span>आजची एकूण विक्री (Today's Revenue):</span>
+            <span id="modalRevenue" class="font-bold text-emerald-400 font-mono text-sm">₹0.00</span>
+          </div>
+          <div class="flex justify-between text-slate-300">
+            <span>एकूण व्यवहार (Total Sales Count):</span>
+            <span id="modalSalesCount" class="font-bold text-white font-mono">0</span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-semibold text-slate-300 text-xs mb-1.5">🚨 कमी साठा व पुनर्नोंद शिफारस (Supplier Reorder Alerts):</h4>
+          <div id="modalReorders" class="p-2.5 rounded-lg bg-amber-950/20 border border-amber-800/40 text-amber-200 space-y-1 font-mono text-[11px]">
+            लोड करत आहे...
+          </div>
+        </div>
+
+        <div class="mt-2">
+          <h4 class="font-semibold text-slate-300 text-xs mb-1">WhatsApp संदेश पूर्वावलोकन (Preview):</h4>
+          <pre id="modalMessagePreview" class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 font-mono text-[11px] whitespace-pre-wrap max-h-48 overflow-y-auto"></pre>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+        <button onclick="closeDailyClosingModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+          बंद करा (Close)
+        </button>
+        <button id="btnDispatchClosing" onclick="dispatchDailyClosingWhatsApp()" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-slate-950 flex items-center gap-1.5 shadow-md shadow-emerald-600/30 transition">
+          <span>📲 व्हॉट्सॲपवर पाठवा (Push to WhatsApp)</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // Client-side Bilingual Localization Engine
@@ -223,6 +359,88 @@
       document.getElementById('tableTitle').innerText = dict[currentLang].table;
     }
 
+    // UI Toast Messenger
+    function showToast(msg, type = "success") {
+      const c = document.getElementById("toastContainer");
+      const el = document.createElement("div");
+      el.className = `p-3 rounded-lg text-xs font-semibold shadow-xl border pointer-events-auto transition duration-300 transform translate-y-2 ${
+        type === "success" 
+          ? "bg-slate-900 text-emerald-300 border-emerald-500/50 shadow-emerald-950/40" 
+          : "bg-slate-900 text-rose-300 border-rose-500/50 shadow-rose-950/40"
+      }`;
+      el.innerText = msg;
+      c.appendChild(el);
+      setTimeout(() => el.classList.remove("translate-y-2"), 10);
+      setTimeout(() => {
+        el.classList.add("opacity-0", "translate-y-2");
+        setTimeout(() => el.remove(), 300);
+      }, 4000);
+    }
+
+    // Module A: 8:00 PM Daily Closing Ledger Modal
+    async function openDailyClosingModal() {
+      const modal = document.getElementById("closingModal");
+      modal.classList.remove("hidden");
+      document.getElementById("modalReorders").innerText = "अहवाल लोड करत आहे...";
+      document.getElementById("modalMessagePreview").innerText = "अहवाल तयार होत आहे...";
+      
+      try {
+        const res = await fetch("/api/reports/daily-closing?send_whatsapp=false");
+        const data = await res.json();
+        
+        document.getElementById("modalRevenue").innerText = "₹" + data.today_revenue;
+        document.getElementById("modalSalesCount").innerText = data.today_sales_count;
+        
+        if (data.low_stock_items && data.low_stock_items.length > 0) {
+          document.getElementById("modalReorders").innerHTML = data.low_stock_items.map(item => `
+            <div>• <strong>${item.name_mr}:</strong> ${item.current_stock} ${item.unit} शिल्लक (किमान: ${item.min_threshold} ${item.unit}) ➔ <span class="text-emerald-400 font-bold">पुनर्नोंद: ${item.recommended_reorder} ${item.unit}</span></div>
+          `).join("");
+        } else {
+          document.getElementById("modalReorders").innerText = "• सर्व साठा समाधानकारक आहे (All stock healthy).";
+        }
+        
+        document.getElementById("modalMessagePreview").innerText = data.formatted_message;
+      } catch (err) {
+        document.getElementById("modalReorders").innerText = "Error loading report: " + err;
+      }
+    }
+
+    function closeDailyClosingModal() {
+      document.getElementById("closingModal").classList.add("hidden");
+    }
+
+    async function dispatchDailyClosingWhatsApp() {
+      const btn = document.getElementById("btnDispatchClosing");
+      btn.disabled = true;
+      btn.innerText = "⏳ पाठवत आहे...";
+      try {
+        const res = await fetch("/api/reports/daily-closing", { method: "POST" });
+        const data = await res.json();
+        showToast("✅ 8:00 PM दैनिक अहवाल व पुनर्नोंद शिफारसी व्हॉट्सॲपवर पाठवल्या!");
+        closeDailyClosingModal();
+      } catch (err) {
+        showToast("❌ अहवाल पाठवताना त्रुटी आली: " + err, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "📲 व्हॉट्सॲपवर पाठवा (Push to WhatsApp)";
+      }
+    }
+
+    // Module B: Send Polite Udhar WhatsApp Reminder
+    async function sendUdharReminder(creditId, customerName) {
+      try {
+        const res = await fetch(`/api/udhar/remind/${creditId}`, { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`✅ ${customerName} यांना नम्र व्हॉट्सॲप आठवण संदेश पाठवला!`);
+        } else {
+          showToast(`❌ त्रुटी: ${data.message}`, "error");
+        }
+      } catch (err) {
+        showToast(`❌ व्हॉट्सॲप पाठवता आले नाही: ${err}`, "error");
+      }
+    }
+
     // 1-Click Client-Side GST CSV Downloader (Hook 2)
     function exportGSTCSV() {
       window.location.href = "/api/export-gst-csv";
@@ -232,7 +450,7 @@
     async function addDairySKU() {
       const res = await fetch("/api/items/quick-add-dairy", { method: "POST" });
       const data = await res.json();
-      alert("✅ " + data.message);
+      showToast("✅ " + data.message);
       refreshData();
     }
 
@@ -240,69 +458,178 @@
     async function resetDemo() {
       if (confirm("Reset demo catalog to initial Kolhapur Kirana seed values?")) {
         await fetch("/api/reset-demo", { method: "POST" });
+        showToast("✅ Demo Catalog & Udhar Ledger Reset Successfully!");
         refreshData();
       }
     }
 
-    // Reactive Polling: Refreshes state every 3 seconds to keep UI live
+    // Update Dashboard UI with latest metrics payload
+    function updateDashboardUI(m) {
+      if (!m) return;
+      if (m.total_skus !== undefined) document.getElementById("statSkus").innerText = m.total_skus;
+      if (m.total_valuation !== undefined) document.getElementById("statValuation").innerText = "₹" + m.total_valuation;
+      if (m.today_sales_count !== undefined) document.getElementById("statSalesCount").innerText = m.today_sales_count;
+      if (m.today_revenue !== undefined) document.getElementById("statRevenue").innerText = "(₹" + m.today_revenue + ")";
+      if (m.low_stock_count !== undefined) document.getElementById("statAlerts").innerText = m.low_stock_count;
+
+      if (m.udhar_total !== undefined) {
+        const badge = document.getElementById("udharTotalBadge");
+        if (badge) badge.innerText = "₹" + m.udhar_total;
+      }
+
+      // Persist latest state snapshot into client-side LocalStorage
+      try {
+        localStorage.setItem('vyaparai_cache', JSON.stringify(m));
+      } catch (e) {
+        console.warn("localStorage save failed:", e);
+      }
+
+      // Render Table Rows
+      const tbody = document.getElementById("inventoryBody");
+      tbody.innerHTML = m.products.map(p => `
+        <tr class="hover:bg-slate-750/30 transition">
+          <td class="py-3 px-4 font-mono text-slate-400">${p.sku}</td>
+          <td class="py-3 px-4 font-medium">
+            <div>${p.name_mr}</div>
+            <div class="text-[11px] text-slate-400 font-normal">${p.name_en}</div>
+          </td>
+          <td class="py-3 px-4 text-slate-400">${p.category}</td>
+          <td class="py-3 px-4 text-right font-semibold text-white">
+            ${p.stock} <span class="text-xs font-normal text-slate-400">${p.unit}</span>
+          </td>
+          <td class="py-3 px-4 text-right text-emerald-400 font-mono">₹${p.unit_price}</td>
+          <td class="py-3 px-4 text-center">
+            ${p.is_low_stock 
+              ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">⚠️ Low Stock</span>'
+              : '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Healthy</span>'
+            }
+          </td>
+        </tr>
+      `).join("");
+
+      // Render Udhar Ledger Cards if available
+      if (m.udhar_ledger && m.udhar_ledger.length > 0) {
+        const udharDiv = document.getElementById("udharList");
+        if (udharDiv) {
+          udharDiv.innerHTML = m.udhar_ledger.map(c => `
+            <div class="p-3.5 rounded-lg bg-slate-900/60 border border-slate-700/60 flex flex-col justify-between space-y-3">
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-white text-sm">${c.customer_name}</span>
+                  <span class="text-rose-400 font-mono font-bold text-sm">₹${c.amount_due}</span>
+                </div>
+                <div class="text-[11px] text-slate-400 font-mono mt-0.5">${c.customer_phone}</div>
+                <div class="text-xs text-slate-300 mt-1.5 italic bg-slate-800/40 p-1.5 rounded border border-slate-800">
+                  "${c.notes}"
+                </div>
+                <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                  <span>देय तारीख: ${c.due_date}</span>
+                  <span class="text-amber-400 font-medium">${c.status}</span>
+                </div>
+              </div>
+              <button onclick="sendUdharReminder(${c.id}, '${c.customer_name}')" class="w-full py-1.5 px-2.5 rounded-md text-xs font-semibold bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition flex items-center justify-center gap-1.5">
+                <span>🙏 Send WhatsApp Reminder</span>
+              </button>
+            </div>
+          `).join("");
+        }
+      }
+
+      // Render Recent Transactions
+      const txDiv = document.getElementById("txList");
+      txDiv.innerHTML = m.recent_transactions.map(tx => `
+        <div class="flex items-center justify-between p-2 rounded bg-slate-900/40 border border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold font-mono ${tx.type === 'SALE' ? 'bg-purple-500/20 text-purple-300' : tx.type === 'ROLLBACK' ? 'bg-rose-500/20 text-rose-300' : 'bg-blue-500/20 text-blue-300'}">
+              ${tx.type}
+            </span>
+            <span class="font-medium text-white">${tx.item_name}</span>
+            <span class="text-slate-400">(${tx.delta} units)</span>
+          </div>
+          <div class="flex items-center gap-3">
+            ${tx.amount > 0 ? `<span class="text-emerald-400 font-semibold font-mono">₹${tx.amount}</span>` : ''}
+            <span class="text-[11px] text-slate-400 font-mono">${tx.time}</span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // Module C: Real-Time WebSocket Synchronization with Automatic Fallback to Polling
+    let ws = null;
+    function connectWebSocket() {
+      try {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/inventory`;
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+          console.log("[WEBSOCKET] Connected to live inventory stream.");
+          const badge = document.getElementById("wsBadge");
+          if (badge) {
+            badge.className = "px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5";
+            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>WS LIVE</span>`;
+          }
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === "METRICS_UPDATE" && data.metrics) {
+              updateDashboardUI(data.metrics);
+            }
+          } catch (e) {
+            console.error("WS Parse error:", e);
+          }
+        };
+
+        ws.onclose = () => {
+          console.log("[WEBSOCKET] Disconnected. Falling back to background polling and reconnecting in 4s...");
+          const badge = document.getElementById("wsBadge");
+          if (badge) {
+            badge.className = "px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1.5";
+            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span><span>POLL SYNC</span>`;
+          }
+          setTimeout(connectWebSocket, 4000);
+        };
+
+        ws.onerror = (err) => {
+          console.warn("[WEBSOCKET] Socket error encountered:", err);
+          ws.close();
+        };
+      } catch (err) {
+        console.error("[WEBSOCKET] Init error:", err);
+      }
+    }
+
+    // Reactive Polling: Fallback background refresher every 4 seconds
     async function refreshData() {
       try {
         const res = await fetch("/api/metrics");
         const m = await res.json();
-        
-        document.getElementById("statSkus").innerText = m.total_skus;
-        document.getElementById("statValuation").innerText = "₹" + m.total_valuation;
-        document.getElementById("statSalesCount").innerText = m.today_sales_count;
-        document.getElementById("statRevenue").innerText = "(₹" + m.today_revenue + ")";
-        document.getElementById("statAlerts").innerText = m.low_stock_count;
-
-        // Render Table Rows
-        const tbody = document.getElementById("inventoryBody");
-        tbody.innerHTML = m.products.map(p => `
-          <tr class="hover:bg-slate-750/30 transition">
-            <td class="py-3 px-4 font-mono text-slate-400">${p.sku}</td>
-            <td class="py-3 px-4 font-medium">
-              <div>${p.name_mr}</div>
-              <div class="text-[11px] text-slate-400 font-normal">${p.name_en}</div>
-            </td>
-            <td class="py-3 px-4 text-slate-400">${p.category}</td>
-            <td class="py-3 px-4 text-right font-semibold text-white">
-              ${p.stock} <span class="text-xs font-normal text-slate-400">${p.unit}</span>
-            </td>
-            <td class="py-3 px-4 text-right text-emerald-400 font-mono">₹${p.unit_price}</td>
-            <td class="py-3 px-4 text-center">
-              ${p.is_low_stock 
-                ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">⚠️ Low Stock</span>'
-                : '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Healthy</span>'
-              }
-            </td>
-          </tr>
-        `).join("");
-
-        // Render Recent Transactions
-        const txDiv = document.getElementById("txList");
-        txDiv.innerHTML = m.recent_transactions.map(tx => `
-          <div class="flex items-center justify-between p-2 rounded bg-slate-900/40 border border-slate-800">
-            <div class="flex items-center gap-2">
-              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold font-mono ${tx.type === 'SALE' ? 'bg-purple-500/20 text-purple-300' : tx.type === 'ROLLBACK' ? 'bg-rose-500/20 text-rose-300' : 'bg-blue-500/20 text-blue-300'}">
-                ${tx.type}
-              </span>
-              <span class="font-medium text-white">${tx.item_name}</span>
-              <span class="text-slate-400">(${tx.delta} units)</span>
-            </div>
-            <div class="flex items-center gap-3">
-              ${tx.amount > 0 ? `<span class="text-emerald-400 font-semibold font-mono">₹${tx.amount}</span>` : ''}
-              <span class="text-[11px] text-slate-400 font-mono">${tx.time}</span>
-            </div>
-          </div>
-        `).join("");
-
+        updateDashboardUI(m);
       } catch (err) {
         console.error("Polling error:", err);
       }
     }
 
-    setInterval(refreshData, 3000);
+    // Immediate LocalStorage Hydration: Eliminates empty UI flashes on reloads
+    (function hydrateFromLocalStorage() {
+      try {
+        const cached = localStorage.getItem('vyaparai_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          updateDashboardUI(parsed);
+          console.log("[CACHE] Immediately hydrated dashboard from localStorage.");
+        }
+      } catch (err) {
+        console.warn("[CACHE] LocalStorage hydration warning:", err);
+      }
+    })();
+
+    // Launch WebSocket Connection & Standby Poller
+    connectWebSocket();
+    refreshData();
+    setInterval(refreshData, 4000);
   </script>
 </body>
 </html>

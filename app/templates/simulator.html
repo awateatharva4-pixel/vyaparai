@@ -39,6 +39,13 @@
       </a>
     </div>
 
+    <!-- Live Inventory Status Banner (Instant Cache) -->
+    <div id="simQuickMetrics" class="bg-slate-850 px-4 py-1.5 border-b border-slate-800 flex items-center justify-between text-[11px] text-slate-300 font-mono">
+      <span>📦 वस्तू: <strong id="simStatSkus" class="text-white">--</strong></span>
+      <span>💰 मूल्य: <strong id="simStatValuation" class="text-emerald-400">--</strong></span>
+      <span>🛒 विक्री: <strong id="simStatSales" class="text-purple-400">--</strong></span>
+    </div>
+
     <!-- Quick Scenario Test Chips -->
     <div class="bg-slate-850 px-3 py-2 border-b border-slate-800 overflow-x-auto flex gap-1.5 scrollbar-none text-[11px]">
       <button onclick="setTest('५ साखर विकली')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 whitespace-nowrap border border-slate-700">
@@ -73,18 +80,59 @@
       </div>
     </div>
 
-    <!-- Message Input Bar -->
+    <!-- Live Recording Status Indicator -->
+    <div id="recordingStatus" class="hidden bg-rose-950/70 border-t border-rose-800/60 px-4 py-2 flex items-center justify-between text-xs text-rose-300 transition-all">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+        <span id="recordingStatusText" class="font-medium">मराठीत बोला... (Listening in mr-IN)</span>
+      </div>
+      <button onclick="stopRecording()" class="text-[11px] underline text-rose-400 hover:text-white">थांबवा (Stop)</button>
+    </div>
+
+    <!-- Message Input Bar with Microphone -->
     <div class="bg-[#202c33] p-2.5 flex items-center gap-2 border-t border-slate-800">
+      
+      <!-- Audio File Upload Icon -->
+      <label 
+        for="audioFileInput" 
+        title="ऑडिओ फाइल निवडा / अपलोड करा (.ogg, .wav, .mp3, .webm)" 
+        class="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition flex-shrink-0 border border-slate-700/80 shadow-sm"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+        </svg>
+        <input type="file" id="audioFileInput" accept="audio/*" class="hidden" onchange="handleAudioFileUpload(event)">
+      </label>
+
+      <!-- Text Input -->
       <input 
         id="msgInput" 
         type="text" 
-        placeholder="इथे संदेश लिहा किंवा टेस्ट चिप दाबा..."
-        class="flex-1 bg-slate-800 text-white placeholder-slate-400 text-xs px-3.5 py-2.5 rounded-full border border-slate-700 focus:outline-none focus:border-emerald-500"
+        placeholder="इथे लिहा किंवा 🎙️ दाबून मराठीत बोला..."
+        class="flex-1 bg-slate-800 text-white placeholder-slate-400 text-xs px-3.5 py-2.5 rounded-full border border-slate-700 focus:outline-none focus:border-emerald-500 transition"
         onkeydown="if(event.key === 'Enter') sendMessage()"
       >
+
+      <!-- Microphone Button (Web Speech mr-IN + MediaRecorder Fallback) -->
+      <button 
+        id="micBtn" 
+        type="button"
+        onclick="toggleRecording()" 
+        title="मराठी व्हॉइस इनपुट (Click to speak in Marathi)"
+        class="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 flex items-center justify-center font-bold shadow transition flex-shrink-0 relative group"
+      >
+        <span id="micPulse" class="hidden absolute -inset-1 rounded-full bg-rose-500 opacity-75 animate-ping"></span>
+        <svg id="micIcon" class="w-4 h-4 relative z-10 transition-transform group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+          <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+        </svg>
+      </button>
+
+      <!-- Send Button -->
       <button 
         id="sendBtn" 
         onclick="sendMessage()" 
+        title="संदेश पाठवा"
         class="w-10 h-10 rounded-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 flex items-center justify-center font-bold shadow transition flex-shrink-0"
       >
         <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
@@ -94,14 +142,59 @@
   </div>
 
   <script>
+    let chatHistory = [];
+
+    function renderSimulatorMetrics(m) {
+      if (!m) return;
+      const skuEl = document.getElementById("simStatSkus");
+      const valEl = document.getElementById("simStatValuation");
+      const salesEl = document.getElementById("simStatSales");
+      if (skuEl && m.total_skus !== undefined) skuEl.innerText = m.total_skus;
+      if (valEl && m.total_valuation !== undefined) valEl.innerText = "₹" + m.total_valuation;
+      if (salesEl && m.today_sales_count !== undefined) salesEl.innerText = `${m.today_sales_count} (₹${m.today_revenue || 0})`;
+    }
+
+    async function syncMetricsCache() {
+      try {
+        const res = await fetch("/api/metrics");
+        const m = await res.json();
+        renderSimulatorMetrics(m);
+        localStorage.setItem('vyaparai_cache', JSON.stringify(m));
+      } catch (e) {
+        console.warn("[SIMULATOR] Metrics sync failed:", e);
+      }
+    }
+
+    // Immediate LocalStorage Hydration: Render instantly from cache
+    (function hydrateSimulator() {
+      try {
+        const cached = localStorage.getItem('vyaparai_cache');
+        if (cached) {
+          const m = JSON.parse(cached);
+          renderSimulatorMetrics(m);
+        }
+      } catch (e) {}
+
+      try {
+        const cachedChat = localStorage.getItem('vyaparai_sim_chat');
+        if (cachedChat) {
+          const list = JSON.parse(cachedChat);
+          if (Array.isArray(list) && list.length > 0) {
+            chatHistory = list;
+            list.forEach(msg => appendMessageDOM(msg.text, msg.isOut, msg.time));
+          }
+        }
+      } catch (e) {}
+    })();
+
     function setTest(txt) {
       document.getElementById('msgInput').value = txt;
       sendMessage();
     }
 
-    function appendMessage(text, isOut = false) {
+    function appendMessageDOM(text, isOut = false, time = null) {
       const box = document.getElementById('chatBox');
-      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const timeStr = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       
       const div = document.createElement('div');
       div.className = `flex ${isOut ? 'justify-end' : 'justify-start'}`;
@@ -109,11 +202,20 @@
       div.innerHTML = `
         <div class="${isOut ? 'bubble-out text-white' : 'bubble-in text-slate-200'} p-3 rounded-2xl ${isOut ? 'rounded-tr-sm' : 'rounded-tl-sm'} max-w-[85%] shadow whitespace-pre-wrap">
           <p>${text}</p>
-          <span class="block text-[10px] text-slate-400 text-right mt-1">${time} ${isOut ? '✓✓' : ''}</span>
+          <span class="block text-[10px] text-slate-400 text-right mt-1">${timeStr} ${isOut ? '✓✓' : ''}</span>
         </div>
       `;
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
+    }
+
+    function appendMessage(text, isOut = false) {
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      appendMessageDOM(text, isOut, timeStr);
+      chatHistory.push({ text: text, isOut: isOut, time: timeStr });
+      try {
+        localStorage.setItem('vyaparai_sim_chat', JSON.stringify(chatHistory.slice(-50)));
+      } catch (e) {}
     }
 
     async function sendMessage() {
@@ -132,10 +234,183 @@
         });
         const data = await res.json();
         appendMessage(data.reply, false);
+        syncMetricsCache();
       } catch (err) {
         appendMessage("❌ सर्व्हरशी संपर्क होऊ शकला नाही (Server connection error).", false);
       }
     }
+
+    /* -------------------------------------------------------------
+       AUDIO & VOICE PIPELINE (Web Speech API mr-IN + MediaRecorder)
+       ------------------------------------------------------------- */
+    let recognition = null;
+    let isListening = false;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecordingAudio = false;
+
+    // Initialize Web Speech API for Marathi (mr-IN)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'mr-IN';
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        isListening = true;
+        setRecordingUI(true, '🎙️ मराठीत बोला... (Listening in mr-IN)');
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        document.getElementById('msgInput').value = transcript;
+
+        if (event.results[0] && event.results[0].isFinal) {
+          stopRecording();
+          sendMessage();
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.warn('SpeechRecognition error:', event.error);
+        stopRecording();
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          // Automatic seamless fallback to raw audio MediaRecorder
+          startMediaRecorderFallback();
+        }
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        setRecordingUI(false);
+      };
+    }
+
+    function toggleRecording() {
+      if (isListening) {
+        recognition.stop();
+        isListening = false;
+        setRecordingUI(false);
+        return;
+      }
+      if (isRecordingAudio) {
+        stopMediaRecorder();
+        return;
+      }
+
+      if (recognition) {
+        try {
+          recognition.start();
+        } catch (e) {
+          startMediaRecorderFallback();
+        }
+      } else {
+        startMediaRecorderFallback();
+      }
+    }
+
+    function stopRecording() {
+      if (recognition && isListening) {
+        recognition.stop();
+        isListening = false;
+      }
+      if (isRecordingAudio) {
+        stopMediaRecorder();
+      }
+      setRecordingUI(false);
+    }
+
+    function setRecordingUI(active, label = '') {
+      const micBtn = document.getElementById('micBtn');
+      const micPulse = document.getElementById('micPulse');
+      const statusBox = document.getElementById('recordingStatus');
+      const statusText = document.getElementById('recordingStatusText');
+
+      if (active) {
+        micBtn.classList.add('bg-rose-600', 'text-white', 'border-rose-500');
+        micBtn.classList.remove('bg-slate-800', 'text-emerald-400', 'border-slate-700');
+        micPulse.classList.remove('hidden');
+        statusBox.classList.remove('hidden');
+        if (label) statusText.innerText = label;
+      } else {
+        micBtn.classList.remove('bg-rose-600', 'text-white', 'border-rose-500');
+        micBtn.classList.add('bg-slate-800', 'text-emerald-400', 'border-slate-700');
+        micPulse.classList.add('hidden');
+        statusBox.classList.add('hidden');
+      }
+    }
+
+    /* Fallback: Direct MediaRecorder Audio Stream to /api/simulator/audio */
+    async function startMediaRecorderFallback() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioChunks = [];
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+          ? 'audio/webm;codecs=opus'
+          : (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus') ? 'audio/ogg;codecs=opus' : '');
+        
+        mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) audioChunks.push(e.data);
+        };
+        mediaRecorder.onstop = async () => {
+          const type = mediaRecorder.mimeType || 'audio/webm';
+          const audioBlob = new Blob(audioChunks, { type: type });
+          stream.getTracks().forEach(t => t.stop());
+          await uploadAudioBlob(audioBlob, 'recorded_voice.webm');
+        };
+        mediaRecorder.start();
+        isRecordingAudio = true;
+        setRecordingUI(true, '🎙️ ऑडिओ रेकॉर्ड होत आहे... (थांबवण्यासाठी पुन्हा दाबा)');
+      } catch (err) {
+        console.error("Microphone access error:", err);
+        setRecordingUI(false);
+        alert("मायक्रोफोन परवानगी उपलब्ध नाही. कृपया फाइल अपलोड चिन्ह वापरा.");
+      }
+    }
+
+    function stopMediaRecorder() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+      isRecordingAudio = false;
+      setRecordingUI(false);
+    }
+
+    async function handleAudioFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      await uploadAudioBlob(file, file.name);
+      event.target.value = ''; // Reset input
+    }
+
+    async function uploadAudioBlob(blob, filename) {
+      appendMessage("🎙️ [ऑडिओ नोंद पाठवली... प्रक्रिया चालू आहे]", true);
+      const formData = new FormData();
+      formData.append('file', blob, filename);
+      formData.append('vendor_id', 'DEMO_KIRANA_KOP');
+
+      try {
+        const res = await fetch('/api/simulator/audio', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        appendMessage(data.reply, false);
+        syncMetricsCache();
+      } catch (err) {
+        console.error("Audio upload error:", err);
+        appendMessage("❌ ऑडिओ प्रक्रिया अयशस्वी (Audio processing error).", false);
+      }
+    }
+
+    // Initial background sync & periodic refresh
+    syncMetricsCache();
+    setInterval(syncMetricsCache, 5000);
   </script>
 </body>
 </html>

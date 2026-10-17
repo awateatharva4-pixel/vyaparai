@@ -1,6 +1,6 @@
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request, Depends, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -8,13 +8,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.database import Base, engine, get_db, SessionLocal
-from app.models import product, transaction
+from app.core.database import Base, engine, get_db, SessionLocal, init_db
+from app.core.websocket import ws_manager
+from app.models import product, transaction, credit
 from app.services.inventory_service import InventoryService
 from app.routers import webhook, inventory, simulator
 
-# Initialize database schema tables
-Base.metadata.create_all(bind=engine)
+# Initialize database schema tables and migrations
+init_db()
 
 
 @asynccontextmanager
@@ -92,3 +93,22 @@ def health_check():
         "version": settings.VERSION,
         "active_gemini_keys": len(settings.get_gemini_keys())
     }
+
+
+@app.websocket("/ws/inventory")
+async def websocket_inventory(websocket: WebSocket):
+    """
+    [Slide 1 & 3: Real-Time WebSocket Synchronization]
+    Provides live reactive streaming of inventory valuation, stock counts, and transactions.
+    """
+    await ws_manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            if data == "ping":
+                await websocket.send_text("pong")
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket)
+    except Exception:
+        ws_manager.disconnect(websocket)
+

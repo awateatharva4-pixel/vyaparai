@@ -41,6 +41,9 @@ class Settings:
     GREEN_API_INSTANCE_ID: str = os.getenv("GREEN_API_INSTANCE_ID", "710722771292")
     GREEN_API_TOKEN: str = os.getenv("GREEN_API_TOKEN", "9c7611f7a68f4bacad5b5f2a5491227642cd2d7ff74d4b088a")
     
+    # State Persistence & Admin Security
+    ADMIN_TOKEN: str = os.getenv("ADMIN_TOKEN", "vyaparai_admin_2026")
+    
     # Multi-Key Rotation Pool for Google Gemini API
     _api_keys: List[str] = []
     _current_key_index: int = 0

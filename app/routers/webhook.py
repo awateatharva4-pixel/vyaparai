@@ -2,6 +2,7 @@ import os
 import hmac
 import hashlib
 import xml.sax.saxutils
+import httpx
 from typing import Optional
 from fastapi import APIRouter, Request, Response, Depends, BackgroundTasks, Form, Query
 from sqlalchemy.orm import Session
@@ -10,19 +11,27 @@ from app.core.database import get_db, SessionLocal
 from app.core.config import settings
 from app.services.inventory_service import InventoryService
 from app.services.whatsapp_service import WhatsAppService
-from app.models.product import IdempotencyRecord
+from app.services.gemini_service import GeminiService
+from app.services.audio_service import AudioNormalizer
+from app.models.product import IdempotencyRecord, Product
 
 router = APIRouter(prefix="/api/v1/webhook", tags=["WhatsApp Webhook"])
 
 
-def background_process_message(vendor_id: str, message_body: str, message_id: str, to_phone: Optional[str] = None):
+def background_process_message(
+    vendor_id: str,
+    message_body: str,
+    message_id: str,
+    to_phone: Optional[str] = None,
+    transcription: Optional[str] = None
+):
     """
-    Asynchronous background worker for Meta Cloud API.
-    Decoupled from HTTP response to guarantee sub-50ms ingress and avoid Meta 5s timeout.
+    Asynchronous background worker for WhatsApp Ingress (Meta Cloud API, Green-API, Twilio).
+    Decoupled from HTTP response to guarantee sub-50ms ingress and avoid webhook timeouts.
     """
     db: Session = SessionLocal()
     try:
-        # 1. Thread-Safe Idempotency Check: Prevent duplicate processing if Meta retries
+        # 1. Thread-Safe Idempotency Check: Prevent duplicate processing if gateway retries
         if message_id:
             try:
                 db.add(IdempotencyRecord(message_id=message_id, vendor_id=vendor_id))
@@ -37,6 +46,8 @@ def background_process_message(vendor_id: str, message_body: str, message_id: st
 
         # 3. Send WhatsApp Outbound Confirmation
         reply_text = result.get("reply_message", "नोंद झाली (Recorded).")
+        if transcription:
+            reply_text = f"🎙️ *ऑडिओ ऐकले:* \"{transcription}\"\n\n{reply_text}"
         target = to_phone or vendor_id
         WhatsAppService.send_message(to_phone=target, message=reply_text)
     except Exception as e:
@@ -89,6 +100,30 @@ async def handle_whatsapp_webhook(
         sender_phone = str(form_data.get("From", ""))
         message_body = str(form_data.get("Body", "")).strip()
         message_id = str(form_data.get("MessageSid", ""))
+        media_url = str(form_data.get("MediaUrl0", "")).strip()
+        audio_transcription = None
+
+        # Handle Twilio incoming voice/audio notes
+        if not message_body and media_url:
+            raw_audio_bytes = b""
+            try:
+                auth = None
+                if settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN:
+                    auth = (settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+                async with httpx.AsyncClient(timeout=15.0, auth=auth) as http_client:
+                    resp = await http_client.get(media_url)
+                    if resp.status_code == 200:
+                        raw_audio_bytes = resp.content
+            except Exception as e:
+                print(f"[TWILIO AUDIO DOWNLOAD ERROR]: {e}")
+
+            if raw_audio_bytes:
+                norm_bytes, detected_mime = AudioNormalizer.normalize_audio(raw_audio_bytes, input_format="ogg")
+                parsed_audio = GeminiService.transcribe_and_parse_audio(norm_bytes, mime_type=detected_mime)
+                transcription = (parsed_audio.get("transcription") or "").strip()
+                if transcription:
+                    message_body = transcription
+                    audio_transcription = transcription
 
         if not message_body:
             # Twilio status ping or empty event
@@ -113,6 +148,8 @@ async def handle_whatsapp_webhook(
             # Process transaction
             result = InventoryService.process_transaction_event(vendor_id, message_body, db)
             reply_text = result.get("reply_message", "नोंद झाली (Recorded).")
+            if audio_transcription:
+                reply_text = f"🎙️ *ऑडिओ ऐकले:* \"{audio_transcription}\"\n\n{reply_text}"
             escaped_reply = xml.sax.saxutils.escape(reply_text)
             twiml = f'<?xml version="1.0" encoding="UTF-8"?>\n<Response>\n    <Message>{escaped_reply}</Message>\n</Response>'
             return Response(content=twiml, media_type="application/xml")
@@ -129,6 +166,7 @@ async def handle_whatsapp_webhook(
         message_body = ""
         message_id = ""
         sender_phone = ""
+        audio_transcription = None
 
         try:
             body_json = await request.json()
@@ -148,7 +186,46 @@ async def handle_whatsapp_webhook(
             elif type_msg == "extendedTextMessage":
                 message_body = msg_data.get("extendedTextMessageData", {}).get("text", "")
             elif type_msg in ["audioMessage", "voiceMessage"]:
-                message_body = "ऑडिओ नोंद (Voice note received)"
+                download_url = (
+                    msg_data.get("fileMessageData", {}).get("downloadUrl")
+                    or msg_data.get("downloadUrl")
+                )
+                mime_type = msg_data.get("fileMessageData", {}).get("mimeType", "audio/ogg")
+                raw_audio_bytes = b""
+                if download_url:
+                    try:
+                        async with httpx.AsyncClient(timeout=15.0) as http_client:
+                            resp = await http_client.get(download_url)
+                            if resp.status_code == 200:
+                                raw_audio_bytes = resp.content
+                    except Exception as e:
+                        print(f"[GREEN-API AUDIO DOWNLOAD ERROR]: {e}")
+
+                if raw_audio_bytes:
+                    norm_bytes, detected_mime = AudioNormalizer.normalize_audio(
+                        raw_audio_bytes,
+                        input_format="ogg" if "ogg" in mime_type.lower() else "wav"
+                    )
+                    db_temp: Session = SessionLocal()
+                    try:
+                        prods = db_temp.query(Product).filter_by(vendor_id=vendor_id).all()
+                        catalog_data = [
+                            {"sku": p.sku, "name_mr": p.name_mr, "name_en": p.name_en, "aliases": p.aliases, "unit": p.unit}
+                            for p in prods
+                        ]
+                    finally:
+                        db_temp.close()
+
+                    parsed_audio = GeminiService.transcribe_and_parse_audio(
+                        audio_bytes=norm_bytes,
+                        mime_type=detected_mime,
+                        catalog=catalog_data
+                    )
+                    transcription = (parsed_audio.get("transcription") or "").strip()
+                    message_body = transcription if transcription else "ऑडिओ नोंद (Voice note received)"
+                    audio_transcription = transcription
+                else:
+                    message_body = "ऑडिओ नोंद (Voice note received)"
 
         # B. Meta Cloud API Ingress
         elif "entry" in body_json:
@@ -160,7 +237,55 @@ async def handle_whatsapp_webhook(
                 if message.get("type") == "text":
                     message_body = message["text"]["body"]
                 elif message.get("type") == "audio":
-                    message_body = "ऑडिओ नोंद (Voice note received)"
+                    audio_info = message.get("audio", {})
+                    audio_id = audio_info.get("id")
+                    audio_mime = audio_info.get("mime_type", "audio/ogg")
+                    raw_audio_bytes = b""
+                    meta_token = os.getenv("META_ACCESS_TOKEN", "") or os.getenv("WHATSAPP_TOKEN", "")
+                    if audio_id and meta_token:
+                        try:
+                            async with httpx.AsyncClient(timeout=15.0) as http_client:
+                                media_meta_res = await http_client.get(
+                                    f"https://graph.facebook.com/v21.0/{audio_id}",
+                                    headers={"Authorization": f"Bearer {meta_token}"}
+                                )
+                                if media_meta_res.status_code == 200:
+                                    media_url = media_meta_res.json().get("url")
+                                    if media_url:
+                                        media_res = await http_client.get(
+                                            media_url,
+                                            headers={"Authorization": f"Bearer {meta_token}"}
+                                        )
+                                        if media_res.status_code == 200:
+                                            raw_audio_bytes = media_res.content
+                        except Exception as e:
+                            print(f"[META AUDIO DOWNLOAD ERROR]: {e}")
+
+                    if raw_audio_bytes:
+                        norm_bytes, detected_mime = AudioNormalizer.normalize_audio(
+                            raw_audio_bytes,
+                            input_format="ogg" if "ogg" in audio_mime.lower() else "wav"
+                        )
+                        db_temp: Session = SessionLocal()
+                        try:
+                            prods = db_temp.query(Product).filter_by(vendor_id=vendor_id).all()
+                            catalog_data = [
+                                {"sku": p.sku, "name_mr": p.name_mr, "name_en": p.name_en, "aliases": p.aliases, "unit": p.unit}
+                                for p in prods
+                            ]
+                        finally:
+                            db_temp.close()
+
+                        parsed_audio = GeminiService.transcribe_and_parse_audio(
+                            audio_bytes=norm_bytes,
+                            mime_type=detected_mime,
+                            catalog=catalog_data
+                        )
+                        transcription = (parsed_audio.get("transcription") or "").strip()
+                        message_body = transcription if transcription else "ऑडिओ नोंद (Voice note received)"
+                        audio_transcription = transcription
+                    else:
+                        message_body = "ऑडिओ नोंद (Voice note received)"
             except (KeyError, IndexError, ValueError):
                 return Response(status_code=200)
 
@@ -170,7 +295,8 @@ async def handle_whatsapp_webhook(
                 vendor_id=vendor_id,
                 message_body=message_body,
                 message_id=message_id,
-                to_phone=sender_phone
+                to_phone=sender_phone,
+                transcription=audio_transcription
             )
         return Response(content="EVENT_RECEIVED", status_code=200)
 
