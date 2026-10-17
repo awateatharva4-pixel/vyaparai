@@ -10,6 +10,7 @@ from app.core.database import checkpoint_wal, is_sqlite
 from app.models.product import Product, IdempotencyRecord
 from app.models.transaction import Transaction
 from app.models.credit import CustomerCredit
+from app.models.customer_order import CustomerOrder
 from app.core.config import settings
 from app.services.whatsapp_service import WhatsAppService
 from app.core.websocket import ws_manager
@@ -39,6 +40,7 @@ class InventoryService:
             products = db.query(Product).all()
             transactions = db.query(Transaction).order_by(Transaction.id).all()
             credits = db.query(CustomerCredit).order_by(CustomerCredit.id).all()
+            orders = db.query(CustomerOrder).order_by(CustomerOrder.id).all()
 
             low_stock_count = sum(1 for p in products if p.stock <= p.min_threshold)
             total_valuation = sum(p.stock * p.unit_price for p in products)
@@ -62,11 +64,13 @@ class InventoryService:
                     "today_sales_count": len(today_sales),
                     "today_revenue": round(today_revenue, 2),
                     "udhar_count": sum(1 for c in credits if c.status == "PENDING"),
-                    "udhar_total": round(sum(c.amount_due for c in credits if c.status == "PENDING"), 2)
+                    "udhar_total": round(sum(c.amount_due for c in credits if c.status == "PENDING"), 2),
+                    "pending_orders_count": sum(1 for o in orders if o.status == "PENDING")
                 },
                 "products": [p.to_dict() for p in products],
                 "transactions": [t.to_dict() for t in transactions],
-                "customer_credits": [c.to_dict() for c in credits]
+                "customer_credits": [c.to_dict() for c in credits],
+                "customer_orders": [o.to_dict() for o in orders]
             }
 
             temp_path = f"{STATE_FILE_PATH}.{uuid.uuid4().hex}.tmp"
@@ -196,13 +200,36 @@ class InventoryService:
                     due_date=c_data.get("due_date", ""),
                     notes=c_data.get("notes", "")
                 )
+                db.add(cred)
+
+        orders_data = snapshot_data.get("customer_orders", [])
+        if orders_data:
+            existing_order_ids = set(r[0] for r in db.query(CustomerOrder.order_id).all())
+            for o_data in orders_data:
+                oid = o_data.get("order_id")
+                if oid and oid in existing_order_ids:
+                    continue
+                items_val = o_data.get("items", [])
+                items_json = json.dumps(items_val, ensure_ascii=False) if isinstance(items_val, list) else o_data.get("items_json", "[]")
+                co = CustomerOrder(
+                    order_id=oid or f"ORD-{uuid.uuid4().hex[:4].upper()}",
+                    vendor_id=o_data.get("vendor_id", "DEMO_KIRANA_KOP"),
+                    customer_phone=o_data.get("customer_phone", ""),
+                    raw_message=o_data.get("raw_message", ""),
+                    image_url=o_data.get("image_url", ""),
+                    items_json=items_json,
+                    total_amount=float(o_data.get("total_amount", 0.0)),
+                    status=o_data.get("status", "PENDING")
+                )
+                db.add(co)
+
         db.commit()
 
         # Resynchronize PostgreSQL SERIAL sequences so explicit primary keys do not collide
         if not is_sqlite:
             from sqlalchemy import text
             try:
-                for tbl in ["products", "transactions", "customer_credits"]:
+                for tbl in ["products", "transactions", "customer_credits", "customer_orders"]:
                     db.execute(text(f"SELECT setval(pg_get_serial_sequence('{tbl}', 'id'), COALESCE((SELECT MAX(id) FROM {tbl}), 1));"))
                 db.commit()
             except Exception as e:
@@ -213,7 +240,8 @@ class InventoryService:
         return {
             "restored": True,
             "products_count": restored_products,
-            "transactions_count": restored_transactions
+            "transactions_count": restored_transactions,
+            "orders_count": len(orders_data)
         }
 
     @classmethod
@@ -1095,3 +1123,261 @@ class InventoryService:
             "whatsapp_sent": whatsapp_sent,
             "formatted_message": message
         }
+
+    @classmethod
+    def create_customer_yaadi_order(
+        cls,
+        customer_phone: str,
+        items: List[Dict[str, Any]],
+        raw_message: str = "",
+        image_url: str = "",
+        vendor_id: str = "DEMO_KIRANA_KOP",
+        db: Optional[Session] = None
+    ) -> CustomerOrder:
+        """
+        Creates a customer yaadi order in PENDING status (Specification 03).
+        Enforces Zero Direct Ledger Modification Invariant:
+        Inventory stock is NOT deducted on order creation.
+        Saves durable state snapshot and broadcasts NEW_CUSTOMER_YAADI via WebSocket.
+        """
+        close_db = False
+        if db is None:
+            from app.core.database import SessionLocal
+            db = SessionLocal()
+            close_db = True
+
+        try:
+            order_id = f"ORD-{uuid.uuid4().hex[:4].upper()}"
+            while db.query(CustomerOrder).filter_by(order_id=order_id).first():
+                order_id = f"ORD-{uuid.uuid4().hex[:4].upper()}"
+
+            clean_phone = (
+                str(customer_phone or "")
+                .replace("@c.us", "")
+                .replace("@g.us", "")
+                .replace("whatsapp:", "")
+                .replace("+", "")
+                .replace("-", "")
+                .replace(" ", "")
+                .strip()
+            )
+
+            total_amount = sum(float(i.get("line_total", 0.0)) for i in items if i.get("is_available", True))
+
+            order = CustomerOrder(
+                order_id=order_id,
+                vendor_id=vendor_id,
+                customer_phone=clean_phone or str(customer_phone),
+                raw_message=raw_message,
+                image_url=image_url,
+                items_json=json.dumps(items, ensure_ascii=False),
+                total_amount=round(total_amount, 2),
+                status="PENDING",
+                created_at=datetime.utcnow()
+            )
+            db.add(order)
+            db.commit()
+            db.refresh(order)
+
+            # Persist durable snapshot
+            cls.save_state_snapshot(db, vendor_id=vendor_id)
+
+            # Emit WebSocket broadcast
+            ws_payload = {
+                "event": "NEW_CUSTOMER_YAADI",
+                "type": "NEW_CUSTOMER_YAADI",
+                "order": order.to_dict()
+            }
+            try:
+                ws_manager.broadcast_sync(ws_payload)
+            except Exception as ws_err:
+                print(f"[YAADI WS ERROR]: {ws_err}")
+
+            return order
+        finally:
+            if close_db:
+                db.close()
+
+    @classmethod
+    def pack_and_deduct_customer_order(
+        cls,
+        order_id: str,
+        vendor_id: str = "DEMO_KIRANA_KOP",
+        db: Optional[Session] = None
+    ) -> Dict[str, Any]:
+        """
+        Packs a pending customer order and atomically decrements inventory stock.
+        Only Available items in the order decrement stock.
+        Transitions status from PENDING to PACKED.
+        Saves state snapshot, emits CUSTOMER_ORDER_PACKED & METRICS_UPDATE via WebSocket,
+        and returns customer completion receipt.
+        """
+        close_db = False
+        if db is None:
+            from app.core.database import SessionLocal
+            db = SessionLocal()
+            close_db = True
+
+        try:
+            order = db.query(CustomerOrder).filter_by(order_id=order_id, vendor_id=vendor_id).first()
+            if not order:
+                return {"success": False, "message": f"Order {order_id} not found."}
+
+            if order.status != "PENDING":
+                return {"success": False, "message": f"Order {order_id} is already {order.status}."}
+
+            try:
+                items = json.loads(order.items_json) if order.items_json else []
+            except Exception:
+                items = []
+
+            deducted_items = []
+            batch_id = f"ORD_PACK_{order.order_id}_{int(datetime.utcnow().timestamp())}"
+
+            for item in items:
+                if not item.get("is_available", True):
+                    continue
+
+                sku = item.get("sku_matched")
+                qty = float(item.get("quantity", 0.0))
+                prod = None
+                if sku:
+                    prod = db.query(Product).filter_by(sku=sku, vendor_id=vendor_id).first()
+                if not prod and item.get("name_mr"):
+                    prod = db.query(Product).filter(
+                        Product.vendor_id == vendor_id,
+                        Product.name_mr.ilike(f"%{item['name_mr']}%")
+                    ).first()
+
+                if prod:
+                    stock_before = prod.stock
+                    prod.stock = max(0.0, round(prod.stock - qty, 3))
+                    tx = Transaction(
+                        vendor_id=vendor_id,
+                        batch_id=batch_id,
+                        product_id=prod.id,
+                        sku=prod.sku,
+                        item_name=prod.name_mr,
+                        transaction_type="SALE",
+                        quantity_delta=-qty,
+                        stock_after=prod.stock,
+                        unit_price=prod.unit_price,
+                        total_amount=round(qty * prod.unit_price, 2),
+                        raw_message=f"Customer Order {order.order_id} packed"
+                    )
+                    db.add(tx)
+                    deducted_items.append({
+                        "name": prod.name_mr,
+                        "sku": prod.sku,
+                        "qty": qty,
+                        "stock_before": stock_before,
+                        "stock_after": prod.stock,
+                        "unit": prod.unit
+                    })
+
+            order.status = "PACKED"
+            db.commit()
+
+            # Sequence sync for Postgres
+            if not is_sqlite:
+                from sqlalchemy import text
+                try:
+                    for tbl in ["products", "transactions", "customer_orders"]:
+                        db.execute(text(f"SELECT setval(pg_get_serial_sequence('{tbl}', 'id'), COALESCE((SELECT MAX(id) FROM {tbl}), 1));"))
+                    db.commit()
+                except Exception as seq_err:
+                    db.rollback()
+
+            checkpoint_wal(truncate=True)
+            cls.save_state_snapshot(db, vendor_id=vendor_id)
+
+            # Broadcast WebSocket updates
+            try:
+                ws_manager.broadcast_sync({
+                    "event": "CUSTOMER_ORDER_PACKED",
+                    "type": "CUSTOMER_ORDER_PACKED",
+                    "order_id": order.order_id,
+                    "order": order.to_dict()
+                })
+                metrics = cls.get_dashboard_metrics(db, vendor_id=vendor_id)
+                ws_manager.broadcast_sync({
+                    "type": "METRICS_UPDATE",
+                    "vendor_id": vendor_id,
+                    "metrics": metrics
+                })
+            except Exception as ws_err:
+                print(f"[ORDER PACK WS ERROR]: {ws_err}")
+
+            # WhatsApp receipt to customer
+            customer_receipt = (
+                f"🎉 *आपले किराणा सामान पॅक झाले आहे!* 🛍️\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"📦 *ऑर्डर आयडी:* #{order.order_id}\n"
+                f"🏪 *दुकान:* बाबुराव किराणा स्टोअर्स, कोल्हापूर\n"
+                f"💰 *देय रक्कम:* *₹{order.total_amount:.2f}* (रोख किंवा Google Pay)\n\n"
+                f"👉 कृपया दुकानातून आपले सामान घेऊन जावे ही नम्र विनंती.\n"
+                f"🙏 *आपला दिवस शुभ जावो!*"
+            )
+
+            if order.customer_phone:
+                try:
+                    WhatsAppService.send_message(to_phone=order.customer_phone, message=customer_receipt)
+                except Exception as wa_err:
+                    print(f"[ORDER PACK WA NOTICE]: {wa_err}")
+
+            return {
+                "success": True,
+                "order_id": order.order_id,
+                "order": order.to_dict(),
+                "status": "PACKED",
+                "deducted_items": deducted_items,
+                "customer_receipt": customer_receipt,
+                "total_amount": order.total_amount
+            }
+        finally:
+            if close_db:
+                db.close()
+
+    @classmethod
+    def format_customer_yaadi_receipt(cls, order: CustomerOrder) -> str:
+        """
+        Formats instant WhatsApp acknowledgment receipt sent to customer upon receiving their yaadi.
+        Highlights available items with prices and missing items with polite warning (Section 6.1).
+        """
+        try:
+            items = json.loads(order.items_json) if order.items_json else []
+        except Exception:
+            items = []
+
+        lines = [
+            "🙏 *नमस्कार! बाबुराव किराणा स्टोअर्स* 🏪",
+            "आपली किराणा यादी प्राप्त झाली आहे! 📝",
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            f"📦 *ऑर्डर आयडी:* #{order.order_id}\n"
+        ]
+
+        for i, it in enumerate(items, 1):
+            name = it.get("name_mr") or it.get("name_raw")
+            qty = it.get("quantity", 1.0)
+            unit = it.get("unit", "")
+            if it.get("is_available", True):
+                tot = it.get("line_total", 0.0)
+                lines.append(f"{i}. ✅ *{name}* ({qty} {unit}) - ₹{tot:.2f}")
+            else:
+                lines.append(f"{i}. ⚠️ *{name}* - (सध्या उपलब्ध नाही)")
+
+        lines.append("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        lines.append(f"💰 *अंदाजे एकूण बिल:* *₹{order.total_amount:.2f}*")
+        lines.append("⏱️ *पॅकिंग वेळ:* साधारण १० ते १५ मिनिटांत तयार होईल.")
+        lines.append("सामान तयार झाल्यावर आम्ही आपणास लगेच कळवू!")
+
+        return "\n".join(lines)
+
+    @classmethod
+    def get_pending_customer_orders(cls, db: Session, vendor_id: str = "DEMO_KIRANA_KOP") -> List[Dict[str, Any]]:
+        orders = db.query(CustomerOrder).filter(
+            CustomerOrder.vendor_id == vendor_id,
+            CustomerOrder.status == "PENDING"
+        ).order_by(CustomerOrder.created_at.desc()).all()
+        return [o.to_dict() for o in orders]
+

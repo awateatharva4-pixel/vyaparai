@@ -34,6 +34,17 @@ class Product(Base):
 
     @aliases.setter
     def aliases(self, value):
+        if isinstance(value, str):
+            try:
+                val_obj = json.loads(value)
+                if isinstance(val_obj, list):
+                    value = val_obj
+                else:
+                    value = [value] if value else []
+            except Exception:
+                value = [value] if value else []
+        elif not isinstance(value, list):
+            value = [value] if value else []
         self.aliases_json = json.dumps(value, ensure_ascii=False)
 
     @property

@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import Base, engine, get_db, SessionLocal, init_db
 from app.core.websocket import ws_manager
-from app.models import product, transaction, credit
+from app.models import product, transaction, credit, customer_order
 from app.services.inventory_service import InventoryService
 from app.routers import webhook, inventory, simulator
 

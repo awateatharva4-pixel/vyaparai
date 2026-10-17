@@ -152,6 +152,33 @@
         <div id="statAlerts" class="text-2xl font-bold text-amber-400">{{ metrics.low_stock_count }}</div>
         <p class="text-[11px] text-slate-400 mt-1">Items below safety threshold</p>
       </div>
+    <!-- 🛒 LIVE CUSTOMER YAADI & REMOTE ORDERS QUEUE (Specification 03) -->
+    <div id="customerOrdersSection" class="bg-slate-800/60 border border-amber-500/30 rounded-xl overflow-hidden shadow-sm">
+      <div class="px-5 py-3.5 border-b border-slate-700/60 bg-gradient-to-r from-amber-950/20 to-transparent flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="p-1.5 rounded-lg bg-amber-500/20 text-amber-300">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          </span>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-sm font-bold text-white">🔔 नवीन ग्राहक ऑर्डर्स &bull; Remote Customer Yaadi Queue</h2>
+              <span id="pendingOrdersBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">0 प्रलंबित</span>
+            </div>
+            <p class="text-[11px] text-slate-400">WhatsApp हस्तलिखित यादी (OCR) &bull; १-क्लिकने पॅक करा व साठा वजा करा</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="fetchPendingOrders()" class="px-2.5 py-1 rounded text-xs font-semibold bg-slate-700/50 hover:bg-slate-700 text-slate-300 border border-slate-600 transition flex items-center gap-1">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span>ताजे करा</span>
+          </button>
+        </div>
+      </div>
+      <div id="customerOrdersContainer" class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div id="noPendingOrders" class="col-span-full py-4 text-center text-slate-400 text-xs">
+          सध्या कोणतीही नवीन ग्राहक ऑर्डर प्रलंबित नाही (No pending customer orders)
+        </div>
+      </div>
     </div>
 
     <!-- Inventory Table Container -->
@@ -741,6 +768,161 @@
       setTimeout(refreshData, 1500);
     }
 
+    // Remote Customer Yaadi Queue Management (Specification 03)
+    let pendingOrdersMap = new Map();
+
+    function renderOrderCard(order) {
+      const items = order.items || [];
+      const itemsHtml = items.map(it => {
+        if (it.is_available) {
+          return `<div class="text-xs text-emerald-300 flex items-center justify-between py-0.5">
+            <span>✅ ${it.name_mr || it.name_raw} (${it.quantity} ${it.unit})</span>
+            <span class="font-mono text-slate-300">₹${Number(it.line_total || 0).toFixed(2)}</span>
+          </div>`;
+        } else {
+          return `<div class="text-xs text-rose-400 flex items-center justify-between py-0.5">
+            <span>⚠️ ${it.name_raw}</span>
+            <span class="text-[10px] text-rose-400/80">(सध्या उपलब्ध नाही)</span>
+          </div>`;
+        }
+      }).join("");
+
+      return `
+        <div id="order-card-${order.order_id}" class="p-3.5 rounded-xl border border-amber-500/50 bg-gradient-to-br from-amber-950/30 to-slate-900/80 shadow-md ring-2 ring-amber-400/40 animate-pulse transition duration-500 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b border-amber-500/20 pb-2 mb-2">
+              <span class="font-bold text-amber-300 font-mono text-sm">#${order.order_id}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">PENDING</span>
+            </div>
+            <div class="text-xs text-slate-300 flex items-center justify-between mb-1">
+              <span class="text-slate-400">ग्राहक:</span>
+              <span class="font-mono font-medium text-white">${order.customer_phone}</span>
+            </div>
+            <div class="text-[10px] text-slate-400 mb-2">${order.created_at || 'आताच (Just now)'}</div>
+            
+            <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/60 mb-2 space-y-1 max-h-32 overflow-y-auto">
+              ${itemsHtml || '<div class="text-xs text-slate-400">यादी उपलब्ध नाही</div>'}
+            </div>
+            
+            <div class="flex items-center justify-between font-bold text-sm text-white pt-1 border-t border-slate-700/60">
+              <span class="text-slate-400 text-xs font-normal">अंदाजे एकूण बिल:</span>
+              <span class="text-emerald-400 font-mono">₹${Number(order.total_amount || 0).toFixed(2)}</span>
+            </div>
+          </div>
+
+          <button id="pack-btn-${order.order_id}" onclick="packCustomerOrder('${order.order_id}')" class="w-full mt-3 py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950/40 transition">
+            <span>✅ पॅक करा व स्टॉक वजा करा</span>
+          </button>
+        </div>
+      `;
+    }
+
+    async function fetchPendingOrders() {
+      try {
+        const res = await fetch("/api/orders/pending");
+        const data = await res.json();
+        const orders = data.orders || [];
+        const container = document.getElementById("customerOrdersContainer");
+        const badge = document.getElementById("pendingOrdersBadge");
+
+        if (badge) badge.innerText = `${orders.length} प्रलंबित`;
+        if (orders.length === 0) {
+          if (container) container.innerHTML = `<div id="noPendingOrders" class="col-span-full py-4 text-center text-slate-400 text-xs">सध्या कोणतीही नवीन ग्राहक ऑर्डर प्रलंबित नाही (No pending customer orders)</div>`;
+          pendingOrdersMap.clear();
+          return;
+        }
+
+        pendingOrdersMap.clear();
+        orders.forEach(o => pendingOrdersMap.set(o.order_id, o));
+        if (container) {
+          container.innerHTML = orders.map(renderOrderCard).join("");
+        }
+      } catch (err) {
+        console.warn("fetchPendingOrders error:", err);
+      }
+    }
+
+    function handleNewCustomerYaadi(data) {
+      const order = data.order;
+      if (!order) return;
+      playSuccessChime();
+
+      pendingOrdersMap.set(order.order_id, order);
+      const container = document.getElementById("customerOrdersContainer");
+      const noOrders = document.getElementById("noPendingOrders");
+      if (noOrders) noOrders.remove();
+
+      const existingCard = document.getElementById(`order-card-${order.order_id}`);
+      if (!existingCard && container) {
+        container.insertAdjacentHTML("afterbegin", renderOrderCard(order));
+      }
+
+      const badge = document.getElementById("pendingOrdersBadge");
+      if (badge) badge.innerText = `${pendingOrdersMap.size} प्रलंबित`;
+
+      showToast(`🔔 नवीन ग्राहक ऑर्डर #${order.order_id}! एकूण: ₹${order.total_amount}`, "success");
+    }
+
+    function handleCustomerOrderPacked(data) {
+      const orderId = data.order_id;
+      if (!orderId) return;
+      pendingOrdersMap.delete(orderId);
+
+      const card = document.getElementById(`order-card-${orderId}`);
+      if (card) {
+        card.className = "p-3.5 rounded-xl border border-emerald-500/40 bg-slate-900/60 shadow-sm transition duration-500 opacity-60";
+        const btn = document.getElementById(`pack-btn-${orderId}`);
+        if (btn) {
+          btn.className = "w-full mt-3 py-1.5 px-3 rounded-lg bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 text-xs font-semibold cursor-not-allowed";
+          btn.innerText = "📦 ऑर्डर पॅक झाली (Packed)";
+          btn.disabled = true;
+        }
+        setTimeout(() => {
+          card.remove();
+          if (pendingOrdersMap.size === 0) {
+            const container = document.getElementById("customerOrdersContainer");
+            if (container) container.innerHTML = `<div id="noPendingOrders" class="col-span-full py-4 text-center text-slate-400 text-xs">सध्या कोणतीही नवीन ग्राहक ऑर्डर प्रलंबित नाही (No pending customer orders)</div>`;
+          }
+        }, 2500);
+      }
+
+      const badge = document.getElementById("pendingOrdersBadge");
+      if (badge) badge.innerText = `${pendingOrdersMap.size} प्रलंबित`;
+    }
+
+    async function packCustomerOrder(orderId) {
+      const btn = document.getElementById(`pack-btn-${orderId}`);
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = "⏳ पॅक करत आहे...";
+      }
+      try {
+        const res = await fetch(`/api/orders/${orderId}/pack`, { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`✅ ऑर्डर #${orderId} पॅक झाली व साठा वजा केला!`, "success");
+          handleCustomerOrderPacked({ order_id: orderId });
+          if (data.metrics) {
+            updateDashboardUI(data.metrics);
+          } else {
+            refreshData();
+          }
+        } else {
+          alert("त्रुटी: " + (data.message || "पॅक करता आले नाही"));
+          if (btn) {
+            btn.disabled = false;
+            btn.innerText = "✅ पॅक करा व स्टॉक वजा करा";
+          }
+        }
+      } catch (err) {
+        console.error("Pack error:", err);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = "✅ पॅक करा व स्टॉक वजा करा";
+        }
+      }
+    }
+
     function connectWebSocket() {
       try {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -763,6 +945,17 @@
             // Real-Time Video Onboarding Event (Slide 1 & Sequence #2)
             if (data.event === "CATALOG_ONBOARDED" || data.type === "CATALOG_ONBOARDED") {
               handleCatalogOnboarded(data);
+              return;
+            }
+
+            // Real-Time Customer Yaadi Ingress Events (Sequence #3)
+            if (data.event === "NEW_CUSTOMER_YAADI" || data.type === "NEW_CUSTOMER_YAADI") {
+              handleNewCustomerYaadi(data);
+              return;
+            }
+
+            if (data.event === "CUSTOMER_ORDER_PACKED" || data.type === "CUSTOMER_ORDER_PACKED") {
+              handleCustomerOrderPacked(data);
               return;
             }
 
@@ -818,10 +1011,12 @@
       }
     })();
 
-    // Launch WebSocket Connection & Standby Poller
+    // Launch WebSocket Connection, Order Fetcher & Standby Poller
     connectWebSocket();
     refreshData();
+    fetchPendingOrders();
     setInterval(refreshData, 4000);
+    setInterval(fetchPendingOrders, 6000);
   </script>
 </body>
 </html>

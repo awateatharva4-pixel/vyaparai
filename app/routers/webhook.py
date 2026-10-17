@@ -8,7 +8,7 @@ from fastapi import APIRouter, Request, Response, Depends, BackgroundTasks, Form
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app.core.database import get_db, SessionLocal
-from app.core.config import settings
+from app.core.config import settings, is_merchant_sender
 from app.services.inventory_service import InventoryService
 from app.services.whatsapp_service import WhatsAppService
 from app.services.gemini_service import GeminiService
@@ -135,6 +135,75 @@ def background_process_video(
         db.close()
 
 
+def background_process_customer_yaadi_image(
+    vendor_id: str,
+    customer_phone: str,
+    image_bytes: bytes,
+    mime_type: str = "image/jpeg"
+):
+    """
+    Background worker for Customer Handwritten Yaadi Photo Ingress (Specification 03).
+    Grounds handwritten slip against active catalog, creates CustomerOrder in PENDING status,
+    and dispatches itemized Marathi confirmation receipt to customer.
+    """
+    db: Session = SessionLocal()
+    try:
+        prods = db.query(Product).filter_by(vendor_id=vendor_id).all()
+        catalog_items = [p.to_dict() for p in prods]
+        parsed = GeminiService.parse_handwritten_yaadi(
+            image_bytes=image_bytes,
+            mime_type=mime_type,
+            catalog_items=catalog_items
+        )
+        order = InventoryService.create_customer_yaadi_order(
+            customer_phone=customer_phone,
+            items=parsed.get("order_items", []),
+            raw_message="Handwritten Chit / किराणा यादी (Photo)",
+            vendor_id=vendor_id,
+            db=db
+        )
+        receipt = InventoryService.format_customer_yaadi_receipt(order)
+        WhatsAppService.send_message(to_phone=customer_phone, message=receipt)
+    except Exception as e:
+        print(f"[YAADI IMAGE WORKER ERROR]: {e}")
+    finally:
+        db.close()
+
+
+def background_process_customer_yaadi_text(
+    vendor_id: str,
+    customer_phone: str,
+    text_message: str
+):
+    """
+    Background worker for Customer Text Yaadi Ingress (Specification 03).
+    Parses customer grocery order text, creates CustomerOrder in PENDING status,
+    and dispatches itemized Marathi confirmation receipt.
+    """
+    db: Session = SessionLocal()
+    try:
+        prods = db.query(Product).filter_by(vendor_id=vendor_id).all()
+        catalog_items = [p.to_dict() for p in prods]
+        parsed = GeminiService.parse_yaadi_from_text(
+            text=text_message,
+            catalog_items=catalog_items
+        )
+        order = InventoryService.create_customer_yaadi_order(
+            customer_phone=customer_phone,
+            items=parsed.get("order_items", []),
+            raw_message=text_message,
+            vendor_id=vendor_id,
+            db=db
+        )
+        receipt = InventoryService.format_customer_yaadi_receipt(order)
+        WhatsAppService.send_message(to_phone=customer_phone, message=receipt)
+    except Exception as e:
+        print(f"[YAADI TEXT WORKER ERROR]: {e}")
+    finally:
+        db.close()
+
+
+
 @router.get("/whatsapp")
 def verify_meta_webhook(
     mode: str = Query(None, alias="hub.mode"),
@@ -226,7 +295,60 @@ async def handle_whatsapp_webhook(
                     twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>⚠️ ही नोंद आधीच स्वीकारण्यात आली आहे (Duplicate Request).</Message></Response>'
                     return Response(content=twiml, media_type="application/xml")
 
-            # Process transaction with pre-parsed audio payload if available
+            # Dual-Role Security Firewall: Check if sender is Merchant Admin
+            is_merchant = is_merchant_sender(sender_phone)
+            if not is_merchant:
+                # Customer Ingress Flow: Check if customer sent an image
+                media_type = str(form_data.get("MediaContentType0", "")).lower()
+                if "image" in media_type and media_url:
+                    raw_img_bytes = b""
+                    try:
+                        auth = None
+                        if settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN:
+                            auth = (settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+                        with httpx.Client(timeout=20.0, auth=auth, follow_redirects=True) as http_client:
+                            resp = http_client.get(media_url)
+                            if resp.status_code == 200:
+                                raw_img_bytes = resp.content
+                    except Exception as img_err:
+                        print(f"[TWILIO YAADI IMAGE ERROR]: {img_err}")
+                    if raw_img_bytes:
+                        prods = db.query(Product).filter_by(vendor_id=vendor_id).all()
+                        catalog_items = [p.to_dict() for p in prods]
+                        parsed = GeminiService.parse_handwritten_yaadi(raw_img_bytes, mime_type=media_type, catalog_items=catalog_items)
+                        order = InventoryService.create_customer_yaadi_order(
+                            customer_phone=sender_phone,
+                            items=parsed.get("order_items", []),
+                            raw_message="Handwritten Chit / किराणा यादी (Photo)",
+                            vendor_id=vendor_id,
+                            db=db
+                        )
+                        receipt = InventoryService.format_customer_yaadi_receipt(order)
+                        escaped = xml.sax.saxutils.escape(receipt)
+                        return Response(content=f'<?xml version="1.0" encoding="UTF-8"?>\n<Response>\n    <Message>{escaped}</Message>\n</Response>', media_type="application/xml")
+
+                # Customer Sandboxed Command Check (Zero Privilege Escalation)
+                if any(w in message_body.lower() for w in ["undo", "cancel", "चूक झाली", "रद्द करा", "साठा दाखवा", "स्टॉक"]):
+                    sandbox_msg = "🙏 *नमस्कार! बाबुराव किराणा स्टोअर्स* 🏪\nआपण ग्राहक सेवेशी जोडलेले आहात. कृपया आपली किराणा यादी पाठवा किंवा ऑर्डरसाठी संपर्क करा."
+                    escaped = xml.sax.saxutils.escape(sandbox_msg)
+                    return Response(content=f'<?xml version="1.0" encoding="UTF-8"?>\n<Response>\n    <Message>{escaped}</Message>\n</Response>', media_type="application/xml")
+
+                # Customer Text Yaadi
+                prods = db.query(Product).filter_by(vendor_id=vendor_id).all()
+                catalog_items = [p.to_dict() for p in prods]
+                parsed = GeminiService.parse_yaadi_from_text(message_body, catalog_items=catalog_items)
+                order = InventoryService.create_customer_yaadi_order(
+                    customer_phone=sender_phone,
+                    items=parsed.get("order_items", []),
+                    raw_message=message_body,
+                    vendor_id=vendor_id,
+                    db=db
+                )
+                receipt = InventoryService.format_customer_yaadi_receipt(order)
+                escaped = xml.sax.saxutils.escape(receipt)
+                return Response(content=f'<?xml version="1.0" encoding="UTF-8"?>\n<Response>\n    <Message>{escaped}</Message>\n</Response>', media_type="application/xml")
+
+            # Authorized Merchant Flow: Process transaction with pre-parsed audio payload if available
             parsed_payload = parsed_audio if "parsed_audio" in locals() else None
             result = InventoryService.process_transaction_event(vendor_id, message_body, db, parsed_payload=parsed_payload)
             reply_text = result.get("reply_message", "नोंद झाली (Recorded).")
@@ -361,6 +483,54 @@ async def handle_whatsapp_webhook(
                 )
                 return Response(content="EVENT_RECEIVED", status_code=200)
 
+            elif type_msg in ("imageMessage",):
+                # Customer Handwritten Yaadi Image Ingress (Specification 03)
+                download_url = (
+                    msg_data.get("fileMessageData", {}).get("downloadUrl")
+                    or msg_data.get("downloadUrl")
+                    or body_json.get("downloadUrl")
+                )
+                mime_type = (
+                    msg_data.get("fileMessageData", {}).get("mimeType")
+                    or msg_data.get("mimeType")
+                    or body_json.get("mimeType")
+                    or "image/jpeg"
+                )
+                raw_img_bytes = b""
+                if download_url:
+                    try:
+                        async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as http_client:
+                            resp = await http_client.get(download_url)
+                            if resp.status_code == 200:
+                                raw_img_bytes = resp.content
+                    except Exception as e:
+                        print(f"[GREEN-API YAADI IMAGE DOWNLOAD ERROR]: {e}")
+
+                if not raw_img_bytes and message_id and settings.GREEN_API_HOST and settings.GREEN_API_INSTANCE_ID and settings.GREEN_API_TOKEN:
+                    try:
+                        api_url = f"{settings.GREEN_API_HOST}/waInstance{settings.GREEN_API_INSTANCE_ID}/downloadFile/{settings.GREEN_API_TOKEN}"
+                        chat_id = sender_phone if ("@c.us" in sender_phone or "@g.us" in sender_phone) else f"{sender_phone}@c.us"
+                        async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as http_client:
+                            res_api = await http_client.post(api_url, json={"chatId": chat_id, "idMessage": message_id})
+                            if res_api.status_code == 200:
+                                fresh_url = res_api.json().get("downloadUrl")
+                                if fresh_url:
+                                    resp2 = await http_client.get(fresh_url)
+                                    if resp2.status_code == 200:
+                                        raw_img_bytes = resp2.content
+                    except Exception as e:
+                        print(f"[GREEN-API YAADI DOWNLOADFILE ERROR]: {e}")
+
+                if raw_img_bytes:
+                    background_tasks.add_task(
+                        background_process_customer_yaadi_image,
+                        vendor_id=vendor_id,
+                        customer_phone=sender_phone,
+                        image_bytes=raw_img_bytes,
+                        mime_type=mime_type
+                    )
+                return Response(content="EVENT_RECEIVED", status_code=200)
+
         # B. Meta Cloud API Ingress
         elif "entry" in body_json:
             try:
@@ -425,6 +595,25 @@ async def handle_whatsapp_webhook(
                 return Response(status_code=200)
 
         if message_body:
+            # Dual-Role Security Firewall (Specification 03)
+            is_merchant = is_merchant_sender(sender_phone)
+            if not is_merchant:
+                # Customer Ingress Flow: Sandboxed rejection for admin commands
+                if any(w in message_body.lower() for w in ["undo", "cancel", "चूक झाली", "रद्द करा", "साठा दाखवा", "स्टॉक"]):
+                    sandbox_msg = "🙏 *नमस्कार! बाबुराव किराणा स्टोअर्स* 🏪\nआपण ग्राहक सेवेशी जोडलेले आहात. कृपया आपली किराणा यादी पाठवा किंवा ऑर्डरसाठी संपर्क करा."
+                    WhatsAppService.send_message(to_phone=sender_phone, message=sandbox_msg)
+                    return Response(content="EVENT_RECEIVED", status_code=200)
+
+                # Process Customer Text Yaadi Order
+                background_tasks.add_task(
+                    background_process_customer_yaadi_text,
+                    vendor_id=vendor_id,
+                    customer_phone=sender_phone,
+                    text_message=message_body
+                )
+                return Response(content="EVENT_RECEIVED", status_code=200)
+
+            # Authorized Merchant Flow
             background_tasks.add_task(
                 background_process_message,
                 vendor_id=vendor_id,

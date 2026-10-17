@@ -1,192 +1,26 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-17T22:29:01.515319+00:00",
+  "timestamp": "2026-10-17T22:54:45.632347+00:00",
   "vendor_id": "DEMO_KIRANA_KOP",
   "metrics": {
     "total_skus": 10,
-    "total_valuation": 23692.27,
-    "low_stock_count": 0,
-    "today_sales_count": 4,
-    "today_revenue": 62.75,
+    "total_valuation": 22432.0,
+    "low_stock_count": 1,
+    "today_sales_count": 2,
+    "today_revenue": 63.0,
     "udhar_count": 3,
-    "udhar_total": 1450.0
+    "udhar_total": 1450.0,
+    "pending_orders_count": 21
   },
   "products": [
     {
-      "id": 609,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "OIL-FORT-1L",
-      "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
-      "name_en": "Fortune Sunflower Oil 1L",
-      "category": "Edible Oils / खाद्यतेल",
-      "stock": 25.0,
-      "unit": "pouch",
-      "unit_price": 135.0,
-      "min_threshold": 5.0,
-      "is_low_stock": false,
-      "aliases": [
-        "तेल",
-        "फॉर्च्युन",
-        "oil",
-        "fortune oil",
-        "tel",
-        "surajmukhi tel",
-        "sunflower oil",
-        "पिशवी",
-        "पॉऊच"
-      ],
-      "extra_meta": {},
-      "updated_at": "2026-10-17 22:28:57"
-    },
-    {
-      "id": 610,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "BAK-PAV-LADI",
-      "name_mr": "लादी पाव (Fresh Bakery Pav)",
-      "name_en": "Bakery Pav (Ladi)",
-      "category": "Bakery & Fresh / बेकरी व ताजे पदार्थ",
-      "stock": 30.0,
-      "unit": "ladi",
-      "unit_price": 20.0,
-      "min_threshold": 8.0,
-      "is_low_stock": false,
-      "aliases": [
-        "लादी पाव",
-        "ladi pav",
-        "bread pav",
-        "fresh pav",
-        "बेकरी पाव",
-        "ब्रेड"
-      ],
-      "extra_meta": {},
-      "updated_at": "2026-10-17 22:28:57"
-    },
-    {
-      "id": 611,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "DAL-TUR-001",
-      "name_mr": "गावरान तूर डाळ (Polished Tur Dal)",
-      "name_en": "Tur Dal",
-      "category": "Pulses & Lentils / डाळी व कडधान्ये",
-      "stock": 40.0,
-      "unit": "kg",
-      "unit_price": 160.0,
-      "min_threshold": 10.0,
-      "is_low_stock": false,
-      "aliases": [
-        "तूर डाळ",
-        "डाळ",
-        "tur dal",
-        "toor dal",
-        "dal",
-        "tur daal",
-        "daal"
-      ],
-      "extra_meta": {},
-      "updated_at": "2026-10-17 22:28:57"
-    },
-    {
-      "id": 612,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "GROC-SALT-1K",
-      "name_mr": "टाटा मीठ (Tata Salt 1kg)",
-      "name_en": "Tata Salt 1kg",
-      "category": "Spices & Essentials / मसाले व आवश्यक वस्तू",
-      "stock": 45.0,
-      "unit": "packet",
-      "unit_price": 28.0,
-      "min_threshold": 10.0,
-      "is_low_stock": false,
-      "aliases": [
-        "मीठ",
-        "टाटा मीठ",
-        "salt",
-        "tata salt",
-        "mith",
-        "namak"
-      ],
-      "extra_meta": {},
-      "updated_at": "2026-10-17 22:28:57"
-    },
-    {
-      "id": 613,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "GROC-ATTA-5K",
-      "name_mr": "आशीर्वाद चक्की आटा (Aashirvaad Atta 5kg)",
-      "name_en": "Aashirvaad Atta 5kg",
-      "category": "Grains & Sweeteners / धान्य व साखर",
-      "stock": 18.0,
-      "unit": "bag",
-      "unit_price": 240.0,
-      "min_threshold": 5.0,
-      "is_low_stock": false,
-      "aliases": [
-        "आटा",
-        "पीठ",
-        "गहू पीठ",
-        "atta",
-        "aashirvaad atta",
-        "wheat flour",
-        "pith",
-        "aata"
-      ],
-      "extra_meta": {},
-      "updated_at": "2026-10-17 22:28:57"
-    },
-    {
-      "id": 614,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "FMCG-MAGGI-70G",
-      "name_mr": "मॅगी २-मिनिट नूडल्स (Maggi 70g)",
-      "name_en": "Maggi Noodles 70g",
-      "category": "Packaged Snacks / पॅकेज्ड स्नॅक्स",
-      "stock": 50.0,
-      "unit": "packet",
-      "unit_price": 14.0,
-      "min_threshold": 12.0,
-      "is_low_stock": false,
-      "aliases": [
-        "मॅगी",
-        "नूडल्स",
-        "maggi",
-        "maggi noodles",
-        "noodles",
-        "magi"
-      ],
-      "extra_meta": {},
-      "updated_at": "2026-10-17 22:28:57"
-    },
-    {
-      "id": 616,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "VEG-BATATA-001",
-      "name_mr": "इंदूर बटाटा (Fresh Potato)",
-      "name_en": "Potato",
-      "category": "Fresh Vegetables / ताजी भाजी",
-      "stock": 65.0,
-      "unit": "kg",
-      "unit_price": 30.0,
-      "min_threshold": 15.0,
-      "is_low_stock": false,
-      "aliases": [
-        "बटाटा",
-        "batata",
-        "potato",
-        "aloo",
-        "batate",
-        "alu"
-      ],
-      "extra_meta": {},
-      "updated_at": "2026-10-17 22:28:57"
-    },
-    {
-      "id": 607,
+      "id": 682,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "GROC-SUG-001",
       "name_mr": "साखर (Madhur Sugar)",
       "name_en": "Sugar",
       "category": "Grains & Sweeteners / धान्य व साखर",
-      "stock": 48.8,
+      "stock": 48.5,
       "unit": "kg",
       "unit_price": 42.0,
       "min_threshold": 10.0,
@@ -202,10 +36,10 @@
         "shakkhar"
       ],
       "extra_meta": {},
-      "updated_at": "2026-10-17 22:29:01"
+      "updated_at": "2026-10-17 22:54:45"
     },
     {
-      "id": 608,
+      "id": 683,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "FMCG-PARLE-100G",
       "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
@@ -230,16 +64,137 @@
         "पुडे"
       ],
       "extra_meta": {},
-      "updated_at": "2026-10-17 22:29:01"
+      "updated_at": "2026-10-17 22:54:33"
     },
     {
-      "id": 615,
+      "id": 684,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "OIL-FORT-1L",
+      "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+      "name_en": "Fortune Sunflower Oil 1L",
+      "category": "Edible Oils / खाद्यतेल",
+      "stock": 25.0,
+      "unit": "pouch",
+      "unit_price": 135.0,
+      "min_threshold": 5.0,
+      "is_low_stock": false,
+      "aliases": [
+        "तेल",
+        "फॉर्च्युन",
+        "oil",
+        "fortune oil",
+        "tel",
+        "surajmukhi tel",
+        "sunflower oil",
+        "पिशवी",
+        "पॉऊच"
+      ],
+      "extra_meta": {},
+      "updated_at": "2026-10-17 22:54:33"
+    },
+    {
+      "id": 685,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "BAK-PAV-LADI",
+      "name_mr": "लादी पाव (Fresh Bakery Pav)",
+      "name_en": "Bakery Pav (Ladi)",
+      "category": "Bakery & Fresh / बेकरी व ताजे पदार्थ",
+      "stock": 30.0,
+      "unit": "ladi",
+      "unit_price": 20.0,
+      "min_threshold": 8.0,
+      "is_low_stock": false,
+      "aliases": [
+        "लादी पाव",
+        "ladi pav",
+        "bread pav",
+        "fresh pav",
+        "बेकरी पाव",
+        "ब्रेड"
+      ],
+      "extra_meta": {},
+      "updated_at": "2026-10-17 22:54:33"
+    },
+    {
+      "id": 686,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "DAL-TUR-001",
+      "name_mr": "गावरान तूर डाळ (Polished Tur Dal)",
+      "name_en": "Tur Dal",
+      "category": "Pulses & Lentils / डाळी व कडधान्ये",
+      "stock": 40.0,
+      "unit": "kg",
+      "unit_price": 160.0,
+      "min_threshold": 10.0,
+      "is_low_stock": false,
+      "aliases": [
+        "तूर डाळ",
+        "डाळ",
+        "tur dal",
+        "toor dal",
+        "dal",
+        "tur daal",
+        "daal"
+      ],
+      "extra_meta": {},
+      "updated_at": "2026-10-17 22:54:33"
+    },
+    {
+      "id": 688,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "GROC-ATTA-5K",
+      "name_mr": "आशीर्वाद चक्की आटा (Aashirvaad Atta 5kg)",
+      "name_en": "Aashirvaad Atta 5kg",
+      "category": "Grains & Sweeteners / धान्य व साखर",
+      "stock": 18.0,
+      "unit": "bag",
+      "unit_price": 240.0,
+      "min_threshold": 5.0,
+      "is_low_stock": false,
+      "aliases": [
+        "आटा",
+        "पीठ",
+        "गहू पीठ",
+        "atta",
+        "aashirvaad atta",
+        "wheat flour",
+        "pith",
+        "aata"
+      ],
+      "extra_meta": {},
+      "updated_at": "2026-10-17 22:54:33"
+    },
+    {
+      "id": 689,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "FMCG-MAGGI-70G",
+      "name_mr": "मॅगी २-मिनिट नूडल्स (Maggi 70g)",
+      "name_en": "Maggi Noodles 70g",
+      "category": "Packaged Snacks / पॅकेज्ड स्नॅक्स",
+      "stock": 50.0,
+      "unit": "packet",
+      "unit_price": 14.0,
+      "min_threshold": 12.0,
+      "is_low_stock": false,
+      "aliases": [
+        "मॅगी",
+        "नूडल्स",
+        "maggi",
+        "maggi noodles",
+        "noodles",
+        "magi"
+      ],
+      "extra_meta": {},
+      "updated_at": "2026-10-17 22:54:33"
+    },
+    {
+      "id": 690,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "VEG-KANDA-001",
       "name_mr": "गावठी लाल कांदा (Fresh Onion)",
       "name_en": "Red Onion",
       "category": "Fresh Vegetables / ताजी भाजी",
-      "stock": 69.65,
+      "stock": 70.0,
       "unit": "kg",
       "unit_price": 35.0,
       "min_threshold": 15.0,
@@ -253,184 +208,162 @@
         "kande"
       ],
       "extra_meta": {},
-      "updated_at": "2026-10-17 22:29:01"
+      "updated_at": "2026-10-17 22:54:33"
+    },
+    {
+      "id": 691,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "VEG-BATATA-001",
+      "name_mr": "इंदूर बटाटा (Fresh Potato)",
+      "name_en": "Potato",
+      "category": "Fresh Vegetables / ताजी भाजी",
+      "stock": 65.0,
+      "unit": "kg",
+      "unit_price": 30.0,
+      "min_threshold": 15.0,
+      "is_low_stock": false,
+      "aliases": [
+        "बटाटा",
+        "batata",
+        "potato",
+        "aloo",
+        "batate",
+        "alu"
+      ],
+      "extra_meta": {},
+      "updated_at": "2026-10-17 22:54:33"
+    },
+    {
+      "id": 687,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "GROC-SALT-1K",
+      "name_mr": "टाटा मीठ (Tata Salt 1kg)",
+      "name_en": "Tata Salt 1kg",
+      "category": "Spices & Essentials / मसाले व आवश्यक वस्तू",
+      "stock": 0.0,
+      "unit": "packet",
+      "unit_price": 28.0,
+      "min_threshold": 10.0,
+      "is_low_stock": true,
+      "aliases": [
+        "मीठ",
+        "टाटा मीठ",
+        "salt",
+        "tata salt",
+        "mith",
+        "namak"
+      ],
+      "extra_meta": {},
+      "updated_at": "2026-10-17 22:54:37"
     }
   ],
   "transactions": [
     {
-      "id": 11,
-      "batch_id": "batch_d7a58fd81c89",
+      "id": 4,
+      "batch_id": "batch_792d07d3fafb",
       "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 607,
+      "product_id": 682,
       "sku": "GROC-SUG-001",
       "item_name": "साखर (Madhur Sugar) (Sugar)",
       "type": "SALE",
-      "delta": -0.476,
-      "stock_after": 49.52,
+      "delta": -5.0,
+      "stock_after": 45.0,
       "unit_price": 42.0,
-      "amount": 20.0,
-      "raw_message": "२० रुपयांची साखर",
-      "is_reversed": false,
-      "created_at": "2026-10-17T22:28:58.060900",
-      "time": "22:28:58"
-    },
-    {
-      "id": 12,
-      "batch_id": "batch_dfa0c698c386",
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 607,
-      "sku": "GROC-SUG-001",
-      "item_name": "साखर (Madhur Sugar) (Sugar)",
-      "type": "SALE",
-      "delta": -0.476,
-      "stock_after": 49.05,
-      "unit_price": 42.0,
-      "amount": 20.0,
-      "raw_message": "20 chi sakhar",
-      "is_reversed": false,
-      "created_at": "2026-10-17T22:28:58.603094",
-      "time": "22:28:58"
-    },
-    {
-      "id": 13,
-      "batch_id": "batch_7fb500989e60",
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 615,
-      "sku": "VEG-KANDA-001",
-      "item_name": "गावठी लाल कांदा (Fresh Onion) (Red Onion)",
-      "type": "SALE",
-      "delta": -0.35,
-      "stock_after": 69.65,
-      "unit_price": 35.0,
-      "amount": 12.25,
-      "raw_message": "३५० ग्रॅम कांदा",
-      "is_reversed": false,
-      "created_at": "2026-10-17T22:28:59.116558",
-      "time": "22:28:59"
-    },
-    {
-      "id": 14,
-      "batch_id": "batch_265c882b2c6f",
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 607,
-      "sku": "GROC-SUG-001",
-      "item_name": "साखर (Madhur Sugar) (Sugar)",
-      "type": "SALE",
-      "delta": -0.25,
-      "stock_after": 48.8,
-      "unit_price": 42.0,
-      "amount": 10.5,
-      "raw_message": "पावशेर साखर",
-      "is_reversed": false,
-      "created_at": "2026-10-17T22:28:59.560012",
-      "time": "22:28:59"
-    },
-    {
-      "id": 15,
-      "batch_id": "batch_4725dd706bcb",
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 607,
-      "sku": "GROC-SUG-001",
-      "item_name": "साखर (Madhur Sugar) (Sugar)",
-      "type": "SALE",
-      "delta": -0.476,
-      "stock_after": 48.32,
-      "unit_price": 42.0,
-      "amount": 20.0,
-      "raw_message": "२० रुपयांची साखर आणि २ पार्ले बिस्कीट आणि ३५० ग्रॅम कांदा",
+      "amount": 210.0,
+      "raw_message": "5 साखर विकली",
       "is_reversed": true,
-      "created_at": "2026-10-17T22:29:00.123521",
-      "time": "22:29:00"
+      "created_at": "2026-10-17T22:54:35.537509",
+      "time": "22:54:35"
     },
     {
-      "id": 16,
-      "batch_id": "batch_4725dd706bcb",
+      "id": 5,
+      "batch_id": "undo_batch_792d07d3fafb",
       "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 608,
-      "sku": "FMCG-PARLE-100G",
-      "item_name": "पार्ले-जी बिस्कीट (Parle-G 100g) (Parle-G 100g)",
-      "type": "SALE",
-      "delta": -2.0,
-      "stock_after": 58.0,
-      "unit_price": 10.0,
-      "amount": 20.0,
-      "raw_message": "२० रुपयांची साखर आणि २ पार्ले बिस्कीट आणि ३५० ग्रॅम कांदा",
-      "is_reversed": true,
-      "created_at": "2026-10-17T22:29:00.123521",
-      "time": "22:29:00"
-    },
-    {
-      "id": 17,
-      "batch_id": "batch_4725dd706bcb",
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 615,
-      "sku": "VEG-KANDA-001",
-      "item_name": "गावठी लाल कांदा (Fresh Onion) (Red Onion)",
-      "type": "SALE",
-      "delta": -0.35,
-      "stock_after": 69.3,
-      "unit_price": 35.0,
-      "amount": 12.25,
-      "raw_message": "२० रुपयांची साखर आणि २ पार्ले बिस्कीट आणि ३५० ग्रॅम कांदा",
-      "is_reversed": true,
-      "created_at": "2026-10-17T22:29:00.123521",
-      "time": "22:29:00"
-    },
-    {
-      "id": 18,
-      "batch_id": "undo_batch_4725dd706bcb",
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 607,
+      "product_id": 682,
       "sku": "GROC-SUG-001",
       "item_name": "साखर (Madhur Sugar) (Sugar)",
       "type": "ROLLBACK",
-      "delta": 0.476,
-      "stock_after": 48.8,
+      "delta": 5.0,
+      "stock_after": 50.0,
       "unit_price": 42.0,
-      "amount": -20.0,
-      "raw_message": "UNDO: Reverted Tx #15 (Batch batch_4725dd706bcb)",
+      "amount": -210.0,
+      "raw_message": "UNDO: Reverted Tx #4 (Batch batch_792d07d3fafb)",
       "is_reversed": true,
-      "created_at": "2026-10-17T22:29:01.306211",
-      "time": "22:29:01"
+      "created_at": "2026-10-17T22:54:36.360656",
+      "time": "22:54:36"
     },
     {
-      "id": 19,
-      "batch_id": "undo_batch_4725dd706bcb",
+      "id": 6,
+      "batch_id": "batch_b86674d6226b",
       "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 608,
-      "sku": "FMCG-PARLE-100G",
-      "item_name": "पार्ले-जी बिस्कीट (Parle-G 100g) (Parle-G 100g)",
-      "type": "ROLLBACK",
-      "delta": 2.0,
-      "stock_after": 60.0,
-      "unit_price": 10.0,
-      "amount": -20.0,
-      "raw_message": "UNDO: Reverted Tx #16 (Batch batch_4725dd706bcb)",
-      "is_reversed": true,
-      "created_at": "2026-10-17T22:29:01.306211",
-      "time": "22:29:01"
+      "product_id": 682,
+      "sku": "GROC-SUG-001",
+      "item_name": "साखर (Madhur Sugar) (Sugar)",
+      "type": "SALE",
+      "delta": -0.5,
+      "stock_after": 49.5,
+      "unit_price": 42.0,
+      "amount": 21.0,
+      "raw_message": "दोन पाव साखर विकली",
+      "is_reversed": false,
+      "created_at": "2026-10-17T22:54:36.985083",
+      "time": "22:54:36"
     },
     {
-      "id": 20,
-      "batch_id": "undo_batch_4725dd706bcb",
+      "id": 7,
+      "batch_id": "batch_39b3f3528767",
       "vendor_id": "DEMO_KIRANA_KOP",
-      "product_id": 615,
-      "sku": "VEG-KANDA-001",
-      "item_name": "गावठी लाल कांदा (Fresh Onion) (Red Onion)",
-      "type": "ROLLBACK",
-      "delta": 0.35,
-      "stock_after": 69.65,
-      "unit_price": 35.0,
-      "amount": -12.25,
-      "raw_message": "UNDO: Reverted Tx #17 (Batch batch_4725dd706bcb)",
+      "product_id": 682,
+      "sku": "GROC-SUG-001",
+      "item_name": "साखर (Madhur Sugar) (Sugar)",
+      "type": "SALE",
+      "delta": -1.0,
+      "stock_after": 48.5,
+      "unit_price": 42.0,
+      "amount": 42.0,
+      "raw_message": "१ साखर विकली",
+      "is_reversed": false,
+      "created_at": "2026-10-17T22:54:42.470256",
+      "time": "22:54:42"
+    },
+    {
+      "id": 8,
+      "batch_id": "batch_b8816ff43990",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 682,
+      "sku": "GROC-SUG-001",
+      "item_name": "साखर (Madhur Sugar) (Sugar)",
+      "type": "SALE",
+      "delta": -1.0,
+      "stock_after": 47.5,
+      "unit_price": 42.0,
+      "amount": 42.0,
+      "raw_message": "१ साखर विकली",
       "is_reversed": true,
-      "created_at": "2026-10-17T22:29:01.306211",
-      "time": "22:29:01"
+      "created_at": "2026-10-17T22:54:44.511293",
+      "time": "22:54:44"
+    },
+    {
+      "id": 9,
+      "batch_id": "undo_batch_b8816ff43990",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 682,
+      "sku": "GROC-SUG-001",
+      "item_name": "साखर (Madhur Sugar) (Sugar)",
+      "type": "ROLLBACK",
+      "delta": 1.0,
+      "stock_after": 48.5,
+      "unit_price": 42.0,
+      "amount": -42.0,
+      "raw_message": "UNDO: Reverted Tx #8 (Batch batch_b8816ff43990)",
+      "is_reversed": true,
+      "created_at": "2026-10-17T22:54:45.364702",
+      "time": "22:54:45"
     }
   ],
   "customer_credits": [
     {
-      "id": 115,
+      "id": 127,
       "vendor_id": "DEMO_KIRANA_KOP",
       "customer_name": "तानाजी शेठ",
       "customer_phone": "+919822012345",
@@ -439,10 +372,10 @@
       "due_date": "2026-10-18",
       "notes": "गहू व साखर बिल (Wheat & Sugar)",
       "last_reminder_sent": null,
-      "created_at": "2026-10-17 22:28:57"
+      "created_at": "2026-10-17 22:54:33"
     },
     {
-      "id": 116,
+      "id": 128,
       "vendor_id": "DEMO_KIRANA_KOP",
       "customer_name": "आनंदराव",
       "customer_phone": "+919822067890",
@@ -451,10 +384,10 @@
       "due_date": "2026-10-19",
       "notes": "शेंगदाणा तेल व साबण (Oil & Soap)",
       "last_reminder_sent": null,
-      "created_at": "2026-10-17 22:28:57"
+      "created_at": "2026-10-17 22:54:33"
     },
     {
-      "id": 117,
+      "id": 129,
       "vendor_id": "DEMO_KIRANA_KOP",
       "customer_name": "बबनराव जाधव",
       "customer_phone": "+919822054321",
@@ -463,7 +396,1077 @@
       "due_date": "2026-10-17",
       "notes": "महिनाअखेर किराणा सामान (Monthly Ration)",
       "last_reminder_sent": null,
-      "created_at": "2026-10-17 22:28:57"
+      "created_at": "2026-10-17 22:54:33"
+    }
+  ],
+  "customer_orders": [
+    {
+      "id": 1,
+      "order_id": "ORD-1775",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822012345@c.us",
+      "raw_message": "२ किलो साखर, १ तेल द्या",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0
+        },
+        {
+          "name_raw": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0
+        },
+        {
+          "name_raw": "फॉर्च्युन तेल",
+          "name_mr": "फॉर्च्युन तेल",
+          "sku_matched": "GROC-OIL-001",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "litre",
+          "unit_price": 135.0,
+          "line_total": 135.0
+        }
+      ],
+      "total_amount": 354.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:45:32"
+    },
+    {
+      "id": 2,
+      "order_id": "ORD-531C",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822012345",
+      "raw_message": "२ किलो साखर, १ तेल द्या",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0
+        },
+        {
+          "name_raw": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0
+        },
+        {
+          "name_raw": "फॉर्च्युन तेल",
+          "name_mr": "फॉर्च्युन तेल",
+          "sku_matched": "GROC-OIL-001",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "litre",
+          "unit_price": 135.0,
+          "line_total": 135.0
+        }
+      ],
+      "total_amount": 354.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:46:38"
+    },
+    {
+      "id": 3,
+      "order_id": "ORD-92C9",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822012345",
+      "raw_message": "२ किलो साखर, १ तेल द्या",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0
+        },
+        {
+          "name_raw": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0
+        },
+        {
+          "name_raw": "फॉर्च्युन तेल",
+          "name_mr": "फॉर्च्युन तेल",
+          "sku_matched": "GROC-OIL-001",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "litre",
+          "unit_price": 135.0,
+          "line_total": 135.0
+        }
+      ],
+      "total_amount": 354.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:47:02"
+    },
+    {
+      "id": 4,
+      "order_id": "ORD-C0B3",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822099999",
+      "raw_message": "Handwritten Slip: chit_slip.png",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "२ साखर",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0
+        },
+        {
+          "name_raw": "१ तेल",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0
+        },
+        {
+          "name_raw": "५ बिस्कीट",
+          "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
+          "sku_matched": "FMCG-PARLE-100G",
+          "is_available": true,
+          "quantity": 5.0,
+          "unit": "packet",
+          "unit_price": 10.0,
+          "line_total": 50.0
+        },
+        {
+          "name_raw": "१ डेटॉल साबण",
+          "name_mr": "डेटॉल साबण (Dettol Soap)",
+          "sku_matched": null,
+          "is_available": false,
+          "quantity": 1.0,
+          "unit": "piece",
+          "unit_price": 0.0,
+          "line_total": 0.0
+        }
+      ],
+      "total_amount": 269.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:47:09"
+    },
+    {
+      "id": 5,
+      "order_id": "ORD-0FBE",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822012345",
+      "raw_message": "२ किलो साखर, १ तेल द्या",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0
+        },
+        {
+          "name_raw": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0
+        }
+      ],
+      "total_amount": 219.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:48:25"
+    },
+    {
+      "id": 6,
+      "order_id": "ORD-D1CE",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822099999",
+      "raw_message": "Handwritten Slip: chit_slip.png",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "२ साखर",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0
+        },
+        {
+          "name_raw": "१ तेल",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0
+        },
+        {
+          "name_raw": "५ बिस्कीट",
+          "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
+          "sku_matched": "FMCG-PARLE-100G",
+          "is_available": true,
+          "quantity": 5.0,
+          "unit": "packet",
+          "unit_price": 10.0,
+          "line_total": 50.0
+        },
+        {
+          "name_raw": "१ डेटॉल साबण",
+          "name_mr": "डेटॉल साबण (Dettol Soap)",
+          "sku_matched": null,
+          "is_available": false,
+          "quantity": 1.0,
+          "unit": "piece",
+          "unit_price": 0.0,
+          "line_total": 0.0
+        }
+      ],
+      "total_amount": 269.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:48:31"
+    },
+    {
+      "id": 7,
+      "order_id": "ORD-90F5",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822012345",
+      "raw_message": "२ किलो साखर, १ तेल द्या",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0,
+          "total_price": 84.0
+        },
+        {
+          "name_raw": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0,
+          "total_price": 135.0
+        }
+      ],
+      "total_amount": 219.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:48:58"
+    },
+    {
+      "id": 8,
+      "order_id": "ORD-CFEB",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822099999",
+      "raw_message": "Handwritten Slip: chit_slip.png",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "२ साखर",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0
+        },
+        {
+          "name_raw": "१ तेल",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0
+        },
+        {
+          "name_raw": "५ बिस्कीट",
+          "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
+          "sku_matched": "FMCG-PARLE-100G",
+          "is_available": true,
+          "quantity": 5.0,
+          "unit": "packet",
+          "unit_price": 10.0,
+          "line_total": 50.0
+        },
+        {
+          "name_raw": "१ डेटॉल साबण",
+          "name_mr": "डेटॉल साबण (Dettol Soap)",
+          "sku_matched": null,
+          "is_available": false,
+          "quantity": 1.0,
+          "unit": "piece",
+          "unit_price": 0.0,
+          "line_total": 0.0
+        }
+      ],
+      "total_amount": 269.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:49:04"
+    },
+    {
+      "id": 9,
+      "order_id": "ORD-D452",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822055555",
+      "raw_message": "२ साखर, १ ड्रॅगन फ्रूट",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0,
+          "total_price": 84.0
+        },
+        {
+          "name_raw": "ड्रॅगन फ्रूट",
+          "name_mr": "ड्रॅगन फ्रूट",
+          "sku_matched": null,
+          "is_available": false,
+          "quantity": 1.0,
+          "unit": "piece",
+          "unit_price": 0.0,
+          "line_total": 0.0,
+          "total_price": 0.0
+        }
+      ],
+      "total_amount": 84.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:49:05"
+    },
+    {
+      "id": 10,
+      "order_id": "ORD-5F99",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822088888",
+      "raw_message": "३ किलो साखर द्या",
+      "image_url": "",
+      "items": [
+        {
+          "sku": "GROC-SUG-001",
+          "name_en": "Madhur Sugar",
+          "name_mr": "साखर",
+          "quantity": 3.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "total_price": 126.0,
+          "is_available": true
+        }
+      ],
+      "total_amount": 0.0,
+      "status": "PACKED",
+      "created_at": "2026-10-17 22:49:06"
+    },
+    {
+      "id": 11,
+      "order_id": "ORD-34ED",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822012345",
+      "raw_message": "२ किलो साखर, १ तेल द्या",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0,
+          "total_price": 84.0
+        },
+        {
+          "name_raw": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0,
+          "total_price": 135.0
+        }
+      ],
+      "total_amount": 219.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:50:16"
+    },
+    {
+      "id": 12,
+      "order_id": "ORD-48CA",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822099999",
+      "raw_message": "Handwritten Slip: chit_slip.png",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "२ साखर",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0
+        },
+        {
+          "name_raw": "१ तेल",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0
+        },
+        {
+          "name_raw": "५ बिस्कीट",
+          "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
+          "sku_matched": "FMCG-PARLE-100G",
+          "is_available": true,
+          "quantity": 5.0,
+          "unit": "packet",
+          "unit_price": 10.0,
+          "line_total": 50.0
+        },
+        {
+          "name_raw": "१ डेटॉल साबण",
+          "name_mr": "डेटॉल साबण (Dettol Soap)",
+          "sku_matched": null,
+          "is_available": false,
+          "quantity": 1.0,
+          "unit": "piece",
+          "unit_price": 0.0,
+          "line_total": 0.0
+        }
+      ],
+      "total_amount": 269.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:50:22"
+    },
+    {
+      "id": 13,
+      "order_id": "ORD-2A41",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822055555",
+      "raw_message": "२ साखर, १ ड्रॅगन फ्रूट",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0,
+          "total_price": 84.0
+        },
+        {
+          "name_raw": "ड्रॅगन फ्रूट",
+          "name_mr": "ड्रॅगन फ्रूट",
+          "sku_matched": null,
+          "is_available": false,
+          "quantity": 1.0,
+          "unit": "piece",
+          "unit_price": 0.0,
+          "line_total": 0.0,
+          "total_price": 0.0
+        }
+      ],
+      "total_amount": 84.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:50:23"
+    },
+    {
+      "id": 14,
+      "order_id": "ORD-9643",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822088888",
+      "raw_message": "३ किलो साखर द्या",
+      "image_url": "",
+      "items": [
+        {
+          "sku": "GROC-SUG-001",
+          "name_en": "Madhur Sugar",
+          "name_mr": "साखर",
+          "quantity": 3.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "total_price": 126.0,
+          "is_available": true
+        }
+      ],
+      "total_amount": 0.0,
+      "status": "PACKED",
+      "created_at": "2026-10-17 22:50:24"
+    },
+    {
+      "id": 15,
+      "order_id": "ORD-B408",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822012345",
+      "raw_message": "२ किलो साखर, १ तेल द्या",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0,
+          "total_price": 84.0
+        },
+        {
+          "name_raw": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0,
+          "total_price": 135.0
+        }
+      ],
+      "total_amount": 219.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:51:09"
+    },
+    {
+      "id": 16,
+      "order_id": "ORD-397B",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822099999",
+      "raw_message": "Handwritten Slip: chit_slip.png",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "२ साखर",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0
+        },
+        {
+          "name_raw": "१ तेल",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0
+        },
+        {
+          "name_raw": "५ बिस्कीट",
+          "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
+          "sku_matched": "FMCG-PARLE-100G",
+          "is_available": true,
+          "quantity": 5.0,
+          "unit": "packet",
+          "unit_price": 10.0,
+          "line_total": 50.0
+        },
+        {
+          "name_raw": "१ डेटॉल साबण",
+          "name_mr": "डेटॉल साबण (Dettol Soap)",
+          "sku_matched": null,
+          "is_available": false,
+          "quantity": 1.0,
+          "unit": "piece",
+          "unit_price": 0.0,
+          "line_total": 0.0
+        }
+      ],
+      "total_amount": 269.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:51:15"
+    },
+    {
+      "id": 17,
+      "order_id": "ORD-578B",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822055555",
+      "raw_message": "२ साखर, १ ड्रॅगन फ्रूट",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0,
+          "total_price": 84.0
+        },
+        {
+          "name_raw": "ड्रॅगन फ्रूट",
+          "name_mr": "ड्रॅगन फ्रूट",
+          "sku_matched": null,
+          "is_available": false,
+          "quantity": 1.0,
+          "unit": "piece",
+          "unit_price": 0.0,
+          "line_total": 0.0,
+          "total_price": 0.0
+        }
+      ],
+      "total_amount": 84.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:51:16"
+    },
+    {
+      "id": 18,
+      "order_id": "ORD-A9A0",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822088888",
+      "raw_message": "३ किलो साखर द्या",
+      "image_url": "",
+      "items": [
+        {
+          "sku": "GROC-SUG-001",
+          "name_en": "Madhur Sugar",
+          "name_mr": "साखर",
+          "quantity": 3.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "total_price": 126.0,
+          "is_available": true
+        }
+      ],
+      "total_amount": 0.0,
+      "status": "PACKED",
+      "created_at": "2026-10-17 22:51:17"
+    },
+    {
+      "id": 19,
+      "order_id": "ORD-38A3",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822012345",
+      "raw_message": "२ किलो साखर, १ तेल द्या",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0,
+          "total_price": 84.0
+        },
+        {
+          "name_raw": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0,
+          "total_price": 135.0
+        }
+      ],
+      "total_amount": 219.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:52:31"
+    },
+    {
+      "id": 20,
+      "order_id": "ORD-0E43",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822099999",
+      "raw_message": "Handwritten Slip: chit_slip.png",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "२ साखर",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0
+        },
+        {
+          "name_raw": "१ तेल",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0
+        },
+        {
+          "name_raw": "५ बिस्कीट",
+          "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
+          "sku_matched": "FMCG-PARLE-100G",
+          "is_available": true,
+          "quantity": 5.0,
+          "unit": "packet",
+          "unit_price": 10.0,
+          "line_total": 50.0
+        },
+        {
+          "name_raw": "१ डेटॉल साबण",
+          "name_mr": "डेटॉल साबण (Dettol Soap)",
+          "sku_matched": null,
+          "is_available": false,
+          "quantity": 1.0,
+          "unit": "piece",
+          "unit_price": 0.0,
+          "line_total": 0.0
+        }
+      ],
+      "total_amount": 269.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:52:37"
+    },
+    {
+      "id": 21,
+      "order_id": "ORD-824D",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822055555",
+      "raw_message": "२ साखर, १ ड्रॅगन फ्रूट",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0,
+          "total_price": 84.0
+        },
+        {
+          "name_raw": "ड्रॅगन फ्रूट",
+          "name_mr": "ड्रॅगन फ्रूट",
+          "sku_matched": null,
+          "is_available": false,
+          "quantity": 1.0,
+          "unit": "piece",
+          "unit_price": 0.0,
+          "line_total": 0.0,
+          "total_price": 0.0
+        }
+      ],
+      "total_amount": 84.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:52:38"
+    },
+    {
+      "id": 22,
+      "order_id": "ORD-8A19",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822088888",
+      "raw_message": "३ किलो साखर द्या",
+      "image_url": "",
+      "items": [
+        {
+          "sku": "GROC-SUG-001",
+          "name_en": "Madhur Sugar",
+          "name_mr": "साखर",
+          "quantity": 3.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "total_price": 126.0,
+          "is_available": true
+        }
+      ],
+      "total_amount": 0.0,
+      "status": "PACKED",
+      "created_at": "2026-10-17 22:52:39"
+    },
+    {
+      "id": 23,
+      "order_id": "ORD-56C3",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822077777",
+      "raw_message": "१ तेल, २ साखर",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0,
+          "total_price": 135.0
+        },
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0,
+          "total_price": 84.0
+        }
+      ],
+      "total_amount": 219.0,
+      "status": "PACKED",
+      "created_at": "2026-10-17 22:52:43"
+    },
+    {
+      "id": 24,
+      "order_id": "ORD-BBD6",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822012345",
+      "raw_message": "२ किलो साखर, १ तेल द्या",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0,
+          "total_price": 84.0
+        },
+        {
+          "name_raw": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0,
+          "total_price": 135.0
+        }
+      ],
+      "total_amount": 219.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:53:12"
+    },
+    {
+      "id": 25,
+      "order_id": "ORD-086D",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822099999",
+      "raw_message": "Handwritten Slip: chit_slip.png",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "२ साखर",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0
+        },
+        {
+          "name_raw": "१ तेल",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0
+        },
+        {
+          "name_raw": "५ बिस्कीट",
+          "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
+          "sku_matched": "FMCG-PARLE-100G",
+          "is_available": true,
+          "quantity": 5.0,
+          "unit": "packet",
+          "unit_price": 10.0,
+          "line_total": 50.0
+        },
+        {
+          "name_raw": "१ डेटॉल साबण",
+          "name_mr": "डेटॉल साबण (Dettol Soap)",
+          "sku_matched": null,
+          "is_available": false,
+          "quantity": 1.0,
+          "unit": "piece",
+          "unit_price": 0.0,
+          "line_total": 0.0
+        }
+      ],
+      "total_amount": 269.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:53:18"
+    },
+    {
+      "id": 26,
+      "order_id": "ORD-202F",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822055555",
+      "raw_message": "२ साखर, १ ड्रॅगन फ्रूट",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0,
+          "total_price": 84.0
+        },
+        {
+          "name_raw": "ड्रॅगन फ्रूट",
+          "name_mr": "ड्रॅगन फ्रूट",
+          "sku_matched": null,
+          "is_available": false,
+          "quantity": 1.0,
+          "unit": "piece",
+          "unit_price": 0.0,
+          "line_total": 0.0,
+          "total_price": 0.0
+        }
+      ],
+      "total_amount": 84.0,
+      "status": "PENDING",
+      "created_at": "2026-10-17 22:53:19"
+    },
+    {
+      "id": 27,
+      "order_id": "ORD-2F56",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822088888",
+      "raw_message": "३ किलो साखर द्या",
+      "image_url": "",
+      "items": [
+        {
+          "sku": "GROC-SUG-001",
+          "name_en": "Madhur Sugar",
+          "name_mr": "साखर",
+          "quantity": 3.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "total_price": 126.0,
+          "is_available": true
+        }
+      ],
+      "total_amount": 0.0,
+      "status": "PACKED",
+      "created_at": "2026-10-17 22:53:20"
+    },
+    {
+      "id": 28,
+      "order_id": "ORD-EC67",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "919822077777",
+      "raw_message": "१ तेल, २ साखर",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+          "sku_matched": "OIL-FORT-1L",
+          "is_available": true,
+          "quantity": 1.0,
+          "unit": "pouch",
+          "unit_price": 135.0,
+          "line_total": 135.0,
+          "total_price": 135.0
+        },
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0,
+          "total_price": 84.0
+        }
+      ],
+      "total_amount": 219.0,
+      "status": "PACKED",
+      "created_at": "2026-10-17 22:53:24"
     }
   ]
 }

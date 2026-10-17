@@ -1,5 +1,6 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, Text
+from sqlalchemy.orm import synonym
 from app.core.database import Base
 
 class Transaction(Base):
@@ -24,6 +25,22 @@ class Transaction(Base):
     raw_message = Column(Text)                            # Vernacular Marathi/Hindi original input
     is_reversed = Column(Boolean, default=False, index=True) # Set to True if undone
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    remarks = synonym("raw_message")
+    product_sku = synonym("sku")
+    type = synonym("transaction_type")
+
+    @property
+    def quantity(self):
+        return abs(self.quantity_delta) if self.quantity_delta is not None else 0.0
+
+    @quantity.setter
+    def quantity(self, val):
+        val_f = float(val) if val is not None else 0.0
+        if getattr(self, "transaction_type", "SALE") == "SALE":
+            self.quantity_delta = -abs(val_f)
+        else:
+            self.quantity_delta = abs(val_f)
 
     def to_dict(self):
         return {

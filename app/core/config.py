@@ -112,4 +112,38 @@ class Settings:
         print(f"[FAILOVER POOL] Quota/error hit. Rotated to Gemini Key #{cls._current_key_index + 1} ({masked})")
         return new_key
 
+    # Dual-Role Security Firewall (Specification 03)
+    AUTHORIZED_MERCHANT_PHONES: set = {
+        "919579869506",
+        "917558455021",
+        "9579869506",
+        "7558455021"
+    }
+
+    @classmethod
+    def is_merchant_sender(cls, sender_phone: str) -> bool:
+        """
+        Dual-Role Security Firewall:
+        Validates whether incoming WhatsApp message originates from an authorized merchant administrator.
+        Zero Privilege Escalation Invariant: Any other number is classified as Customer.
+        """
+        if not sender_phone:
+            return False
+        clean = (
+            str(sender_phone)
+            .replace("+", "")
+            .replace("@c.us", "")
+            .replace("@g.us", "")
+            .replace("whatsapp:", "")
+            .replace("-", "")
+            .replace(" ", "")
+            .strip()
+        )
+        return clean in cls.AUTHORIZED_MERCHANT_PHONES
+
 settings = Settings()
+
+# Module-level aliases for backward compatibility and clean imports
+AUTHORIZED_MERCHANT_PHONES = settings.AUTHORIZED_MERCHANT_PHONES
+is_merchant_sender = settings.is_merchant_sender
+
