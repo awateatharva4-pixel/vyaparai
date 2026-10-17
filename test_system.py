@@ -49,16 +49,16 @@ def run_tests():
     assert sugar.stock == 49.5, "Expected 49.5 kg (2 * 0.250kg deducted)"
 
     print("=== TEST 6: Zero-Delta Invariant (Out of Stock Item) ===")
-    tea = db.query(Product).filter_by(sku="GROC-TEA-250G").first()
-    tea.stock = 0.0
+    salt = db.query(Product).filter_by(sku="GROC-SALT-1K").first()
+    salt.stock = 0.0
     db.commit()
     tx_count_before = db.query(Transaction).count()
-    res6 = InventoryService.process_transaction_event("DEMO_KIRANA_KOP", "१ वाघ बकरी चहा द्या", db)
+    res6 = InventoryService.process_transaction_event("DEMO_KIRANA_KOP", "१ टाटा मीठ विकले", db)
     tx_count_after = db.query(Transaction).count()
-    tea_after = db.query(Product).filter_by(sku="GROC-TEA-250G").first()
-    print(f"Tea stock: {tea_after.stock}, Tx count before: {tx_count_before}, after: {tx_count_after}")
+    salt_after = db.query(Product).filter_by(sku="GROC-SALT-1K").first()
+    print(f"Salt stock: {salt_after.stock}, Tx count before: {tx_count_before}, after: {tx_count_after}")
     assert tx_count_after == tx_count_before, "Invariant violated: Zero-delta transaction row was created!"
-    assert tea_after.stock == 0.0, "Invariant violated: Stock went below zero!"
+    assert salt_after.stock == 0.0, "Invariant violated: Stock went below zero!"
     assert "कोणतीही नोंद झाली नाही" in res6["reply_message"] or "अपुरा साठा" in res6["reply_message"], "Expected alert message"
 
     print("=== TEST 7: Batch ID Rollback Isolation ===")

@@ -137,7 +137,36 @@ def test_endpoints():
     assert "🎙️ *ऑडिओ ऐकले:*" in d14["reply"]
     print(f"Simulator Audio Voice Note Pipeline OK! Reply: {d14['reply'].splitlines()[0]}")
 
-    print("\n>>> ALL API & PPT PARITY ENDPOINTS VERIFIED 100% OPERATIONAL! <<<")
+    print("--- 15. Testing GET /api/state/backup (Unauthorized without admin token) ---")
+    r15_unauth = client.get("/api/state/backup")
+    assert r15_unauth.status_code == 401
+    print("State Backup Unauthorized Guard OK! (Status 401)")
+
+    print("--- 16. Testing GET /api/state/backup (Authorized with X-Admin-Token) ---")
+    r16 = client.get("/api/state/backup", headers={"X-Admin-Token": "vyaparai_admin_2026"})
+    assert r16.status_code == 200
+    d16 = r16.json()
+    assert d16["status"] == "SUCCESS"
+    assert "products" in d16 and "transactions" in d16
+    print(f"State Backup OK! Snapshot products: {len(d16['products'])}, transactions: {len(d16['transactions'])}")
+
+    print("--- 17. Testing POST /api/state/restore (Unauthorized without admin token) ---")
+    r17_unauth = client.post("/api/state/restore", json={"products": []})
+    assert r17_unauth.status_code == 401
+    print("State Restore Unauthorized Guard OK! (Status 401)")
+
+    print("--- 18. Testing POST /api/state/restore (Authorized with X-Admin-Token) ---")
+    r18 = client.post(
+        "/api/state/restore",
+        headers={"X-Admin-Token": "vyaparai_admin_2026"},
+        json={"snapshot": d16.get("snapshot", d16)}
+    )
+    assert r18.status_code == 200
+    d18 = r18.json()
+    assert d18["status"] == "SUCCESS"
+    print(f"State Restore OK! Result: {d18['message']}")
+
+    print("\n>>> ALL API & STATE RESILIENCE ENDPOINTS VERIFIED 100% OPERATIONAL! <<<")
 
 if __name__ == "__main__":
     test_endpoints()
