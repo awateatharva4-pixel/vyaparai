@@ -63,6 +63,22 @@ def test_endpoints():
     assert "<Response>" in r7.text and "<Message>" in r7.text
     print("Twilio Webhook Ingress OK! (Returned TwiML XML Response)")
 
+    print("--- 8. Testing POST /api/v1/webhook/whatsapp (Green-API Ingress) ---")
+    green_payload = {
+        "typeWebhook": "incomingMessageReceived",
+        "instanceData": {"idInstance": 710722770910, "wid": "918793791054@c.us"},
+        "idMessage": "MSG_GREEN_TEST_001",
+        "senderData": {"chatId": "918793791054@c.us", "sender": "918793791054@c.us"},
+        "messageData": {
+            "typeMessage": "textMessage",
+            "textMessageData": {"textMessage": "२ साखर विकली"}
+        }
+    }
+    r8 = client.post("/api/v1/webhook/whatsapp", json=green_payload)
+    assert r8.status_code == 200
+    assert r8.text == "EVENT_RECEIVED"
+    print("Green-API Webhook Ingress OK! (Status 200 EVENT_RECEIVED)")
+
     print("\n>>> ALL API ENDPOINTS VERIFIED 100% OPERATIONAL! <<<")
 
 if __name__ == "__main__":

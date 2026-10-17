@@ -123,24 +123,46 @@ async def handle_whatsapp_webhook(
         finally:
             db.close()
 
-    # 2. META Cloud API Ingress (JSON)
+    # 2. GREEN-API & META JSON Ingress
     elif "application/json" in content_type:
         vendor_id = "DEMO_KIRANA_KOP"
         message_body = ""
         message_id = ""
         sender_phone = ""
+
         try:
             body_json = await request.json()
-            entry = body_json["entry"][0]["changes"][0]["value"]
-            message = entry["messages"][0]
-            sender_phone = message.get("from", "")
-            message_id = message.get("id", "")
-            if message.get("type") == "text":
-                message_body = message["text"]["body"]
-            elif message.get("type") == "audio":
-                message_body = "ऑडिओ नोंद (Voice note received)"
-        except (KeyError, IndexError, ValueError):
+        except Exception:
             return Response(status_code=200)
+
+        # A. Green-API Ingress (Direct WhatsApp Gateway)
+        if body_json.get("typeWebhook") == "incomingMessageReceived":
+            message_id = body_json.get("idMessage", "")
+            sender_data = body_json.get("senderData", {})
+            sender_phone = sender_data.get("chatId", "")
+            msg_data = body_json.get("messageData", {})
+            type_msg = msg_data.get("typeMessage", "")
+
+            if type_msg == "textMessage":
+                message_body = msg_data.get("textMessageData", {}).get("textMessage", "")
+            elif type_msg == "extendedTextMessage":
+                message_body = msg_data.get("extendedTextMessageData", {}).get("text", "")
+            elif type_msg in ["audioMessage", "voiceMessage"]:
+                message_body = "ऑडिओ नोंद (Voice note received)"
+
+        # B. Meta Cloud API Ingress
+        elif "entry" in body_json:
+            try:
+                entry = body_json["entry"][0]["changes"][0]["value"]
+                message = entry["messages"][0]
+                sender_phone = message.get("from", "")
+                message_id = message.get("id", "")
+                if message.get("type") == "text":
+                    message_body = message["text"]["body"]
+                elif message.get("type") == "audio":
+                    message_body = "ऑडिओ नोंद (Voice note received)"
+            except (KeyError, IndexError, ValueError):
+                return Response(status_code=200)
 
         if message_body:
             background_tasks.add_task(

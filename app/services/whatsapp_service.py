@@ -13,7 +13,25 @@ class WhatsAppService:
         print(f"[WHATSAPP OUTBOUND -> {to_phone}]:\n{message}\n" + "-"*40)
         cls._outbound_history.append({"to": to_phone, "message": message})
         
-        # If Twilio credentials configured, send real WhatsApp message
+        # 1. Green API Outbound (Direct Native WhatsApp Delivery)
+        if settings.GREEN_API_HOST and settings.GREEN_API_INSTANCE_ID and settings.GREEN_API_TOKEN:
+            try:
+                chat_id = to_phone
+                if not chat_id.endswith("@c.us") and not chat_id.endswith("@g.us"):
+                    clean_num = to_phone.replace("whatsapp:", "").replace("+", "").replace(" ", "").strip()
+                    chat_id = f"{clean_num}@c.us"
+                url = f"{settings.GREEN_API_HOST}/waInstance{settings.GREEN_API_INSTANCE_ID}/sendMessage/{settings.GREEN_API_TOKEN}"
+                payload = {"chatId": chat_id, "message": message}
+                r = requests.post(url, json=payload, timeout=5)
+                if r.status_code == 200:
+                    print(f"[GREEN API SUCCESS]: Delivered directly to {chat_id}")
+                    return True
+                else:
+                    print(f"[GREEN API WARN]: Status {r.status_code} - {r.text}")
+            except Exception as e:
+                print(f"[GREEN API ERROR]: {e}")
+
+        # 2. Twilio WhatsApp Outbound (Fallback)
         if settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN:
             try:
                 url = f"https://api.twilio.com/2010-04-01/Accounts/{settings.TWILIO_ACCOUNT_SID}/Messages.json"

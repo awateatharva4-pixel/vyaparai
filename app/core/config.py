@@ -36,6 +36,11 @@ class Settings:
     TWILIO_WHATSAPP_NUMBER: str = os.getenv("TWILIO_WHATSAPP_NUMBER", "whatsapp:+14155238886")
     META_WEBHOOK_VERIFY_TOKEN: str = os.getenv("META_WEBHOOK_VERIFY_TOKEN", "vyaparai_hw2026_secret")
     
+    # Green-API WhatsApp Gateway Credentials
+    GREEN_API_HOST: str = os.getenv("GREEN_API_HOST", "https://7107.api.greenapi.com")
+    GREEN_API_INSTANCE_ID: str = os.getenv("GREEN_API_INSTANCE_ID", "710722770910")
+    GREEN_API_TOKEN: str = os.getenv("GREEN_API_TOKEN", "424d40629c2946da90c431e1b2d0e40950cae8c3c3554ec58e")
+    
     # Multi-Key Rotation Pool for Google Gemini API
     _api_keys: List[str] = []
     _current_key_index: int = 0
