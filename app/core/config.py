@@ -6,18 +6,20 @@ ENV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "
 try:
     from dotenv import load_dotenv
     if os.path.exists(ENV_PATH):
-        load_dotenv(dotenv_path=ENV_PATH, override=True)
+        load_dotenv(dotenv_path=ENV_PATH, override=False)
 except ImportError:
     pass
 
-# Always perform native fallback parsing to guarantee all keys in .env are in os.environ
+# Always perform native fallback parsing to guarantee keys in .env are loaded into os.environ if not already present
 if os.path.exists(ENV_PATH):
     with open(ENV_PATH, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line and not line.startswith("#") and "=" in line:
                 k, v = line.split("=", 1)
-                os.environ[k.strip()] = v.strip().strip("'\"")
+                key = k.strip()
+                if key not in os.environ:
+                    os.environ[key] = v.strip().strip("'\"")
 
 
 class Settings:
@@ -43,6 +45,10 @@ class Settings:
     
     # State Persistence & Admin Security
     ADMIN_TOKEN: str = os.getenv("ADMIN_TOKEN", "vyaparai_admin_2026")
+    
+    # Supabase Cloud Database & Gateway
+    SUPABASE_URL: str = os.getenv("SUPABASE_URL", "https://cxyaaffdvvsnitmyzrow.supabase.co")
+    SUPABASE_KEY: str = os.getenv("SUPABASE_KEY", "sb_publishable_eFxVztNVgKeytabZxqQ52Q_PDyq3_z0")
     
     # Multi-Key Rotation Pool for Google Gemini API
     _api_keys: List[str] = []
