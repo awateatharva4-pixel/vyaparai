@@ -288,6 +288,19 @@ class InventoryService:
         intent = parsed_payload.get("intent", "SALE")
         extracted_items = parsed_payload.get("items", [])
 
+        # GENERAL RETAIL INVARIANT (Product-Agnostic):
+        # In retail inventory management, any utterance stating items and quantities defaults to SALE.
+        # Only classify as RESTOCK if explicit inventory intake/supplier keywords are present.
+        if intent == "RESTOCK":
+            restock_triggers = [
+                "आले", "आणले", "भरले", "जमा", "खरेदी", "stock aala", "stock आला",
+                "restock", "purchase", "supplier", "नवा माल", "नवीन माल", "inward"
+            ]
+            raw_lower = raw_text.lower()
+            if not any(w in raw_lower for w in restock_triggers):
+                print(f"[INTENT RECTIFIED]: Overrode false RESTOCK to SALE for retail phrase: '{raw_text}'")
+                intent = "SALE"
+
         # Handle Rollback / Undo trigger
         if intent == "UNDO":
             return cls.undo_last_transaction(vendor_id, db)
