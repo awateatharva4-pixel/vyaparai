@@ -14,6 +14,7 @@ from app.core.config import settings
 from app.services.whatsapp_service import WhatsAppService
 from app.core.websocket import ws_manager
 from app.services.gemini_service import GeminiService
+from app.services.loose_commodity_service import LooseCommodityEngine
 
 DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
 SEED_FILE_PATH = os.path.join(DATA_DIR, "seed_inventory.json")
@@ -322,6 +323,25 @@ class InventoryService:
                 "reply_message": "🎙️ *ऑडिओ स्पष्ट ऐकू आला नाही.*\nकृपया पुन्हा स्पष्ट बोला किंवा लिहून पाठवा (उदा. *'२ लिटर तेल आणि ५ साखर'*)."
             }
 
+        # Loose Commodity Reverse-Math Pre-Flight Check:
+        # Detects Money-to-Weight or Weight-to-Money with 0.05ms sub-millisecond local execution
+        if not parsed_payload or (not parsed_payload.get("items") and parsed_payload.get("intent") not in ("UNDO", "QUERY", "REFUND")):
+            raw_clean = raw_text.strip().lower()
+            if not any(w in raw_clean for w in ["undo", "cancel", "चूक झाली", "रद्द करा", "मागे घ्या", "साठा दाखवा", "स्टॉक दाखवा", "पैसे परत", "रिफंड"]):
+                loose_parsed = LooseCommodityEngine.parse_order(raw_text, catalog_data)
+                if loose_parsed.get("errors"):
+                    err = loose_parsed["errors"][0]
+                    return {
+                        "success": False,
+                        "intent": "SALE",
+                        "updates": [],
+                        "total_amount": 0.0,
+                        "alerts": [err["alert"]],
+                        "reply_message": err["reply_message"]
+                    }
+                if loose_parsed.get("has_reverse_math"):
+                    parsed_payload = loose_parsed
+
         # NLP Vernacular Extraction (use pre-parsed payload if valid, otherwise parse transcript)
         if not parsed_payload or (not parsed_payload.get("items") and parsed_payload.get("intent") not in ("UNDO", "QUERY", "REFUND")):
             parsed_payload = GeminiService.parse_transcript(raw_text, catalog_data)
@@ -462,14 +482,14 @@ class InventoryService:
                         f"⚠️ {product.name_mr}: अपुरा साठा! शिल्लक फक्त {product.stock} {product.unit}, मागणी {qty} {product.unit}"
                     )
                     actual_deduction = min(product.stock, qty)
-                    delta = -actual_deduction
-                    new_stock = product.stock - actual_deduction
+                    delta = -round(actual_deduction, 3)
+                    new_stock = round(max(0.0, product.stock - actual_deduction), 3)
                 else:
-                    delta = -qty
-                    new_stock = max(0.0, product.stock - qty)
+                    delta = -round(qty, 3)
+                    new_stock = round(max(0.0, product.stock - qty), 3)
             else:
-                delta = qty
-                new_stock = product.stock + qty
+                delta = round(qty, 3)
+                new_stock = round(product.stock + qty, 3)
 
             # Zero-Delta Invariant: If stock is 0 and deduction is 0, do not create a zero-delta transaction row
             if is_sale and abs(delta) < 1e-6:
@@ -477,9 +497,14 @@ class InventoryService:
 
             product.stock = new_stock
 
-            line_amount = abs(delta) * product.unit_price
+            is_reverse_math = bool(item_data.get("is_reverse_math", False))
+            if is_reverse_math and item_data.get("total_amount") is not None:
+                line_amount = round(float(item_data["total_amount"]), 2)
+            else:
+                line_amount = round(abs(delta) * product.unit_price, 2)
+
             if is_sale:
-                total_bill_amount += line_amount
+                total_bill_amount = round(total_bill_amount + line_amount, 2)
 
             # Record in Immutable Ledger with Batch ID
             tx = Transaction(
@@ -502,7 +527,12 @@ class InventoryService:
                 "qty": abs(delta),
                 "unit": product.unit,
                 "remaining": new_stock,
-                "price": product.unit_price
+                "price": product.unit_price,
+                "line_amount": line_amount,
+                "is_reverse_math": is_reverse_math,
+                "reverse_math_type": item_data.get("reverse_math_type"),
+                "target_grams": item_data.get("target_grams", int(round(abs(delta) * 1000.0))),
+                "money": item_data.get("money", line_amount)
             })
 
             # Check low stock threshold
@@ -536,14 +566,47 @@ class InventoryService:
                 else:
                     reply += "\nमागणी केलेला माल साठ्यात उपलब्ध नाही."
         else:
-            action_verb = "विक्री नोंदवली (Sale Recorded)" if intent == "SALE" else "साठा जमा केला (Stock Added)"
-            items_summary = "\n".join([f"• {u['name']}: *{u['qty']} {u['unit']}* (शिल्लक: *{u['remaining']} {u['unit']}*)" for u in updates_applied])
+            # Check if this transaction is a single Reverse-Math loose item
+            if len(updates_applied) == 1 and updates_applied[0].get("is_reverse_math"):
+                u = updates_applied[0]
+                if u.get("reverse_math_type") == "MONEY_TO_WEIGHT":
+                    reply = LooseCommodityEngine.format_money_to_weight_notice(
+                        product_name_mr=u["name"],
+                        target_grams=u["target_grams"],
+                        money=u["line_amount"],
+                        unit_price=u["price"],
+                        stock_after=u["remaining"]
+                    )
+                else:  # WEIGHT_TO_MONEY
+                    reply = LooseCommodityEngine.format_weight_to_money_notice(
+                        product_name_mr=u["name"],
+                        total_price=u["line_amount"],
+                        grams=u["target_grams"],
+                        unit_price=u["price"],
+                        stock_after=u["remaining"]
+                    )
+                if alerts_triggered:
+                    reply += "\n\n🚨 *साठा इशारा:*\n" + "\n".join(alerts_triggered)
+            else:
+                action_verb = "विक्री नोंदवली (Sale Recorded)" if intent == "SALE" else "साठा जमा केला (Stock Added)"
+                scale_cards = []
+                for u in updates_applied:
+                    if u.get("is_reverse_math"):
+                        if u.get("reverse_math_type") == "MONEY_TO_WEIGHT":
+                            scale_cards.append(f"⚖️ *काट्यावर ठेवा:* *{u['name']} : {u['target_grams']} ग्रॅम* (रक्कम: ₹{u['line_amount']:.2f})")
+                        elif u.get("reverse_math_type") == "WEIGHT_TO_MONEY":
+                            scale_cards.append(f"⚖️ *काटा प्रमाण:* *{u['name']} : {u['target_grams']} ग्रॅम* (रक्कम: ₹{u['line_amount']:.2f})")
 
-            reply = f"✅ *{action_verb}!*\n\n{items_summary}"
-            if intent == "SALE" and total_bill_amount > 0:
-                reply += f"\n\n💰 *एकूण रक्कम: ₹{total_bill_amount:.2f}*"
-            if alerts_triggered:
-                reply += f"\n\n🚨 *साठा इशारा:*\n" + "\n".join(alerts_triggered)
+                items_summary = "\n".join([f"• {u['name']}: *{u['qty']} {u['unit']}* (शिल्लक: *{u['remaining']} {u['unit']}*)" for u in updates_applied])
+
+                reply = f"✅ *{action_verb}!*\n\n"
+                if scale_cards:
+                    reply += "\n".join(scale_cards) + "\n\n"
+                reply += items_summary
+                if intent == "SALE" and total_bill_amount > 0:
+                    reply += f"\n\n💰 *एकूण रक्कम: ₹{total_bill_amount:.2f}*"
+                if alerts_triggered:
+                    reply += f"\n\n🚨 *साठा इशारा:*\n" + "\n".join(alerts_triggered)
 
         return {
             "success": True,
@@ -593,7 +656,7 @@ class InventoryService:
         for tx in batch_txs:
             product = db.query(Product).filter_by(id=tx.product_id).first()
             if product:
-                product.stock = max(0.0, product.stock - tx.quantity_delta)
+                product.stock = round(max(0.0, product.stock - tx.quantity_delta), 3)
                 restored_stock = product.stock
                 unit = product.unit
             else:
