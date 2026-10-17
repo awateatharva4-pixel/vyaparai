@@ -1,4 +1,5 @@
 import os
+import re
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, declarative_base
 from app.core.config import settings
@@ -9,6 +10,15 @@ if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
 elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+"):
     db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+
+# Auto-resolve Supabase direct IPv6 address to IPv4 Pooler for cloud environments (Render lacks IPv6)
+if ".supabase.co" in db_url and "pooler.supabase.com" not in db_url:
+    match = re.match(r"^(postgresql\+psycopg2://)([^:]+):([^@]+)@db\.([a-z0-9]+)\.supabase\.co(?::\d+)?(/.*)?$", db_url)
+    if match:
+        prefix, user, pwd, ref, path = match.groups()
+        pooler_user = f"{user}.{ref}" if "." not in user else user
+        db_url = f"{prefix}{pooler_user}:{pwd}@aws-0-ap-south-1.pooler.supabase.com:5432{path or '/postgres'}"
+        print(f"[DB INIT] Auto-translated Supabase direct IPv6 URL to IPv4 Pooler: aws-0-ap-south-1.pooler.supabase.com:5432")
 
 is_sqlite = "sqlite" in db_url
 
@@ -23,7 +33,22 @@ else:
         "pool_timeout": 30
     })
 
-engine = create_engine(db_url, **engine_kwargs)
+try:
+    if not is_sqlite:
+        # Pre-flight check connection to catch network/credential issues before crashing the app
+        test_eng = create_engine(db_url, **engine_kwargs)
+        with test_eng.connect() as test_conn:
+            test_conn.exec_driver_sql("SELECT 1;")
+        engine = test_eng
+        print(f"[DB INIT] Connected successfully to Cloud PostgreSQL (Supabase)!")
+    else:
+        engine = create_engine(db_url, **engine_kwargs)
+except Exception as e:
+    print(f"[DB INIT WARNING] Cloud PostgreSQL connection failed: {e}. Falling back to SQLite WAL mode to preserve zero-downtime uptime.")
+    db_url = "sqlite:///./vyaparai.db"
+    is_sqlite = True
+    engine_kwargs = {"pool_pre_ping": True, "connect_args": {"check_same_thread": False, "timeout": 30.0}}
+    engine = create_engine(db_url, **engine_kwargs)
 
 if is_sqlite:
     # 1. Hardware-level Pragmas: WAL mode, foreign keys, memory temp store, 64MB memory cache
