@@ -6,7 +6,7 @@ from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
-from app.core.database import checkpoint_wal
+from app.core.database import checkpoint_wal, is_sqlite
 from app.models.product import Product, IdempotencyRecord
 from app.models.transaction import Transaction
 from app.models.credit import CustomerCredit
@@ -195,9 +195,19 @@ class InventoryService:
                     due_date=c_data.get("due_date", ""),
                     notes=c_data.get("notes", "")
                 )
-                db.merge(cred)
-
         db.commit()
+
+        # Resynchronize PostgreSQL SERIAL sequences so explicit primary keys do not collide
+        if not is_sqlite:
+            from sqlalchemy import text
+            try:
+                for tbl in ["products", "transactions", "customer_credits"]:
+                    db.execute(text(f"SELECT setval(pg_get_serial_sequence('{tbl}', 'id'), COALESCE((SELECT MAX(id) FROM {tbl}), 1));"))
+                db.commit()
+            except Exception as e:
+                db.rollback()
+                print(f"[STATE RESTORE] Sequence sync notice: {e}")
+
         checkpoint_wal(truncate=True)
         return {
             "restored": True,

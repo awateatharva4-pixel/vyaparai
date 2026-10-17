@@ -32,6 +32,8 @@ else:
         "pool_recycle": 1800,
         "pool_timeout": 30
     })
+    if "sslmode" not in db_url:
+        engine_kwargs.setdefault("connect_args", {})["sslmode"] = "require"
 
 try:
     if not is_sqlite:
@@ -106,3 +108,11 @@ def init_db():
                     conn.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_transactions_batch_id ON transactions (batch_id);")
             except Exception as e:
                 print(f"[DB INIT] SQLite migration check notice: {e}")
+    else:
+        with engine.begin() as conn:
+            try:
+                conn.exec_driver_sql("ALTER TABLE transactions ADD COLUMN IF NOT EXISTS batch_id VARCHAR(64);")
+                conn.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_transactions_batch_id ON transactions (batch_id);")
+                conn.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_transactions_metrics_perf ON transactions (vendor_id, transaction_type, is_reversed, created_at);")
+            except Exception as e:
+                print(f"[DB INIT] PostgreSQL migration notice: {e}")
