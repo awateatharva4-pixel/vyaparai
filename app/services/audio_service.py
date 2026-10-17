@@ -17,12 +17,17 @@ class AudioNormalizer:
         and loudness normalization. If FFmpeg is not installed on the host system,
         gracefully returns original bytes with appropriate MIME type.
         """
+        # Sanitize input format parameter (strip parameters like '; codecs=opus' and 'audio/')
+        clean_format = input_format.split(";")[0].replace("audio/", "").strip().lower()
+        if clean_format in ("opus", ""):
+            clean_format = "ogg"
+
         # Try FFmpeg in PATH
         try:
             cmd = [
                 "ffmpeg",
                 "-y",
-                "-f", input_format,
+                "-f", clean_format,
                 "-i", "pipe:0",
                 "-af", "highpass=f=300,lowpass=f=3400,loudnorm",  # Human voice bandpass + loudness norm
                 "-f", "wav",
@@ -42,7 +47,7 @@ class AudioNormalizer:
             # FFmpeg not present or failed - fallback gracefully
             pass
 
-        # Return original audio with detected MIME
+        # Return original audio with sanitized IANA MIME type for Gemini
         mime_map = {
             "ogg": "audio/ogg",
             "opus": "audio/ogg",
@@ -51,4 +56,4 @@ class AudioNormalizer:
             "webm": "audio/webm",
             "m4a": "audio/m4a"
         }
-        return audio_bytes, mime_map.get(input_format.lower(), "audio/ogg")
+        return audio_bytes, mime_map.get(clean_format, "audio/ogg")

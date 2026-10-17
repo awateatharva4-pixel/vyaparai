@@ -145,8 +145,9 @@ class GeminiService:
         if any(w in text_clean.lower() for w in ["undo", "cancel", "चूक झाली", "रद्द करा", "मागे घ्या", "chuk zali", "galat"]):
             return {"intent": "UNDO", "items": [], "vendor_note": "व्यवहार रद्द करण्याची विनंती (Rollback Request)"}
 
-        # Immediate check for Query trigger
-        if any(w in text_clean.lower() for w in ["stock", "साठा", "शिल्लक", "kiti ahe", "kitna hai", "check"]):
+        # Immediate check for Query trigger (must be an explicit stock inquiry, not a sale)
+        query_triggers = ["साठा दाखवा", "शिल्लक किती", "kiti ahe", "kitna hai", "stock check", "check stock", "view stock", "show stock", "यादी दाखवा", "stock summary"]
+        if any(w in text_clean.lower() for w in query_triggers):
             return {"intent": "QUERY", "items": [], "vendor_note": "साठा तपासणी विनंती (Stock Query)"}
 
         # Immediate check for Refund trigger
@@ -251,7 +252,10 @@ class GeminiService:
                 for model_name in models_to_try:
                     try:
                         client = genai.Client(api_key=current_key)
-                        audio_part = types.Part.from_bytes(data=audio_bytes, mime_type=mime_type)
+                        clean_mime = (mime_type or "audio/ogg").split(";")[0].strip().lower()
+                        if clean_mime in ("audio/opus", "opus"):
+                            clean_mime = "audio/ogg"
+                        audio_part = types.Part.from_bytes(data=audio_bytes, mime_type=clean_mime)
                         response = client.models.generate_content(
                             model=model_name,
                             contents=[audio_part, audio_prompt],
@@ -274,9 +278,11 @@ class GeminiService:
                             parsed["transcription"] = parsed.get("vendor_note", "ऑडिओ नोंद")
                         
                         # Enrich items with local lexer if Gemini returned empty items but provided transcription
-                        if not parsed.get("items") and parsed.get("transcription") and parsed.get("intent", "SALE") in ("SALE", "RESTOCK"):
+                        if not parsed.get("items") and parsed.get("transcription"):
                             fallback_parsed = cls._local_regex_parser(parsed["transcription"], catalog_items)
                             if fallback_parsed.get("items"):
+                                if parsed.get("intent") == "QUERY":
+                                    parsed["intent"] = fallback_parsed.get("intent", "SALE")
                                 parsed["items"] = fallback_parsed["items"]
                         
                         return parsed

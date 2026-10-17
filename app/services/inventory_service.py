@@ -1,3 +1,4 @@
+import re
 import json
 import os
 import uuid
@@ -282,6 +283,23 @@ class InventoryService:
             for p in catalog_products
         ]
 
+        # Guard 1: Detect unparseable voice note placeholder
+        AUDIO_PLACEHOLDERS = [
+            "ऑडिओ नोंद",
+            "ऑडिओ नोंद (voice note received)",
+            "voice note received",
+            "audio message"
+        ]
+        if raw_text.strip().lower() in [p.lower() for p in AUDIO_PLACEHOLDERS]:
+            return {
+                "success": False,
+                "intent": "UNCLEAR_AUDIO",
+                "updates": [],
+                "total_amount": 0.0,
+                "alerts": [],
+                "reply_message": "🎙️ *ऑडिओ स्पष्ट ऐकू आला नाही.*\nकृपया पुन्हा स्पष्ट बोला किंवा लिहून पाठवा (उदा. *'२ लिटर तेल आणि ५ साखर'*)."
+            }
+
         # NLP Vernacular Extraction (use pre-parsed payload if valid, otherwise parse transcript)
         if not parsed_payload or (not parsed_payload.get("items") and parsed_payload.get("intent") not in ("UNDO", "QUERY", "REFUND")):
             parsed_payload = GeminiService.parse_transcript(raw_text, catalog_data)
@@ -300,6 +318,36 @@ class InventoryService:
             if not any(w in raw_lower for w in restock_triggers):
                 print(f"[INTENT RECTIFIED]: Overrode false RESTOCK to SALE for retail phrase: '{raw_text}'")
                 intent = "SALE"
+
+        # GENERAL RETAIL INVARIANT FOR QUERY:
+        # If classified as QUERY, verify if this is an explicit stock check (e.g. "साठा दाखवा").
+        # If items or quantities are mentioned, this is a retail SALE!
+        if intent == "QUERY":
+            query_triggers = [
+                "साठा दाखवा", "स्टॉक दाखवा", "शिल्लक किती", "kiti ahe", "kitna hai",
+                "check stock", "stock check", "show stock", "view stock", "यादी दाखवा", "stock summary"
+            ]
+            raw_lower = raw_text.lower()
+            has_explicit_query = any(w in raw_lower for w in query_triggers)
+
+            if not has_explicit_query:
+                # If numbers or catalog items are present, override to SALE
+                if extracted_items or re.search(r"\d", raw_text):
+                    print(f"[INTENT RECTIFIED]: Overrode false QUERY to SALE for retail phrase: '{raw_text}'")
+                    intent = "SALE"
+                    if not extracted_items:
+                        fallback_parsed = GeminiService._local_regex_parser(raw_text, catalog_data)
+                        extracted_items = fallback_parsed.get("items", [])
+                else:
+                    # Pure conversational greeting or general text
+                    return {
+                        "success": False,
+                        "intent": "GREETING",
+                        "updates": [],
+                        "total_amount": 0.0,
+                        "alerts": [],
+                        "reply_message": "🙏 *नमस्कार! VyaparAI मध्ये आपले स्वागत आहे.*\n\nविक्री नोंदवण्यासाठी वस्तू व प्रमाण सांगा (उदा. *'२ लिटर तेल'* किंवा *'५ किलो साखर'*).\nसद्य साठा पाहण्यासाठी *'साठा दाखवा'* असा मेसेज करा."
+                    }
 
         # Handle Rollback / Undo trigger
         if intent == "UNDO":

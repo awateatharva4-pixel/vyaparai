@@ -23,7 +23,8 @@ def background_process_message(
     message_body: str,
     message_id: str,
     to_phone: Optional[str] = None,
-    transcription: Optional[str] = None
+    transcription: Optional[str] = None,
+    parsed_payload: Optional[dict] = None
 ):
     """
     Asynchronous background worker for WhatsApp Ingress (Meta Cloud API, Green-API, Twilio).
@@ -41,8 +42,13 @@ def background_process_message(
                 print(f"[IDEMPOTENCY DUPLICATE] Safely discarded duplicate delivery for {message_id}")
                 return
 
-        # 2. Process Transaction
-        result = InventoryService.process_transaction_event(vendor_id, message_body, db)
+        # 2. Process Transaction with pre-parsed audio payload if available
+        result = InventoryService.process_transaction_event(
+            vendor_id=vendor_id,
+            raw_text=message_body,
+            db=db,
+            parsed_payload=parsed_payload
+        )
 
         # 3. Send WhatsApp Outbound Confirmation
         reply_text = result.get("reply_message", "नोंद झाली (Recorded).")
@@ -145,8 +151,9 @@ async def handle_whatsapp_webhook(
                     twiml = '<?xml version="1.0" encoding="UTF-8"?><Response><Message>⚠️ ही नोंद आधीच स्वीकारण्यात आली आहे (Duplicate Request).</Message></Response>'
                     return Response(content=twiml, media_type="application/xml")
 
-            # Process transaction
-            result = InventoryService.process_transaction_event(vendor_id, message_body, db)
+            # Process transaction with pre-parsed audio payload if available
+            parsed_payload = parsed_audio if "parsed_audio" in locals() else None
+            result = InventoryService.process_transaction_event(vendor_id, message_body, db, parsed_payload=parsed_payload)
             reply_text = result.get("reply_message", "नोंद झाली (Recorded).")
             if audio_transcription:
                 reply_text = f"🎙️ *ऑडिओ ऐकले:* \"{audio_transcription}\"\n\n{reply_text}"
@@ -221,11 +228,12 @@ async def handle_whatsapp_webhook(
                         mime_type=detected_mime,
                         catalog=catalog_data
                     )
+                    parsed_audio_payload = parsed_audio
                     transcription = (parsed_audio.get("transcription") or "").strip()
-                    message_body = transcription if transcription else "ऑडिओ नोंद (Voice note received)"
+                    message_body = transcription if transcription else "ऑडिओ नोंद"
                     audio_transcription = transcription
                 else:
-                    message_body = "ऑडिओ नोंद (Voice note received)"
+                    message_body = "ऑडिओ नोंद"
 
         # B. Meta Cloud API Ingress
         elif "entry" in body_json:
@@ -281,11 +289,12 @@ async def handle_whatsapp_webhook(
                             mime_type=detected_mime,
                             catalog=catalog_data
                         )
+                        parsed_audio_payload = parsed_audio
                         transcription = (parsed_audio.get("transcription") or "").strip()
-                        message_body = transcription if transcription else "ऑडिओ नोंद (Voice note received)"
+                        message_body = transcription if transcription else "ऑडिओ नोंद"
                         audio_transcription = transcription
                     else:
-                        message_body = "ऑडिओ नोंद (Voice note received)"
+                        message_body = "ऑडिओ नोंद"
             except (KeyError, IndexError, ValueError):
                 return Response(status_code=200)
 
@@ -296,7 +305,8 @@ async def handle_whatsapp_webhook(
                 message_body=message_body,
                 message_id=message_id,
                 to_phone=sender_phone,
-                transcription=audio_transcription
+                transcription=audio_transcription,
+                parsed_payload=parsed_audio_payload if "parsed_audio_payload" in locals() else None
             )
         return Response(content="EVENT_RECEIVED", status_code=200)
 
