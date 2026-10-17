@@ -37,6 +37,11 @@ def get_metrics(db: Session = Depends(get_db)):
     """Provides reactive live metrics for the merchant dashboard."""
     return InventoryService.get_dashboard_metrics(db)
 
+@router.get("/inventory/items")
+def get_inventory_items(db: Session = Depends(get_db)):
+    """Provides direct list of catalog products for judge API inspection."""
+    return InventoryService.get_dashboard_metrics(db).get("products", [])
+
 @router.post("/reset-demo")
 def reset_demo(db: Session = Depends(get_db)):
     """Restores clean demo catalog state in 1 second before judge review."""

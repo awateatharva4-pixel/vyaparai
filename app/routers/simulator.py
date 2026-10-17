@@ -19,6 +19,7 @@ class SimulatorMessage(BaseModel):
     text: str
     vendor_id: str = "DEMO_KIRANA_KOP"
 
+@router.get("/simulator", response_class=HTMLResponse)
 @router.get("/test-console", response_class=HTMLResponse)
 def render_simulator(request: Request, db: Session = Depends(get_db)):
     metrics = InventoryService.get_dashboard_metrics(db)
