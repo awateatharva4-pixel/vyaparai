@@ -95,7 +95,9 @@ async def handle_whatsapp_webhook(
     # Meta X-Hub-Signature-256 HMAC Validation (if configured)
     meta_sig = request.headers.get("x-hub-signature-256")
     meta_app_secret = os.getenv("META_APP_SECRET", "")
-    if meta_sig and meta_app_secret:
+    if meta_app_secret:
+        if not meta_sig:
+            return Response(content="Forbidden: Missing Signature", status_code=403)
         expected_sig = "sha256=" + hmac.new(meta_app_secret.encode("utf-8"), raw_body, hashlib.sha256).hexdigest()
         if not hmac.compare_digest(meta_sig, expected_sig):
             return Response(content="Forbidden: Invalid Signature", status_code=403)
@@ -220,7 +222,7 @@ async def handle_whatsapp_webhook(
                 if not raw_audio_bytes and message_id and settings.GREEN_API_HOST and settings.GREEN_API_INSTANCE_ID and settings.GREEN_API_TOKEN:
                     try:
                         api_url = f"{settings.GREEN_API_HOST}/waInstance{settings.GREEN_API_INSTANCE_ID}/downloadFile/{settings.GREEN_API_TOKEN}"
-                        chat_id = sender_phone if "@c.us" in sender_phone else f"{sender_phone}@c.us"
+                        chat_id = sender_phone if ("@c.us" in sender_phone or "@g.us" in sender_phone) else f"{sender_phone}@c.us"
                         async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as http_client:
                             res_api = await http_client.post(api_url, json={"chatId": chat_id, "idMessage": message_id})
                             if res_api.status_code == 200:
