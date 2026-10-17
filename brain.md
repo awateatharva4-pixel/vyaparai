@@ -137,3 +137,25 @@ Created in dedicated folders for Atharva Awate and Venkatesh Pai, packed with te
   - `e:\atharva\Atharva_Awate_VyaparAI_Master_Dossier.md`
   - Mirrored in: `e:\vyaparai\dossiers\atharva\`
 
+---
+
+## 10. CRITICAL POST-MORTEM & PERMANENT OPERATIONAL INVARIANTS
+
+### Incident Analysis: Unintended WhatsApp Dispatch to Twilio Sandbox Number
+- **Trigger**: During automated testing of the Slide 2 & 5 feature `POST /api/reports/daily-closing`, `generate_8pm_closing_summary()` defaulted `target_phone` to `settings.TWILIO_WHATSAPP_NUMBER` (`whatsapp:+14155238886`).
+- **Failure Chain**: `WhatsAppService.send_message()` prioritized Green-API. It stripped formatting to `14155238886@c.us` and sent the 8 PM daily ledger to Twilio's US inbound sandbox number.
+- **Impact**: Green-API developer tier has a strict quota of 3 free correspondents/month. Sending to `14155238886` and mock test numbers exhausted the 3 free correspondent slots (`HTTP 466: CORRESPONDENTS_QUOTA_EXCEEDED`).
+
+### Permanent Engineering Invariants (Zero Tolerance Rules)
+1. **INVARIANT 1: Strict Twilio / Mock Number Guard**:
+   - `WhatsAppService.send_message()` MUST NEVER route `14155238886`, Twilio sandbox numbers, or dummy numbers to Green-API or real WhatsApp endpoints.
+2. **INVARIANT 2: Quota-Protected Automated Tests**:
+   - All automated test suites (`test_api.py`, `test_system.py`) and mock test endpoints MUST execute with `send_whatsapp=False`.
+3. **INVARIANT 3: Merchant Recipient Isolation**:
+   - `TWILIO_WHATSAPP_NUMBER` is strictly an ingress/sender metadata field. Recipient merchant dispatches must always be derived from `settings.MERCHANT_WHATSAPP_NUMBER` or explicit authenticated runtime phone arguments.
+4. **Current Active Green-API Instance**:
+   - Host: `https://7107.api.greenapi.com`
+   - Instance ID: `710722771470`
+   - Token: `f92d0b38d8e948c494f420a4abc45493380f7657a03f445eb7`
+   - Webhook Ingress URL: `https://vyaparai-oddf.onrender.com/api/v1/webhook/whatsapp`
+

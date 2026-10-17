@@ -41,8 +41,8 @@ class Settings:
     
     # Green-API WhatsApp Gateway Credentials
     GREEN_API_HOST: str = os.getenv("GREEN_API_HOST", "https://7107.api.greenapi.com")
-    GREEN_API_INSTANCE_ID: str = os.getenv("GREEN_API_INSTANCE_ID", "710722771292")
-    GREEN_API_TOKEN: str = os.getenv("GREEN_API_TOKEN", "9c7611f7a68f4bacad5b5f2a5491227642cd2d7ff74d4b088a")
+    GREEN_API_INSTANCE_ID: str = os.getenv("GREEN_API_INSTANCE_ID", "710722771470")
+    GREEN_API_TOKEN: str = os.getenv("GREEN_API_TOKEN", "f92d0b38d8e948c494f420a4abc45493380f7657a03f445eb7")
     
     # State Persistence & Admin Security
     ADMIN_TOKEN: str = os.getenv("ADMIN_TOKEN", "vyaparai_admin_2026")
