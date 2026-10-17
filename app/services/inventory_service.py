@@ -68,10 +68,17 @@ class InventoryService:
                 "customer_credits": [c.to_dict() for c in credits]
             }
 
-            temp_path = STATE_FILE_PATH + ".tmp"
-            with open(temp_path, "w", encoding="utf-8") as f:
-                json.dump(snapshot, f, ensure_ascii=False, indent=2)
-            os.replace(temp_path, STATE_FILE_PATH)
+            temp_path = f"{STATE_FILE_PATH}.{uuid.uuid4().hex}.tmp"
+            try:
+                with open(temp_path, "w", encoding="utf-8") as f:
+                    json.dump(snapshot, f, ensure_ascii=False, indent=2)
+                os.replace(temp_path, STATE_FILE_PATH)
+            finally:
+                if os.path.exists(temp_path):
+                    try:
+                        os.remove(temp_path)
+                    except OSError:
+                        pass
             checkpoint_wal(truncate=True)
             return STATE_FILE_PATH
         except Exception as e:
@@ -283,14 +290,19 @@ class InventoryService:
             for p in catalog_products
         ]
 
-        # Guard 1: Detect unparseable voice note placeholder
+        # Guard 1: Detect unparseable voice note placeholder or STT noise
         AUDIO_PLACEHOLDERS = [
             "ऑडिओ नोंद",
             "ऑडिओ नोंद (voice note received)",
             "voice note received",
-            "audio message"
+            "audio message",
+            "[silence]",
+            "[अस्पष्ट]",
+            "[noise]",
+            "(inaudible)",
+            "..."
         ]
-        if raw_text.strip().lower() in [p.lower() for p in AUDIO_PLACEHOLDERS]:
+        if raw_text.strip().lower() in [p.lower() for p in AUDIO_PLACEHOLDERS] or re.match(r"^\[.*\]$", raw_text.strip()):
             return {
                 "success": False,
                 "intent": "UNCLEAR_AUDIO",
@@ -320,18 +332,47 @@ class InventoryService:
                 intent = "SALE"
 
         # GENERAL RETAIL INVARIANT FOR QUERY:
-        # If classified as QUERY, verify if this is an explicit stock check (e.g. "साठा दाखवा").
-        # If items or quantities are mentioned, this is a retail SALE!
+        # Check if this is an explicit stock inquiry (either full catalog or specific SKU).
         if intent == "QUERY":
             query_triggers = [
-                "साठा दाखवा", "स्टॉक दाखवा", "शिल्लक किती", "kiti ahe", "kitna hai",
-                "check stock", "stock check", "show stock", "view stock", "यादी दाखवा", "stock summary"
+                "साठा दाखवा", "स्टॉक दाखवा", "शिल्लक किती", "किती शिल्लक", "किती आहे",
+                "आहे का", "शिल्लक आहे का", "साठा किती", "यादी दाखवा", "stock summary",
+                "kiti ahe", "kitna hai", "check stock", "stock check", "show stock", "view stock"
             ]
             raw_lower = raw_text.lower()
             has_explicit_query = any(w in raw_lower for w in query_triggers)
 
-            if not has_explicit_query:
-                # If numbers or catalog items are present, override to SALE
+            if has_explicit_query:
+                # Check for single-item stock query (e.g. "तेल किती शिल्लक आहे?", "साखर किती आहे?")
+                target_sku = None
+                if extracted_items and extracted_items[0].get("sku_matched"):
+                    target_sku = extracted_items[0].get("sku_matched")
+                else:
+                    check_parsed = GeminiService._local_regex_parser(raw_text, catalog_data)
+                    if check_parsed.get("items") and check_parsed["items"][0].get("sku_matched"):
+                        target_sku = check_parsed["items"][0].get("sku_matched")
+
+                if target_sku:
+                    p = db.query(Product).filter_by(vendor_id=vendor_id, sku=target_sku).first()
+                    if p:
+                        status_emoji = "🚨" if p.stock <= p.min_threshold else "📦"
+                        return {
+                            "success": True,
+                            "intent": "QUERY",
+                            "updates": [],
+                            "total_amount": 0.0,
+                            "alerts": [],
+                            "reply_message": (
+                                f"{status_emoji} *{p.name_mr}:*\n"
+                                f"• सद्य शिल्लक: *{p.stock} {p.unit}*\n"
+                                f"• किमान साठा मर्यादा: {p.min_threshold} {p.unit}\n"
+                                f"• विक्री दर: ₹{p.unit_price:.2f}/{p.unit}"
+                            )
+                        }
+                return cls.build_stock_summary(vendor_id, db)
+
+            else:
+                # No explicit query phrase. If numbers or items are present, override to SALE
                 if extracted_items or re.search(r"\d", raw_text):
                     print(f"[INTENT RECTIFIED]: Overrode false QUERY to SALE for retail phrase: '{raw_text}'")
                     intent = "SALE"
@@ -470,11 +511,14 @@ class InventoryService:
 
         # Build clean vernacular confirmation message
         if not updates_applied:
-            reply = "⚠️ *कोणतीही नोंद झाली नाही (No Transaction Recorded)!*"
-            if alerts_triggered:
-                reply += "\n\n🚨 *साठा इशारा:*\n" + "\n".join(alerts_triggered)
+            if parsed_payload and (str(parsed_payload.get("source", "")).startswith("gemini-audio") or "ऑडिओ" in raw_text):
+                reply = "🎙️ *ऑडिओ स्पष्ट समजला नाही.*\nकृपया पुन्हा स्पष्ट बोला (उदा. *'२ लिटर तेल आणि ५ साखर'*)."
             else:
-                reply += "\nमागणी केलेला माल साठ्यात उपलब्ध नाही."
+                reply = "⚠️ *कोणतीही नोंद झाली नाही (No Transaction Recorded)!*"
+                if alerts_triggered:
+                    reply += "\n\n🚨 *साठा इशारा:*\n" + "\n".join(alerts_triggered)
+                else:
+                    reply += "\nमागणी केलेला माल साठ्यात उपलब्ध नाही."
         else:
             action_verb = "विक्री नोंदवली (Sale Recorded)" if intent == "SALE" else "साठा जमा केला (Stock Added)"
             items_summary = "\n".join([f"• {u['name']}: *{u['qty']} {u['unit']}* (शिल्लक: *{u['remaining']} {u['unit']}*)" for u in updates_applied])

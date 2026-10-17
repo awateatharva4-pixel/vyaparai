@@ -146,7 +146,11 @@ class GeminiService:
             return {"intent": "UNDO", "items": [], "vendor_note": "व्यवहार रद्द करण्याची विनंती (Rollback Request)"}
 
         # Immediate check for Query trigger (must be an explicit stock inquiry, not a sale)
-        query_triggers = ["साठा दाखवा", "शिल्लक किती", "kiti ahe", "kitna hai", "stock check", "check stock", "view stock", "show stock", "यादी दाखवा", "stock summary"]
+        query_triggers = [
+            "साठा दाखवा", "स्टॉक दाखवा", "शिल्लक किती", "किती शिल्लक", "किती आहे",
+            "आहे का", "शिल्लक आहे का", "साठा किती", "यादी दाखवा", "stock summary",
+            "kiti ahe", "kitna hai", "stock check", "check stock", "view stock", "show stock"
+        ]
         if any(w in text_clean.lower() for w in query_triggers):
             return {"intent": "QUERY", "items": [], "vendor_note": "साठा तपासणी विनंती (Stock Query)"}
 
@@ -373,8 +377,8 @@ class GeminiService:
             "नग": (1.0, "piece"), "piece": (1.0, "piece"), "pcs": (1.0, "piece")
         }
 
-        # Clause Segmentation by conjunctions or punctuation
-        clauses = re.split(r"(?:आणि|व|,|\+|\band\b|\bplus\b|;)+", norm_text, flags=re.IGNORECASE)
+        # Clause Segmentation by conjunctions or punctuation (require whitespace around Devanagari 'व')
+        clauses = re.split(r"(?:आणि|\s+व\s+|,|\+|\band\b|\bplus\b|;)+", norm_text, flags=re.IGNORECASE)
         extracted_items = []
         matched_skus = set()
 
@@ -397,13 +401,19 @@ class GeminiService:
                         break
 
                 if alias_matched:
-                    # Homophone Check: 'पाव' (250g weight) vs BAK-PAV-LADI
+                    # Dynamic Homophone Check: 'पाव' (250g fraction) vs Bakery Pav (BAK-PAV-LADI)
+                    # If this clause contains any other catalog item (e.g. sugar, poha, onion, oil),
+                    # 'पाव' is a weight/volume fraction, not a bakery bread!
                     if sku == "BAK-PAV-LADI":
-                        bulk_terms = ["साखर", "कांदा", "बटाटा", "डाळ", "sugar", "onion", "kanda", "dal", "तेल", "oil"]
-                        if any(b in c_lower for b in bulk_terms):
+                        other_catalog_matched = any(
+                            other_p.get("sku") != sku and any(a.lower() in c_lower for a in other_p.get("aliases", []))
+                            for other_p in catalog
+                        )
+                        if other_catalog_matched:
                             continue
                         if not any(k in c_lower for k in ["लादी", "बेकरी", "ladi", "bakery", "bread", "ब्रेड"]):
-                            if any(w in c_lower for w in ["पाव साखर", "पाव कांदा", "पाव डाळ"]):
+                            # If followed immediately by a commodity word, treat as fraction
+                            if re.search(r"पाव\s+[a-zA-Z\u0900-\u097F]+", c_lower):
                                 continue
 
                     # Local Quantity Extraction for this clause

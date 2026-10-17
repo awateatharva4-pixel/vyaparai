@@ -1,43 +1,17 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-17T19:00:10.097262+00:00",
+  "timestamp": "2026-10-17T19:14:57.378352+00:00",
   "vendor_id": "DEMO_KIRANA_KOP",
   "metrics": {
     "total_skus": 11,
-    "total_valuation": 21262.0,
+    "total_valuation": 20972.0,
     "low_stock_count": 1,
-    "today_sales_count": 17,
-    "today_revenue": 2358.0,
+    "today_sales_count": 19,
+    "today_revenue": 2648.0,
     "udhar_count": 3,
     "udhar_total": 1450.0
   },
   "products": [
-    {
-      "id": 44,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "OIL-FORT-1L",
-      "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
-      "name_en": "Fortune Sunflower Oil 1L",
-      "category": "Edible Oils / खाद्यतेल",
-      "stock": 19.0,
-      "unit": "pouch",
-      "unit_price": 135.0,
-      "min_threshold": 5.0,
-      "is_low_stock": false,
-      "aliases": [
-        "तेल",
-        "फॉर्च्युन",
-        "oil",
-        "fortune oil",
-        "tel",
-        "surajmukhi tel",
-        "sunflower oil",
-        "पिशवी",
-        "पॉऊच"
-      ],
-      "extra_meta": {},
-      "updated_at": "2026-10-17 18:59:22"
-    },
     {
       "id": 42,
       "vendor_id": "DEMO_KIRANA_KOP",
@@ -90,34 +64,6 @@
       "updated_at": "2026-10-17 18:32:54"
     },
     {
-      "id": 43,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "FMCG-PARLE-100G",
-      "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
-      "name_en": "Parle-G 100g",
-      "category": "Packaged Snacks / पॅकेज्ड स्नॅक्स",
-      "stock": 51.0,
-      "unit": "packet",
-      "unit_price": 10.0,
-      "min_threshold": 15.0,
-      "is_low_stock": false,
-      "aliases": [
-        "पार्ले",
-        "पार्ले-जी",
-        "parle",
-        "parle-g",
-        "parle ji",
-        "biscuit",
-        "biscuits",
-        "बिस्कीट",
-        "बिस्किट",
-        "पुडा",
-        "पुडे"
-      ],
-      "extra_meta": {},
-      "updated_at": "2026-10-17 18:59:50"
-    },
-    {
       "id": 45,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "BAK-PAV-LADI",
@@ -139,6 +85,60 @@
       ],
       "extra_meta": {},
       "updated_at": "2026-10-17 18:43:44"
+    },
+    {
+      "id": 44,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "OIL-FORT-1L",
+      "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+      "name_en": "Fortune Sunflower Oil 1L",
+      "category": "Edible Oils / खाद्यतेल",
+      "stock": 17.0,
+      "unit": "pouch",
+      "unit_price": 135.0,
+      "min_threshold": 5.0,
+      "is_low_stock": false,
+      "aliases": [
+        "तेल",
+        "फॉर्च्युन",
+        "oil",
+        "fortune oil",
+        "tel",
+        "surajmukhi tel",
+        "sunflower oil",
+        "पिशवी",
+        "पॉऊच"
+      ],
+      "extra_meta": {},
+      "updated_at": "2026-10-17 19:14:27"
+    },
+    {
+      "id": 43,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "FMCG-PARLE-100G",
+      "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
+      "name_en": "Parle-G 100g",
+      "category": "Packaged Snacks / पॅकेज्ड स्नॅक्स",
+      "stock": 49.0,
+      "unit": "packet",
+      "unit_price": 10.0,
+      "min_threshold": 15.0,
+      "is_low_stock": false,
+      "aliases": [
+        "पार्ले",
+        "पार्ले-जी",
+        "parle",
+        "parle-g",
+        "parle ji",
+        "biscuit",
+        "biscuits",
+        "बिस्कीट",
+        "बिस्किट",
+        "पुडा",
+        "पुडे"
+      ],
+      "extra_meta": {},
+      "updated_at": "2026-10-17 19:14:42"
     },
     {
       "id": 47,
@@ -724,6 +724,40 @@
       "is_reversed": false,
       "created_at": "2026-10-17T18:59:50.910929",
       "time": "18:59:50"
+    },
+    {
+      "id": 46,
+      "batch_id": "batch_c44823c825ac",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 44,
+      "sku": "OIL-FORT-1L",
+      "item_name": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L) (Fortune Sunflower Oil 1L)",
+      "type": "SALE",
+      "delta": -2.0,
+      "stock_after": 17.0,
+      "unit_price": 135.0,
+      "amount": 270.0,
+      "raw_message": "2 litter tel",
+      "is_reversed": false,
+      "created_at": "2026-10-17T19:14:27.174674",
+      "time": "19:14:27"
+    },
+    {
+      "id": 47,
+      "batch_id": "batch_99736bf85f2f",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 43,
+      "sku": "FMCG-PARLE-100G",
+      "item_name": "पार्ले-जी बिस्कीट (Parle-G 100g) (Parle-G 100g)",
+      "type": "SALE",
+      "delta": -2.0,
+      "stock_after": 49.0,
+      "unit_price": 10.0,
+      "amount": 20.0,
+      "raw_message": "२ पुडे पार्ले-जी दिले",
+      "is_reversed": false,
+      "created_at": "2026-10-17T19:14:42.242541",
+      "time": "19:14:42"
     }
   ],
   "customer_credits": [
@@ -760,7 +794,7 @@
       "status": "PENDING",
       "due_date": "2026-10-17",
       "notes": "महिनाअखेर किराणा सामान (Monthly Ration)",
-      "last_reminder_sent": "2026-10-17 18:59:55",
+      "last_reminder_sent": "2026-10-17 19:14:45",
       "created_at": "2026-10-17 18:23:49"
     }
   ]

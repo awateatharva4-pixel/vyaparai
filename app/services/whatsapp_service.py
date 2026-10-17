@@ -10,7 +10,10 @@ class WhatsAppService:
 
     @classmethod
     def send_message(cls, to_phone: str, message: str) -> bool:
-        print(f"[WHATSAPP OUTBOUND -> {to_phone}]:\n{message}\n" + "-"*40)
+        try:
+            print(f"[WHATSAPP OUTBOUND -> {to_phone}]:\n{message}\n" + "-"*40)
+        except Exception:
+            pass
         cls._outbound_history.append({"to": to_phone, "message": message})
         
         # 1. Green API Outbound (Direct Native WhatsApp Delivery)
