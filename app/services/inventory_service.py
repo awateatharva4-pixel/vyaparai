@@ -333,12 +333,15 @@ class InventoryService:
         # Only classify as RESTOCK if explicit inventory intake/supplier keywords are present.
         if intent == "RESTOCK":
             restock_triggers = [
-                "आले", "आणले", "भरले", "जमा", "खरेदी", "stock aala", "stock आला",
+                "आले", "आणले", "आणली", "भरले", "भरली", "जमा", "खरेदी", "stock aala", "stock आला",
                 "restock", "purchase", "supplier", "नवा माल", "नवीन माल", "inward"
             ]
             raw_lower = raw_text.lower()
             if not any(w in raw_lower for w in restock_triggers):
-                print(f"[INTENT RECTIFIED]: Overrode false RESTOCK to SALE for retail phrase: '{raw_text}'")
+                try:
+                    print(f"[INTENT RECTIFIED]: Overrode false RESTOCK to SALE for retail phrase: '{raw_text}'")
+                except Exception:
+                    pass
                 intent = "SALE"
 
         # GENERAL RETAIL INVARIANT FOR QUERY:
@@ -384,7 +387,10 @@ class InventoryService:
             else:
                 # No explicit query phrase. If numbers or items are present, override to SALE
                 if extracted_items or re.search(r"\d", raw_text):
-                    print(f"[INTENT RECTIFIED]: Overrode false QUERY to SALE for retail phrase: '{raw_text}'")
+                    try:
+                        print(f"[INTENT RECTIFIED]: Overrode false QUERY to SALE for retail phrase: '{raw_text}'")
+                    except Exception:
+                        pass
                     intent = "SALE"
                     if not extracted_items:
                         fallback_parsed = GeminiService._local_regex_parser(raw_text, catalog_data)

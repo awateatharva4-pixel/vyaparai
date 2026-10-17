@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-17T20:45:55.287951+00:00",
+  "timestamp": "2026-10-17T20:46:29.693701+00:00",
   "vendor_id": "DEMO_KIRANA_KOP",
   "metrics": {
     "total_skus": 11,
-    "total_valuation": 24257.0,
+    "total_valuation": 24195.0,
     "low_stock_count": 0,
-    "today_sales_count": 3,
-    "today_revenue": 146.0,
+    "today_sales_count": 9,
+    "today_revenue": 238.0,
     "udhar_count": 3,
     "udhar_total": 1450.0
   },
@@ -108,59 +108,6 @@
       "updated_at": "2026-10-17 20:45:40"
     },
     {
-      "id": 75,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "FMCG-PARLE-100G",
-      "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
-      "name_en": "Parle-G 100g",
-      "category": "Packaged Snacks / पॅकेज्ड स्नॅक्स",
-      "stock": 58.0,
-      "unit": "packet",
-      "unit_price": 10.0,
-      "min_threshold": 15.0,
-      "is_low_stock": false,
-      "aliases": [
-        "पार्ले",
-        "पार्ले-जी",
-        "parle",
-        "parle-g",
-        "parle ji",
-        "biscuit",
-        "biscuits",
-        "बिस्कीट",
-        "बिस्किट",
-        "पुडा",
-        "पुडे"
-      ],
-      "extra_meta": {},
-      "updated_at": "2026-10-17 20:45:39"
-    },
-    {
-      "id": 74,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "GROC-SUG-001",
-      "name_mr": "साखर (Madhur Sugar)",
-      "name_en": "Sugar",
-      "category": "Grains & Sweeteners / धान्य व साखर",
-      "stock": 47.0,
-      "unit": "kg",
-      "unit_price": 42.0,
-      "min_threshold": 10.0,
-      "is_low_stock": false,
-      "aliases": [
-        "साखर",
-        "sakhar",
-        "saakhar",
-        "sugar",
-        "shakkar",
-        "sakhri",
-        "madhur sugar",
-        "shakkhar"
-      ],
-      "extra_meta": {},
-      "updated_at": "2026-10-17 20:45:44"
-    },
-    {
       "id": 76,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "OIL-FORT-1L",
@@ -234,6 +181,34 @@
       "updated_at": "2026-10-17 20:44:48"
     },
     {
+      "id": 75,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "FMCG-PARLE-100G",
+      "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
+      "name_en": "Parle-G 100g",
+      "category": "Packaged Snacks / पॅकेज्ड स्नॅक्स",
+      "stock": 56.0,
+      "unit": "packet",
+      "unit_price": 10.0,
+      "min_threshold": 15.0,
+      "is_low_stock": false,
+      "aliases": [
+        "पार्ले",
+        "पार्ले-जी",
+        "parle",
+        "parle-g",
+        "parle ji",
+        "biscuit",
+        "biscuits",
+        "बिस्कीट",
+        "बिस्किट",
+        "पुडा",
+        "पुडे"
+      ],
+      "extra_meta": {},
+      "updated_at": "2026-10-17 20:46:26"
+    },
+    {
       "id": 79,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "GROC-SALT-1K",
@@ -280,6 +255,31 @@
       ],
       "extra_meta": {},
       "updated_at": "2026-10-17 20:44:48"
+    },
+    {
+      "id": 74,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "GROC-SUG-001",
+      "name_mr": "साखर (Madhur Sugar)",
+      "name_en": "Sugar",
+      "category": "Grains & Sweeteners / धान्य व साखर",
+      "stock": 46.0,
+      "unit": "kg",
+      "unit_price": 42.0,
+      "min_threshold": 10.0,
+      "is_low_stock": false,
+      "aliases": [
+        "साखर",
+        "sakhar",
+        "saakhar",
+        "sugar",
+        "shakkar",
+        "sakhri",
+        "madhur sugar",
+        "shakkhar"
+      ],
+      "extra_meta": {},
+      "updated_at": "2026-10-17 20:46:29"
     }
   ],
   "transactions": [
@@ -333,6 +333,108 @@
       "is_reversed": false,
       "created_at": "2026-10-17T20:45:44.678977",
       "time": "20:45:44"
+    },
+    {
+      "id": 67,
+      "batch_id": "batch_038d843d5280",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 75,
+      "sku": "FMCG-PARLE-100G",
+      "item_name": "पार्ले-जी बिस्कीट (Parle-G 100g) (Parle-G 100g)",
+      "type": "SALE",
+      "delta": -1.0,
+      "stock_after": 57.0,
+      "unit_price": 10.0,
+      "amount": 10.0,
+      "raw_message": "१ पार्ले-जी दिला (Ref #2)",
+      "is_reversed": false,
+      "created_at": "2026-10-17T20:46:24.195802",
+      "time": "20:46:24"
+    },
+    {
+      "id": 68,
+      "batch_id": "batch_441922ffadd0",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 75,
+      "sku": "FMCG-PARLE-100G",
+      "item_name": "पार्ले-जी बिस्कीट (Parle-G 100g) (Parle-G 100g)",
+      "type": "SALE",
+      "delta": -1.0,
+      "stock_after": 57.0,
+      "unit_price": 10.0,
+      "amount": 10.0,
+      "raw_message": "१ पार्ले-जी दिला (Ref #1)",
+      "is_reversed": false,
+      "created_at": "2026-10-17T20:46:24.380068",
+      "time": "20:46:24"
+    },
+    {
+      "id": 69,
+      "batch_id": "batch_5c07a3fb3044",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 75,
+      "sku": "FMCG-PARLE-100G",
+      "item_name": "पार्ले-जी बिस्कीट (Parle-G 100g) (Parle-G 100g)",
+      "type": "SALE",
+      "delta": -1.0,
+      "stock_after": 57.0,
+      "unit_price": 10.0,
+      "amount": 10.0,
+      "raw_message": "१ पार्ले-जी दिला (Ref #0)",
+      "is_reversed": false,
+      "created_at": "2026-10-17T20:46:24.529103",
+      "time": "20:46:24"
+    },
+    {
+      "id": 70,
+      "batch_id": "batch_06941c72b292",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 75,
+      "sku": "FMCG-PARLE-100G",
+      "item_name": "पार्ले-जी बिस्कीट (Parle-G 100g) (Parle-G 100g)",
+      "type": "SALE",
+      "delta": -1.0,
+      "stock_after": 56.0,
+      "unit_price": 10.0,
+      "amount": 10.0,
+      "raw_message": "१ पार्ले-जी दिला (Ref #3)",
+      "is_reversed": false,
+      "created_at": "2026-10-17T20:46:26.687841",
+      "time": "20:46:26"
+    },
+    {
+      "id": 71,
+      "batch_id": "batch_9bd3f95bd790",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 75,
+      "sku": "FMCG-PARLE-100G",
+      "item_name": "पार्ले-जी बिस्कीट (Parle-G 100g) (Parle-G 100g)",
+      "type": "SALE",
+      "delta": -1.0,
+      "stock_after": 56.0,
+      "unit_price": 10.0,
+      "amount": 10.0,
+      "raw_message": "१ पार्ले-जी दिला (Ref #4)",
+      "is_reversed": false,
+      "created_at": "2026-10-17T20:46:26.753136",
+      "time": "20:46:26"
+    },
+    {
+      "id": 72,
+      "batch_id": "batch_e7bd77479a2d",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 74,
+      "sku": "GROC-SUG-001",
+      "item_name": "साखर (Madhur Sugar) (Sugar)",
+      "type": "SALE",
+      "delta": -1.0,
+      "stock_after": 46.0,
+      "unit_price": 42.0,
+      "amount": 42.0,
+      "raw_message": "१ साखर विकली",
+      "is_reversed": false,
+      "created_at": "2026-10-17T20:46:29.220828",
+      "time": "20:46:29"
     }
   ],
   "customer_credits": [
@@ -345,7 +447,7 @@
       "status": "PENDING",
       "due_date": "2026-10-18",
       "notes": "गहू व साखर बिल (Wheat & Sugar)",
-      "last_reminder_sent": null,
+      "last_reminder_sent": "2026-10-17 20:45:55",
       "created_at": "2026-10-17 20:44:48"
     },
     {
@@ -357,7 +459,7 @@
       "status": "PENDING",
       "due_date": "2026-10-19",
       "notes": "शेंगदाणा तेल व साबण (Oil & Soap)",
-      "last_reminder_sent": null,
+      "last_reminder_sent": "2026-10-17 20:45:55",
       "created_at": "2026-10-17 20:44:48"
     },
     {
@@ -369,7 +471,7 @@
       "status": "PENDING",
       "due_date": "2026-10-17",
       "notes": "महिनाअखेर किराणा सामान (Monthly Ration)",
-      "last_reminder_sent": "2026-10-17 20:45:46",
+      "last_reminder_sent": "2026-10-17 20:45:55",
       "created_at": "2026-10-17 20:44:48"
     }
   ]

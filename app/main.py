@@ -1,6 +1,13 @@
 import os
+import sys
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Depends, WebSocket, WebSocketDisconnect
+
+# Configure stream encoding for Windows consoles
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates

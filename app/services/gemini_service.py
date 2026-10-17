@@ -363,7 +363,7 @@ class GeminiService:
 
         # Intent Classification
         intent = "SALE"
-        if any(w in lower for w in ["परत आली", "परत आले", "परत केले", "आले", "आणले", "भरले", "जमा केले", "वापस", "aali", "aale", "aala", "aaya", "restock", "add", "ghetla"]):
+        if any(w in lower for w in ["परत आली", "परत आले", "परत केले", "आले", "आणले", "आणली", "भरले", "भरली", "जमा केले", "वापस", "aali", "aale", "aala", "aaya", "restock", "add", "ghetla"]):
             intent = "RESTOCK"
         if any(w in lower for w in ["पैसे परत", "रिफंड", "refund", "paise parat"]):
             return {"intent": "REFUND", "items": [], "vendor_note": "ग्राहक परतावा (Customer Refund / Cash Paid Out)", "source": "deterministic-vernacular-engine"}
@@ -456,6 +456,8 @@ class GeminiService:
 
                     # 1. Multiplier prefix on fractional unit (e.g. '२ पाव साखर', 'दोन पाव')
                     for u_name, (mult, u_norm) in UNIT_MAP.items():
+                        if sku == "BAK-PAV-LADI" and u_name in ("पाव", "पावशेर", "पाव किलो"):
+                            continue
                         if u_name in c_clean:
                             prefix_match = re.search(r"(\d+(?:\.\d+)?|[a-zA-Z\u0900-\u097F]+)\s*" + re.escape(u_name), c_clean)
                             if prefix_match:
@@ -473,9 +475,11 @@ class GeminiService:
                             break
 
                     # 2. Check standalone number words (e.g. 'पाच साखर', 'दोन तेल')
+                    # Use Indic-aware word boundary pattern to handle Devanagari vowel marks (Mc category)
                     if not matched_qty:
                         for word, val in NUM_WORDS.items():
-                            if re.search(r"\b" + re.escape(word) + r"\b", c_clean, flags=re.IGNORECASE):
+                            pat = r"(?:^|[^\u0900-\u097F\w])" + re.escape(word) + r"(?:[^\u0900-\u097F\w]|$)"
+                            if re.search(pat, c_clean, flags=re.IGNORECASE):
                                 qty = val
                                 matched_qty = True
                                 break
