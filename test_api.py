@@ -66,9 +66,9 @@ def test_endpoints():
     print("--- 8. Testing POST /api/v1/webhook/whatsapp (Green-API Ingress) ---")
     green_payload = {
         "typeWebhook": "incomingMessageReceived",
-        "instanceData": {"idInstance": 710722770910, "wid": "918793791054@c.us"},
-        "idMessage": "MSG_GREEN_TEST_001",
-        "senderData": {"chatId": "918793791054@c.us", "sender": "918793791054@c.us"},
+        "instanceData": {"idInstance": 710722771292, "wid": "917558455021@c.us"},
+        "idMessage": "MSG_GREEN_TEST_002",
+        "senderData": {"chatId": "917558455021@c.us", "sender": "917558455021@c.us"},
         "messageData": {
             "typeMessage": "textMessage",
             "textMessageData": {"textMessage": "२ साखर विकली"}
