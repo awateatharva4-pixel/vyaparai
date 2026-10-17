@@ -1,17 +1,43 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-17T19:28:16.384370+00:00",
+  "timestamp": "2026-10-17T19:54:21.016681+00:00",
   "vendor_id": "DEMO_KIRANA_KOP",
   "metrics": {
     "total_skus": 11,
-    "total_valuation": 20952.0,
+    "total_valuation": 20412.0,
     "low_stock_count": 1,
-    "today_sales_count": 20,
-    "today_revenue": 2668.0,
+    "today_sales_count": 22,
+    "today_revenue": 3208.0,
     "udhar_count": 3,
     "udhar_total": 1450.0
   },
   "products": [
+    {
+      "id": 44,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "OIL-FORT-1L",
+      "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+      "name_en": "Fortune Sunflower Oil 1L",
+      "category": "Edible Oils / खाद्यतेल",
+      "stock": 13.0,
+      "unit": "pouch",
+      "unit_price": 135.0,
+      "min_threshold": 5.0,
+      "is_low_stock": false,
+      "aliases": [
+        "तेल",
+        "फॉर्च्युन",
+        "oil",
+        "fortune oil",
+        "tel",
+        "surajmukhi tel",
+        "sunflower oil",
+        "पिशवी",
+        "पॉऊच"
+      ],
+      "extra_meta": {},
+      "updated_at": "2026-10-17 19:54:20"
+    },
     {
       "id": 42,
       "vendor_id": "DEMO_KIRANA_KOP",
@@ -85,32 +111,6 @@
       ],
       "extra_meta": {},
       "updated_at": "2026-10-17 18:43:44"
-    },
-    {
-      "id": 44,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "OIL-FORT-1L",
-      "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
-      "name_en": "Fortune Sunflower Oil 1L",
-      "category": "Edible Oils / खाद्यतेल",
-      "stock": 17.0,
-      "unit": "pouch",
-      "unit_price": 135.0,
-      "min_threshold": 5.0,
-      "is_low_stock": false,
-      "aliases": [
-        "तेल",
-        "फॉर्च्युन",
-        "oil",
-        "fortune oil",
-        "tel",
-        "surajmukhi tel",
-        "sunflower oil",
-        "पिशवी",
-        "पॉऊच"
-      ],
-      "extra_meta": {},
-      "updated_at": "2026-10-17 19:14:27"
     },
     {
       "id": 43,
@@ -775,6 +775,40 @@
       "is_reversed": false,
       "created_at": "2026-10-17T19:27:59.763261",
       "time": "19:27:59"
+    },
+    {
+      "id": 49,
+      "batch_id": "batch_25a78ba602e7",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 44,
+      "sku": "OIL-FORT-1L",
+      "item_name": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L) (Fortune Sunflower Oil 1L)",
+      "type": "SALE",
+      "delta": -2.0,
+      "stock_after": 15.0,
+      "unit_price": 135.0,
+      "amount": 270.0,
+      "raw_message": "दोन लिटर तेल",
+      "is_reversed": false,
+      "created_at": "2026-10-17T19:50:43.064171",
+      "time": "19:50:43"
+    },
+    {
+      "id": 50,
+      "batch_id": "batch_91897fda98e1",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 44,
+      "sku": "OIL-FORT-1L",
+      "item_name": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L) (Fortune Sunflower Oil 1L)",
+      "type": "SALE",
+      "delta": -2.0,
+      "stock_after": 13.0,
+      "unit_price": 135.0,
+      "amount": 270.0,
+      "raw_message": "दोन लिटर तेल",
+      "is_reversed": false,
+      "created_at": "2026-10-17T19:54:20.328826",
+      "time": "19:54:20"
     }
   ],
   "customer_credits": [

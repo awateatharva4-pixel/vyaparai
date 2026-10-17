@@ -319,7 +319,10 @@ class GeminiService:
                 try:
                     stt_text = r.recognize_google(audio_data, language=lang)
                     if stt_text and stt_text.strip():
-                        print(f"[GOOGLE STT SUCCESS ({lang})]: '{stt_text}'")
+                        try:
+                            print(f"[GOOGLE STT SUCCESS ({lang})]: '{stt_text}'")
+                        except Exception:
+                            pass
                         break
                 except (sr.UnknownValueError, sr.RequestError):
                     continue

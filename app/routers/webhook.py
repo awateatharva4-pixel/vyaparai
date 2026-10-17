@@ -116,7 +116,7 @@ async def handle_whatsapp_webhook(
                 auth = None
                 if settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN:
                     auth = (settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-                async with httpx.AsyncClient(timeout=15.0, auth=auth) as http_client:
+                async with httpx.AsyncClient(timeout=20.0, auth=auth, follow_redirects=True) as http_client:
                     resp = await http_client.get(media_url)
                     if resp.status_code == 200:
                         raw_audio_bytes = resp.content
@@ -196,17 +196,41 @@ async def handle_whatsapp_webhook(
                 download_url = (
                     msg_data.get("fileMessageData", {}).get("downloadUrl")
                     or msg_data.get("downloadUrl")
+                    or body_json.get("downloadUrl")
                 )
-                mime_type = msg_data.get("fileMessageData", {}).get("mimeType", "audio/ogg")
+                mime_type = (
+                    msg_data.get("fileMessageData", {}).get("mimeType")
+                    or msg_data.get("mimeType")
+                    or body_json.get("mimeType")
+                    or "audio/ogg"
+                )
                 raw_audio_bytes = b""
                 if download_url:
                     try:
-                        async with httpx.AsyncClient(timeout=15.0) as http_client:
+                        async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as http_client:
                             resp = await http_client.get(download_url)
                             if resp.status_code == 200:
                                 raw_audio_bytes = resp.content
+                            else:
+                                print(f"[GREEN-API AUDIO DOWNLOAD WARN]: Status {resp.status_code} for URL {download_url}")
                     except Exception as e:
                         print(f"[GREEN-API AUDIO DOWNLOAD ERROR]: {e}")
+
+                # Fallback: Call Green-API downloadFile endpoint if direct link failed
+                if not raw_audio_bytes and message_id and settings.GREEN_API_HOST and settings.GREEN_API_INSTANCE_ID and settings.GREEN_API_TOKEN:
+                    try:
+                        api_url = f"{settings.GREEN_API_HOST}/waInstance{settings.GREEN_API_INSTANCE_ID}/downloadFile/{settings.GREEN_API_TOKEN}"
+                        chat_id = sender_phone if "@c.us" in sender_phone else f"{sender_phone}@c.us"
+                        async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as http_client:
+                            res_api = await http_client.post(api_url, json={"chatId": chat_id, "idMessage": message_id})
+                            if res_api.status_code == 200:
+                                fresh_url = res_api.json().get("downloadUrl")
+                                if fresh_url:
+                                    resp2 = await http_client.get(fresh_url)
+                                    if resp2.status_code == 200:
+                                        raw_audio_bytes = resp2.content
+                    except Exception as e:
+                        print(f"[GREEN-API DOWNLOADFILE FALLBACK ERROR]: {e}")
 
                 if raw_audio_bytes:
                     norm_bytes, detected_mime = AudioNormalizer.normalize_audio(
@@ -252,7 +276,7 @@ async def handle_whatsapp_webhook(
                     meta_token = os.getenv("META_ACCESS_TOKEN", "") or os.getenv("WHATSAPP_TOKEN", "")
                     if audio_id and meta_token:
                         try:
-                            async with httpx.AsyncClient(timeout=15.0) as http_client:
+                            async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as http_client:
                                 media_meta_res = await http_client.get(
                                     f"https://graph.facebook.com/v21.0/{audio_id}",
                                     headers={"Authorization": f"Bearer {meta_token}"}

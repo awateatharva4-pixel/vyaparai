@@ -22,14 +22,23 @@ class AudioNormalizer:
         if clean_format in ("opus", ""):
             clean_format = "ogg"
 
-        # Try FFmpeg in PATH
+        # Try FFmpeg (bundled imageio_ffmpeg first, then system PATH)
+        ffmpeg_bin = "ffmpeg"
+        try:
+            import imageio_ffmpeg
+            ffmpeg_bin = imageio_ffmpeg.get_ffmpeg_exe()
+        except Exception:
+            pass
+
         try:
             cmd = [
-                "ffmpeg",
+                ffmpeg_bin,
                 "-y",
                 "-f", clean_format,
                 "-i", "pipe:0",
-                "-af", "highpass=f=300,lowpass=f=3400,loudnorm",  # Human voice bandpass + loudness norm
+                "-ac", "1",
+                "-ar", "16000",
+                "-af", "highpass=f=300,lowpass=f=3400",
                 "-f", "wav",
                 "pipe:1"
             ]
@@ -41,11 +50,10 @@ class AudioNormalizer:
             )
             out, err = process.communicate(input=audio_bytes, timeout=10)
             if process.returncode == 0 and len(out) > 0:
-                print(f"[AUDIO NORMALIZER]: Normalized {len(audio_bytes)}B audio to {len(out)}B WAV via FFmpeg")
+                print(f"[AUDIO NORMALIZER]: Normalized {len(audio_bytes)}B audio to {len(out)}B WAV via FFmpeg ({ffmpeg_bin})")
                 return out, "audio/wav"
         except Exception as e:
-            # FFmpeg not present or failed - fallback gracefully
-            pass
+            print(f"[AUDIO NORMALIZER WARN]: FFmpeg conversion failed: {e}")
 
         # Return original audio with sanitized IANA MIME type for Gemini
         mime_map = {

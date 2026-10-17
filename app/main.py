@@ -17,6 +17,13 @@ from app.routers import webhook, inventory, simulator
 # Initialize database schema tables and migrations
 init_db()
 
+# Initialize static FFmpeg binaries on PATH for cross-platform audio transcoding
+try:
+    import static_ffmpeg
+    static_ffmpeg.add_paths()
+except Exception as e:
+    pass
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
