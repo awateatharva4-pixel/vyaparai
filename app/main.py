@@ -88,6 +88,12 @@ if os.path.exists(FRONTEND_DIR):
     if os.path.exists(assets_dir):
         app.mount("/assets", StaticFiles(directory=assets_dir, html=True), name="assets")
 
+MINDMAP_DIR = os.path.join(REPO_ROOT, "mindmap")
+if not os.path.exists(MINDMAP_DIR):
+    MINDMAP_DIR = r"E:\vyaparai_mind_map"
+if os.path.exists(MINDMAP_DIR):
+    app.mount("/mindmap", StaticFiles(directory=MINDMAP_DIR, html=True), name="mindmap")
+
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 # Include sub-routers
