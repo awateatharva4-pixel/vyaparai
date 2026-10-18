@@ -119,5 +119,38 @@
     "unit_price": 30.0,
     "min_threshold": 15.0,
     "aliases": ["बटाटा", "batata", "potato", "aloo", "batate", "alu"]
+  },
+  {
+    "sku": "AUTO-VID-NOTEBOOK",
+    "name_mr": "क्लासमेट वही १७२ पाने (Classmate Notebook)",
+    "name_en": "Classmate Notebook 172 Pages",
+    "category": "Stationery & Office / स्टेशनरी व वही",
+    "stock": 30.0,
+    "unit": "book",
+    "unit_price": 65.0,
+    "min_threshold": 5.0,
+    "aliases": ["vahi", "notebook", "classmate", "वही", "क्लासमेट", "नोटबुक", "classmate book", "classment", "classment book", "classment notebook"]
+  },
+  {
+    "sku": "AUTO-VID-PEN",
+    "name_mr": "रेनॉल्ड्स ०४५ बॉल पेन (Reynolds Blue Pen)",
+    "name_en": "Reynolds 045 Ballpoint Pen Blue",
+    "category": "Stationery & Office / स्टेशनरी व पेन",
+    "stock": 50.0,
+    "unit": "piece",
+    "unit_price": 10.0,
+    "min_threshold": 10.0,
+    "aliases": ["pen", "reynolds", "पेन", "बॉलपेन", "blue pen", "reynolds pen"]
+  },
+  {
+    "sku": "AUTO-VID-KINLEY",
+    "name_mr": "किनले पिण्याचे पाणी १L (Kinley Water 1L)",
+    "name_en": "Kinley Packaged Water 1L",
+    "category": "Beverages & Drinks / पेये व पाणी",
+    "stock": 24.0,
+    "unit": "bottle",
+    "unit_price": 20.0,
+    "min_threshold": 6.0,
+    "aliases": ["pani", "water", "kinley", "पाणी", "किनले", "water bottle"]
   }
 ]

@@ -264,7 +264,7 @@ const VyaparCore = (function() {
   ];
 
   // Storage Keys
-  const KEY_SKUS = "vyapar_inventory_skus_v2";
+  const KEY_SKUS = "vyapar_inventory_skus_v3";
   const KEY_CUSTOMERS = "vyapar_customers";
   const KEY_TX = "vyapar_transactions";
   const KEY_ORDERS = "vyapar_pending_orders";

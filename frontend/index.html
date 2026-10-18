@@ -2139,7 +2139,8 @@
             </div>
 
             <!-- Card 12: Reynolds 045 Pen -->
-            <div class="product-catalog-card" data-sku="AUTO-VID-PEN">
+            <div class="product-catalog-card" data-sku="AUTO-VID-PEN" style="position: relative;">
+              <div class="carousel-stock-badge tabular-nums stock-badge-in" style="position: absolute; top: 10px; right: 10px; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; z-index: 2; background: rgba(52, 199, 89, 0.15); color: #30d158; border: 1px solid rgba(52, 199, 89, 0.3);">50 piece</div>
               <div class="product-image-pedestal pedestal-azure">
                 <img src="assets/products/reynolds_pen.jpg" alt="Reynolds Pen" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/AUTO-VID-PEN.jpg'" />
               </div>
@@ -2152,7 +2153,8 @@
             </div>
 
             <!-- Card 13: Classmate Notebook -->
-            <div class="product-catalog-card" data-sku="AUTO-VID-NOTEBOOK">
+            <div class="product-catalog-card" data-sku="AUTO-VID-NOTEBOOK" style="position: relative;">
+              <div class="carousel-stock-badge tabular-nums stock-badge-in" style="position: absolute; top: 10px; right: 10px; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; z-index: 2; background: rgba(52, 199, 89, 0.15); color: #30d158; border: 1px solid rgba(52, 199, 89, 0.3);">30 piece</div>
               <div class="product-image-pedestal pedestal-peach">
                 <img src="assets/products/classmate_notebook.jpg" alt="Classmate Notebook" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/AUTO-VID-NOTEBOOK.jpg'" />
               </div>
@@ -2165,7 +2167,8 @@
             </div>
 
             <!-- Card 14: Kinley Water 1L -->
-            <div class="product-catalog-card" data-sku="AUTO-VID-KINLEY">
+            <div class="product-catalog-card" data-sku="AUTO-VID-KINLEY" style="position: relative;">
+              <div class="carousel-stock-badge tabular-nums stock-badge-in" style="position: absolute; top: 10px; right: 10px; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; z-index: 2; background: rgba(52, 199, 89, 0.15); color: #30d158; border: 1px solid rgba(52, 199, 89, 0.3);">24 bottle</div>
               <div class="product-image-pedestal pedestal-green">
                 <img src="assets/products/kinley_water.jpg" alt="Kinley 1L Water" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/AUTO-VID-KINLEY.jpg'" />
               </div>
@@ -2801,7 +2804,13 @@
     function updateCarouselStock(products) {
       if (!products) return;
       products.forEach(p => {
-        const card = document.querySelector(`.product-catalog-card[data-sku="${p.sku}"]`);
+        let card = document.querySelector(`.product-catalog-card[data-sku="${p.sku}"]`);
+        if (!card && p.sku && (p.sku.toLowerCase().includes('notebook') || (p.name_en && p.name_en.toLowerCase().includes('notebook')) || (p.name_en && p.name_en.toLowerCase().includes('classmate')) || (p.name_mr && p.name_mr.includes('वही')))) {
+          card = document.querySelector(`.product-catalog-card[data-sku="AUTO-VID-NOTEBOOK"]`);
+        }
+        if (!card && p.sku && (p.sku.toLowerCase().includes('pen') || (p.name_en && p.name_en.toLowerCase().includes('reynolds')) || (p.name_mr && p.name_mr.includes('पेन')))) {
+          card = document.querySelector(`.product-catalog-card[data-sku="AUTO-VID-PEN"]`);
+        }
         if (card) {
           let badge = card.querySelector('.carousel-stock-badge');
           if (!badge) {
@@ -3515,6 +3524,14 @@
         if (VyaparCore.playSoundboxChime) {
           VyaparCore.playSoundboxChime(2500);
         }
+      }
+    }
+
+    // Immediate render if DOM is already ready
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      if (window.VyaparCore && VyaparCore.getSKUs) {
+        renderInventoryTable(VyaparCore.getSKUs());
+        updateCarouselStock(VyaparCore.getSKUs());
       }
     }
 
