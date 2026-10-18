@@ -35,6 +35,25 @@ class WhatsAppService:
                     return True
                 else:
                     print(f"[GREEN API WARN]: Status {r.status_code} - {r.text}")
+                    # If correspondent quota exceeded (Free tier 3-number limit) and recipient is customer,
+                    # forward the customer receipt to merchant phone (919579869506) so nothing is lost!
+                    if r.status_code == 466 and "9579869506" not in chat_id:
+                        fallback_chat = "919579869506@c.us"
+                        fallback_msg = (
+                            f"📱 *[ग्राहक प्रत - Customer Receipt]*\n"
+                            f"👤 *ग्राहक:* {to_phone} (व्यंकटेश पै)\n"
+                            f"⚠️ *(Green-API फ्री कोटा मर्यादा: ग्राहक पावती मर्चंटकडे फॉरवर्ड केली आहे)*\n"
+                            f"━━━━━━━━━━━━━━━━━━━━\n"
+                            f"{message}"
+                        )
+                        fb_payload = {"chatId": fallback_chat, "message": fallback_msg}
+                        try:
+                            r_fb = requests.post(url, json=fb_payload, timeout=5)
+                            if r_fb.status_code == 200:
+                                print(f"[GREEN API FALLBACK SUCCESS]: Forwarded customer copy to {fallback_chat}")
+                                return True
+                        except Exception as fb_err:
+                            print(f"[GREEN API FALLBACK ERROR]: {fb_err}")
             except Exception as e:
                 print(f"[GREEN API ERROR]: {e}")
 
