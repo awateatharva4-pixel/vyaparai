@@ -384,6 +384,44 @@ const VyaparCore = (function() {
         }
         lastSyncMetrics = data;
         notifySyncListeners("METRICS_UPDATE", data);
+
+        // Background sync pending customer yaadi orders from backend
+        try {
+          const ordRes = await fetch(`${backendUrl}/api/orders/pending`);
+          if (ordRes.ok) {
+            const ordData = await ordRes.json();
+            if (ordData && Array.isArray(ordData.orders)) {
+              pendingOrders = ordData.orders.map(o => ({
+                order_id: o.order_id,
+                id: o.order_id,
+                customer_name: o.customer_name || o.customerName || "व्यंकटेश पै (Venkatesh Pai)",
+                customerName: o.customer_name || o.customerName || "व्यंकटेश पै (Venkatesh Pai)",
+                customer_phone: o.customer_phone || o.phone || "+91 70192 59321",
+                phone: o.customer_phone || o.phone || "+91 70192 59321",
+                area: "Kolhapur Walk-in",
+                time: o.timestamp || (o.created_at ? new Date(o.created_at).toLocaleTimeString() : "Just now"),
+                timestamp: o.timestamp || (o.created_at ? new Date(o.created_at).toLocaleTimeString() : "Just now"),
+                slip_type: "WhatsApp Yaadi Slip",
+                items_text: o.raw_message || o.rawText || "किराणा यादी",
+                rawText: o.raw_message || o.rawText || "किराणा यादी",
+                items: Array.isArray(o.items) ? o.items.map(it => ({
+                  name: it.name_mr || it.name_raw || it.name || "किराणा सामान",
+                  qty: it.quantity || it.qty || 1,
+                  unit: it.unit || "piece",
+                  price: it.unit_price || it.price || 0,
+                  total: it.line_total || it.total || 0,
+                  sku: it.sku_matched || it.sku || ""
+                })) : [],
+                total_amount: parseFloat(o.total_amount || o.totalEstimated || 0),
+                totalEstimated: parseFloat(o.total_amount || o.totalEstimated || 0),
+                status: o.status || "PENDING"
+              }));
+              save(KEY_ORDERS, pendingOrders);
+              notifySyncListeners("PENDING_ORDERS_UPDATED", pendingOrders);
+            }
+          }
+        } catch (ordErr) {}
+
         return data;
       }
     } catch (e) {
@@ -425,6 +463,9 @@ const VyaparCore = (function() {
               lastSyncMetrics = msg.metrics;
               notifySyncListeners("METRICS_UPDATE", msg.metrics);
             } else if (msg.type === "NEW_CUSTOMER_YAADI" || msg.event === "NEW_CUSTOMER_YAADI") {
+              if (msg.order) {
+                VyaparCore.addPendingCustomerOrder(msg.order);
+              }
               notifySyncListeners("NEW_CUSTOMER_YAADI", msg.order);
               performLiveSync();
             } else if (msg.type === "CATALOG_ONBOARDED" || msg.event === "CATALOG_ONBOARDED") {
@@ -612,6 +653,16 @@ const VyaparCore = (function() {
         order.status = "PACKED";
         order.fulfilled_at = new Date().toLocaleTimeString();
         save(KEY_ORDERS, pendingOrders);
+
+        // Synchronize with cloud backend
+        fetch(`${getBackendUrl()}/api/orders/${orderId}/pack`, { method: "POST" })
+          .then(r => r.json())
+          .then(res => {
+            if (res && res.metrics) {
+              performLiveSync();
+            }
+          })
+          .catch(e => console.log("[PACK API WARN]:", e));
 
         this.playSoundboxChime(order.total_amount);
         return { success: true, order };

@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-18T06:48:51.598292+00:00",
+  "timestamp": "2026-10-18T07:12:42.240743+00:00",
   "vendor_id": "DEMO_KIRANA_KOP",
   "metrics": {
     "total_skus": 10,
@@ -10,11 +10,11 @@
     "today_revenue": 0,
     "udhar_count": 3,
     "udhar_total": 1450.0,
-    "pending_orders_count": 30
+    "pending_orders_count": 31
   },
   "products": [
     {
-      "id": 930,
+      "id": 940,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "GROC-SUG-001",
       "name_mr": "साखर (Madhur Sugar)",
@@ -37,10 +37,10 @@
       ],
       "extra_meta": {},
       "image_url": "/static/products/GROC-SUG-001.jpg",
-      "updated_at": "2026-10-18 06:48:50"
+      "updated_at": "2026-10-18 06:48:59"
     },
     {
-      "id": 931,
+      "id": 941,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "FMCG-PARLE-100G",
       "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
@@ -66,10 +66,10 @@
       ],
       "extra_meta": {},
       "image_url": "/static/products/FMCG-PARLE-100G.jpg",
-      "updated_at": "2026-10-18 06:48:50"
+      "updated_at": "2026-10-18 06:48:59"
     },
     {
-      "id": 932,
+      "id": 942,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "OIL-FORT-1L",
       "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
@@ -93,10 +93,10 @@
       ],
       "extra_meta": {},
       "image_url": "/static/products/OIL-FORT-1L.jpg",
-      "updated_at": "2026-10-18 06:48:50"
+      "updated_at": "2026-10-18 06:48:59"
     },
     {
-      "id": 933,
+      "id": 943,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "BAK-PAV-LADI",
       "name_mr": "लादी पाव (Fresh Bakery Pav)",
@@ -117,10 +117,10 @@
       ],
       "extra_meta": {},
       "image_url": "/static/products/BAK-PAV-LADI.jpg",
-      "updated_at": "2026-10-18 06:48:50"
+      "updated_at": "2026-10-18 06:48:59"
     },
     {
-      "id": 934,
+      "id": 944,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "DAL-TUR-001",
       "name_mr": "गावरान तूर डाळ (Polished Tur Dal)",
@@ -142,10 +142,10 @@
       ],
       "extra_meta": {},
       "image_url": "/static/products/DAL-TUR-001.jpg",
-      "updated_at": "2026-10-18 06:48:50"
+      "updated_at": "2026-10-18 06:48:59"
     },
     {
-      "id": 935,
+      "id": 945,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "GROC-SALT-1K",
       "name_mr": "टाटा मीठ (Tata Salt 1kg)",
@@ -166,10 +166,10 @@
       ],
       "extra_meta": {},
       "image_url": "/static/products/GROC-SALT-1K.jpg",
-      "updated_at": "2026-10-18 06:48:50"
+      "updated_at": "2026-10-18 06:48:59"
     },
     {
-      "id": 936,
+      "id": 946,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "GROC-ATTA-5K",
       "name_mr": "आशीर्वाद चक्की आटा (Aashirvaad Atta 5kg)",
@@ -192,10 +192,10 @@
       ],
       "extra_meta": {},
       "image_url": "/static/products/GROC-ATTA-5K.jpg",
-      "updated_at": "2026-10-18 06:48:50"
+      "updated_at": "2026-10-18 06:48:59"
     },
     {
-      "id": 937,
+      "id": 947,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "FMCG-MAGGI-70G",
       "name_mr": "मॅगी २-मिनिट नूडल्स (Maggi 70g)",
@@ -216,10 +216,10 @@
       ],
       "extra_meta": {},
       "image_url": "/static/products/FMCG-MAGGI-70G.jpg",
-      "updated_at": "2026-10-18 06:48:50"
+      "updated_at": "2026-10-18 06:48:59"
     },
     {
-      "id": 938,
+      "id": 948,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "VEG-KANDA-001",
       "name_mr": "गावठी लाल कांदा (Fresh Onion)",
@@ -240,10 +240,10 @@
       ],
       "extra_meta": {},
       "image_url": "/static/products/VEG-KANDA-001.jpg",
-      "updated_at": "2026-10-18 06:48:50"
+      "updated_at": "2026-10-18 06:48:59"
     },
     {
-      "id": 939,
+      "id": 949,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "VEG-BATATA-001",
       "name_mr": "इंदूर बटाटा (Fresh Potato)",
@@ -264,13 +264,13 @@
       ],
       "extra_meta": {},
       "image_url": "/static/products/VEG-BATATA-001.jpg",
-      "updated_at": "2026-10-18 06:48:50"
+      "updated_at": "2026-10-18 06:48:59"
     }
   ],
   "transactions": [],
   "customer_credits": [
     {
-      "id": 157,
+      "id": 160,
       "vendor_id": "DEMO_KIRANA_KOP",
       "customer_name": "तानाजी शेठ",
       "customer_phone": "+919822012345",
@@ -279,10 +279,10 @@
       "due_date": "2026-10-18",
       "notes": "गहू व साखर बिल (Wheat & Sugar)",
       "last_reminder_sent": null,
-      "created_at": "2026-10-18 06:48:50"
+      "created_at": "2026-10-18 06:49:00"
     },
     {
-      "id": 158,
+      "id": 161,
       "vendor_id": "DEMO_KIRANA_KOP",
       "customer_name": "आनंदराव",
       "customer_phone": "+919822067890",
@@ -291,10 +291,10 @@
       "due_date": "2026-10-19",
       "notes": "शेंगदाणा तेल व साबण (Oil & Soap)",
       "last_reminder_sent": null,
-      "created_at": "2026-10-18 06:48:50"
+      "created_at": "2026-10-18 06:49:00"
     },
     {
-      "id": 159,
+      "id": 162,
       "vendor_id": "DEMO_KIRANA_KOP",
       "customer_name": "बबनराव जाधव",
       "customer_phone": "+919822054321",
@@ -303,7 +303,7 @@
       "due_date": "2026-10-17",
       "notes": "महिनाअखेर किराणा सामान (Monthly Ration)",
       "last_reminder_sent": null,
-      "created_at": "2026-10-18 06:48:50"
+      "created_at": "2026-10-18 06:49:00"
     }
   ],
   "customer_orders": [
@@ -1840,6 +1840,30 @@
       "total_amount": 620.0,
       "status": "PENDING",
       "created_at": "2026-10-18 05:43:11"
+    },
+    {
+      "id": 41,
+      "order_id": "ORD-66D7",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "customer_phone": "917019259321",
+      "raw_message": "दोन किलो साखर",
+      "image_url": "",
+      "items": [
+        {
+          "name_raw": "साखर (Madhur Sugar)",
+          "name_mr": "साखर (Madhur Sugar)",
+          "sku_matched": "GROC-SUG-001",
+          "is_available": true,
+          "quantity": 2.0,
+          "unit": "kg",
+          "unit_price": 42.0,
+          "line_total": 84.0,
+          "total_price": 84.0
+        }
+      ],
+      "total_amount": 84.0,
+      "status": "PENDING",
+      "created_at": "2026-10-18 07:12:41"
     }
   ]
 }

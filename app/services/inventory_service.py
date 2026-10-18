@@ -1000,6 +1000,15 @@ class InventoryService:
                 due_date="2026-10-17",
                 notes="महिनाअखेर किराणा सामान (Monthly Ration)"
             ),
+            CustomerCredit(
+                vendor_id="DEMO_KIRANA_KOP",
+                customer_name="व्यंकटेश पै (Venkatesh Pai)",
+                customer_phone="+917019259321",
+                amount_due=84.0,
+                status="PENDING",
+                due_date="2026-10-18",
+                notes="साखर २ किलो (Sugar 2kg Yaadi)"
+            ),
         ]
         for c in sample_credits:
             db.add(c)

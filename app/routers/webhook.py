@@ -196,6 +196,21 @@ def background_process_customer_yaadi_image(
         )
         receipt = InventoryService.format_customer_yaadi_receipt(order)
         WhatsAppService.send_message(to_phone=customer_phone, message=receipt)
+
+        # Notify Merchant Admin Phone (9579869506) with instant WhatsApp alert
+        cust_display = "व्यंकटेश पै (Venkatesh Pai)" if ("7019259321" in str(customer_phone)) else str(customer_phone)
+        items_summary = ", ".join([f"{i.get('quantity', 1):g} {i.get('unit', '')} {i.get('name_mr', i.get('name_raw', ''))}" for i in order_items])
+        merchant_alert = (
+            f"🔔 *नवीन ग्राहक यादी (Photo Order)!* 📸\n"
+            f"━━━━━━━━━━━━━━━━━━━━\n"
+            f"👤 *ग्राहक:* {cust_display}\n"
+            f"📞 *फोन:* {customer_phone}\n"
+            f"📝 *सामान:* {items_summary or 'फोटो पावती'}\n"
+            f"💰 *अंदाजे बिल:* ₹{order.total_amount:g}\n"
+            f"📦 *ऑर्डर आयडी:* `{order.order_id}`\n\n"
+            f"⚡ *स्थिती:* PENDING (पॅक करण्यासाठी डॅशबोर्ड तपासा)"
+        )
+        WhatsAppService.send_message(to_phone="919579869506", message=merchant_alert)
     except Exception as e:
         print(f"[YAADI IMAGE WORKER ERROR]: {e}")
     finally:
@@ -229,6 +244,21 @@ def background_process_customer_yaadi_text(
         )
         receipt = InventoryService.format_customer_yaadi_receipt(order)
         WhatsAppService.send_message(to_phone=customer_phone, message=receipt)
+
+        # Notify Merchant Admin Phone (9579869506) with instant WhatsApp alert
+        cust_display = "व्यंकटेश पै (Venkatesh Pai)" if ("7019259321" in str(customer_phone)) else str(customer_phone)
+        items_summary = ", ".join([f"{i.get('quantity', 1):g} {i.get('unit', '')} {i.get('name_mr', i.get('name_raw', ''))}" for i in parsed.get("order_items", [])])
+        merchant_alert = (
+            f"🔔 *नवीन ग्राहक ऑर्डर (WhatsApp Order)!* 🏪\n"
+            f"━━━━━━━━━━━━━━━━━━━━\n"
+            f"👤 *ग्राहक:* {cust_display}\n"
+            f"📞 *फोन:* {customer_phone}\n"
+            f"📝 *सामान:* {items_summary or text_message}\n"
+            f"💰 *अंदाजे बिल:* ₹{order.total_amount:g}\n"
+            f"📦 *ऑर्डर आयडी:* `{order.order_id}`\n\n"
+            f"⚡ *स्थिती:* PENDING (पॅक करण्यासाठी डॅशबोर्ड तपासा)"
+        )
+        WhatsAppService.send_message(to_phone="919579869506", message=merchant_alert)
     except Exception as e:
         print(f"[YAADI TEXT WORKER ERROR]: {e}")
     finally:

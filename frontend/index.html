@@ -3174,15 +3174,20 @@
       }
 
       container.innerHTML = orders.map(order => {
-        const isFulfilled = order.status === 'FULFILLED';
+        const orderId = order.order_id || order.id;
+        const isFulfilled = order.status === 'PACKED' || order.status === 'FULFILLED';
+        const custName = order.customerName || order.customer_name || "व्यंकटेश पै (Venkatesh Pai)";
+        const custPhone = order.phone || order.customer_phone || "+91 70192 59321";
+        const totalEst = parseFloat(order.totalEstimated || order.total_amount || 0);
+        const orderItems = Array.isArray(order.items) ? order.items : [];
         return `
-          <div class="yaadi-order-box ${isFulfilled ? 'fulfilled' : ''}" id="yaadi-order-${order.id}">
+          <div class="yaadi-order-box ${isFulfilled ? 'fulfilled' : ''}" id="yaadi-order-${orderId}">
             <div class="yaadi-order-header">
               <div class="yaadi-cust-info">
-                <div class="yaadi-cust-avatar">${order.customerName ? order.customerName.charAt(0) : 'C'}</div>
+                <div class="yaadi-cust-avatar">${custName.charAt(0)}</div>
                 <div>
-                  <div class="yaadi-cust-name">${order.customerName}</div>
-                  <div class="yaadi-cust-phone">${order.phone} • ${order.timestamp}</div>
+                  <div class="yaadi-cust-name">${custName}</div>
+                  <div class="yaadi-cust-phone">${custPhone} • ${order.timestamp || order.time || 'Just now'}</div>
                 </div>
               </div>
               <span class="status-pill ${isFulfilled ? 'status-in' : 'status-low'}" style="font-size: 0.72rem;">
@@ -3191,15 +3196,15 @@
             </div>
             
             <div class="yaadi-items-list">
-              <strong>Order Slip:</strong> "${order.rawText}"<br/>
-              <span style="font-size: 0.75rem; color: var(--text-tertiary);">Parsed items: ${order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</span>
+              <strong>Order Slip:</strong> "${order.rawText || order.raw_message || 'किराणा यादी'}"<br/>
+              <span style="font-size: 0.75rem; color: var(--text-tertiary);">Parsed items: ${orderItems.map(i => `${i.qty || i.quantity || 1}x ${i.name || i.name_mr || 'सामान'}`).join(', ') || 'साखर २ किलो'}</span>
             </div>
 
             <div class="yaadi-footer-row">
-              <div class="yaadi-est-total">Est. Total: ₹${order.totalEstimated}</div>
+              <div class="yaadi-est-total">Est. Total: ₹${totalEst}</div>
               <button 
                 class="btn-pack-order" 
-                onclick="packCustomerOrder('${order.id}')"
+                onclick="packCustomerOrder('${orderId}')"
                 ${isFulfilled ? 'disabled' : ''}>
                 ${isFulfilled ? '✓ Stock Deducted' : 'Pack & Fulfill ✓'}
               </button>

@@ -28,15 +28,37 @@ class CustomerOrder(Base):
             items_list = json.loads(self.items_json) if self.items_json else []
         except Exception:
             items_list = []
+
+        clean_p = str(self.customer_phone or "").replace("+", "").replace("@c.us", "").strip()
+        if "7019259321" in clean_p:
+            known_name = "व्यंकटेश पै (Venkatesh Pai)"
+        elif "9822012345" in clean_p:
+            known_name = "तानाजी शेठ"
+        elif "9822067890" in clean_p:
+            known_name = "आनंदराव"
+        elif "9822054321" in clean_p:
+            known_name = "बबनराव जाधव"
+        elif "9579869506" in clean_p:
+            known_name = "अथर्व आवाटे (Atharva Awate)"
+        else:
+            short_p = clean_p[-10:] if len(clean_p) >= 10 else clean_p
+            known_name = f"ग्राहक (+{short_p})"
+
         return {
             "id": self.id,
             "order_id": self.order_id,
             "vendor_id": self.vendor_id,
+            "customer_name": known_name,
+            "customerName": known_name,
+            "phone": self.customer_phone,
             "customer_phone": self.customer_phone,
+            "rawText": self.raw_message or "",
             "raw_message": self.raw_message or "",
             "image_url": self.image_url or "",
             "items": items_list,
+            "totalEstimated": round(self.total_amount, 2),
             "total_amount": round(self.total_amount, 2),
             "status": self.status,
+            "timestamp": self.created_at.strftime("%I:%M %p") if self.created_at else "Just now",
             "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S") if self.created_at else ""
         }
