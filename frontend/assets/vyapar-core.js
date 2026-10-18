@@ -300,15 +300,158 @@ const VyaparCore = (function() {
   let pendingOrders = load(KEY_ORDERS, DEFAULT_PENDING_ORDERS);
   let activeDukaan = (typeof localStorage !== 'undefined' ? localStorage.getItem(KEY_STORE) : null) || "Ganesh Kirana (Rajarampuri)";
 
-  // Backend URL configuration (Seamless for Render cloud HTTPS, localhost, or file://)
+  // Backend URL configuration (Seamless for Render cloud HTTPS, localhost:8000, or file://)
+  const RENDER_PROD_URL = "https://vyaparai-oddf.onrender.com";
+
   function getBackendUrl() {
     if (typeof window !== 'undefined' && window.location) {
-      if (window.location.protocol === 'file:') {
-        return 'http://localhost:8000';
+      const origin = window.location.origin || "";
+      const host = window.location.host || "";
+      if (host.includes("render.com")) {
+        return origin;
       }
-      return window.location.origin;
+      if (host.includes(":8000")) {
+        return origin;
+      }
+      const customUrl = (typeof localStorage !== 'undefined') ? localStorage.getItem("VYAPAR_BACKEND_URL") : null;
+      if (customUrl) return customUrl;
+      return RENDER_PROD_URL;
     }
-    return 'http://localhost:8000';
+    return RENDER_PROD_URL;
+  }
+
+  function getWebSocketUrl() {
+    const base = getBackendUrl();
+    const isHttps = base.startsWith("https");
+    const wsProto = isHttps ? "wss:" : "ws:";
+    const cleanHost = base.replace(/^https?:\/\//, "").replace(/\/$/, "");
+    return `${wsProto}//${cleanHost}/ws/inventory`;
+  }
+
+  // Live Reactive WebSocket & Polling Sync Engine
+  let activeWebSocket = null;
+  let pollIntervalId = null;
+  let syncListeners = [];
+  let lastSyncMetrics = null;
+
+  function registerSyncListener(cb) {
+    if (typeof cb === 'function') syncListeners.push(cb);
+  }
+
+  function notifySyncListeners(type, data) {
+    syncListeners.forEach(fn => {
+      try { fn(type, data); } catch (e) { console.error("Sync listener error", e); }
+    });
+  }
+
+  async function performLiveSync() {
+    try {
+      const res = await fetch(`${getBackendUrl()}/api/metrics`, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.products && data.products.length > 0) {
+          let hasChanged = false;
+          data.products.forEach(bp => {
+            const local = skus.find(s => s.sku === bp.sku);
+            if (local) {
+              if (local.stock !== bp.stock || local.unit_price !== bp.unit_price) {
+                hasChanged = true;
+                local.stock = bp.stock;
+                local.unit_price = bp.unit_price;
+              }
+            } else {
+              skus.push({
+                sku: bp.sku,
+                name_mr: bp.name_mr,
+                name_en: bp.name_en,
+                short_name: bp.name_en,
+                category: bp.category,
+                stock: bp.stock,
+                unit: bp.unit,
+                unit_price: bp.unit_price,
+                cost_price: Math.round(bp.unit_price * 0.82),
+                min_threshold: bp.min_threshold || 5,
+                img: bp.img || "assets/products/parle_g.png",
+                pedestal: "pedestal-blue",
+                aliases: bp.aliases || []
+              });
+              hasChanged = true;
+            }
+          });
+          if (hasChanged) {
+            save(KEY_SKUS, skus);
+          }
+        }
+        lastSyncMetrics = data;
+        notifySyncListeners("METRICS_UPDATE", data);
+        return data;
+      }
+    } catch (e) {
+      // offline/silent
+    }
+    return null;
+  }
+
+  function startLiveSync(callback) {
+    if (callback) registerSyncListener(callback);
+
+    // Initial immediate sync
+    performLiveSync();
+
+    // 1. Establish persistent WebSocket stream
+    function connectWS() {
+      try {
+        const wsUrl = getWebSocketUrl();
+        activeWebSocket = new WebSocket(wsUrl);
+        activeWebSocket.onopen = function() {
+          console.log("[VyaparCore WS] Connected to live inventory stream at", wsUrl);
+          notifySyncListeners("WS_STATUS", { connected: true, url: wsUrl });
+        };
+        activeWebSocket.onmessage = function(event) {
+          try {
+            const msg = JSON.parse(event.data);
+            console.log("[VyaparCore WS] Ingress event:", msg);
+            if (msg.type === "METRICS_UPDATE" && msg.metrics) {
+              if (msg.metrics.products) {
+                msg.metrics.products.forEach(bp => {
+                  const local = skus.find(s => s.sku === bp.sku);
+                  if (local) {
+                    local.stock = bp.stock;
+                    local.unit_price = bp.unit_price;
+                  }
+                });
+                save(KEY_SKUS, skus);
+              }
+              lastSyncMetrics = msg.metrics;
+              notifySyncListeners("METRICS_UPDATE", msg.metrics);
+            } else if (msg.type === "NEW_CUSTOMER_YAADI" || msg.event === "NEW_CUSTOMER_YAADI") {
+              notifySyncListeners("NEW_CUSTOMER_YAADI", msg.order);
+              performLiveSync();
+            } else if (msg.type === "CATALOG_ONBOARDED" || msg.event === "CATALOG_ONBOARDED") {
+              performLiveSync();
+            }
+          } catch (err) {
+            console.error("WS Parse error", err);
+          }
+        };
+        activeWebSocket.onclose = function() {
+          notifySyncListeners("WS_STATUS", { connected: false });
+          setTimeout(connectWS, 4000);
+        };
+        activeWebSocket.onerror = function() {
+          try { activeWebSocket.close(); } catch(e){}
+        };
+      } catch (err) {
+        console.error("WS connect failed", err);
+      }
+    }
+
+    connectWS();
+
+    // 2. Active background polling fallback every 2.5 seconds
+    if (!pollIntervalId) {
+      pollIntervalId = setInterval(performLiveSync, 2500);
+    }
   }
 
   return {
@@ -596,31 +739,11 @@ const VyaparCore = (function() {
     // -------------------------------------------------------------------------
     backend: {
       getBaseUrl: getBackendUrl,
-
-      // Sync live inventory and metrics from FastAPI backend
-      syncLiveMetrics: async function() {
-        try {
-          const res = await fetch(`${getBackendUrl()}/api/metrics`, { cache: 'no-store' });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.products && data.products.length > 0) {
-              // Merge live backend stock with frontend catalog
-              data.products.forEach(bp => {
-                const local = skus.find(s => s.sku === bp.sku);
-                if (local) {
-                  local.stock = bp.stock;
-                  local.unit_price = bp.unit_price;
-                }
-              });
-              save(KEY_SKUS, skus);
-            }
-            return data;
-          }
-        } catch (e) {
-          console.log("Backend offline, utilizing client-side reactive store.", e);
-        }
-        return null;
-      },
+      getWsUrl: getWebSocketUrl,
+      startLiveSync: startLiveSync,
+      registerListener: registerSyncListener,
+      getLastMetrics: function() { return lastSyncMetrics; },
+      syncLiveMetrics: performLiveSync,
 
       // Send text message (Merchant Sale / Query / Reverse-Math)
       sendMessage: async function(text, vendorId = "DEMO_KIRANA_KOP") {

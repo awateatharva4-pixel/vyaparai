@@ -259,11 +259,21 @@ class GeminiService:
 
         # Immediate check for Query trigger (must be an explicit stock inquiry, not a sale)
         query_triggers = [
-            "साठा दाखवा", "स्टॉक दाखवा", "शिल्लक किती", "किती शिल्लक", "किती आहे",
-            "आहे का", "शिल्लक आहे का", "साठा किती", "यादी दाखवा", "stock summary",
-            "kiti ahe", "kitna hai", "stock check", "check stock", "view stock", "show stock"
+            "satha dakhva", "saatha dakhva", "satha dakva", "sata dakhva", "sata dakva",
+            "satha dakhav", "sata dakhav", "satha sanga", "saatha sanga", "sata sanga",
+            "satha kiti", "saatha kiti", "satha", "saatha", "sata",
+            "stock dakhva", "stock dakva", "stock dakhwa", "stock dakwa",
+            "stock sanga", "stock saanga", "stock kiti", "stock kiti ahe", "stock kitna hai",
+            "stock check", "check stock", "view stock", "show stock", "stock summary", "stock list",
+            "shilak kiti", "shillak kiti", "kiti shillak", "kiti shilak",
+            "kiti ahe", "kitna hai", "shilak", "shillak", "dakhva", "dakva", "dakhav",
+            "साठा दाखवा", "स्टॉक दाखवा", "साठा सांगा", "स्टॉक सांगा", "साठा किती", "स्टॉक किती",
+            "साठा", "स्टॉक", "शिल्लक किती", "किती शिल्लक", "किती आहे", "शिल्लक आहे का", "आहे का",
+            "यादी दाखवा", "माल दाखवा", "शिल्लक माल", "शिल्लक साठा",
+            "stock batao", "stock dikhao", "kitna bacha hai", "kitna stock hai", "kya stock hai"
         ]
-        if any(w in text_clean.lower() for w in query_triggers):
+        text_lower = text_clean.lower()
+        if any(w in text_lower for w in query_triggers) or text_lower in ["stock", "stock?", "stock list"]:
             return {"intent": "QUERY", "items": [], "vendor_note": "साठा तपासणी विनंती (Stock Query)"}
 
         # Immediate check for Refund trigger
@@ -765,6 +775,26 @@ class GeminiService:
         lower = norm_text.lower()
 
         # Intent Classification
+        if any(w in lower for w in ["undo", "cancel", "चूक झाली", "रद्द करा", "मागे घ्या", "chuk zali", "galat"]):
+            return {"intent": "UNDO", "items": [], "vendor_note": "व्यवहार रद्द करण्याची विनंती (Rollback Request)", "source": "deterministic-vernacular-engine"}
+
+        query_triggers = [
+            "satha dakhva", "saatha dakhva", "satha dakva", "sata dakhva", "sata dakva",
+            "satha dakhav", "sata dakhav", "satha sanga", "saatha sanga", "sata sanga",
+            "satha kiti", "saatha kiti", "satha", "saatha", "sata",
+            "stock dakhva", "stock dakva", "stock dakhwa", "stock dakwa",
+            "stock sanga", "stock saanga", "stock kiti", "stock kiti ahe", "stock kitna hai",
+            "stock check", "check stock", "view stock", "show stock", "stock summary", "stock list",
+            "shilak kiti", "shillak kiti", "kiti shillak", "kiti shilak",
+            "kiti ahe", "kitna hai", "shilak", "shillak", "dakhva", "dakva", "dakhav",
+            "साठा दाखवा", "स्टॉक दाखवा", "साठा सांगा", "स्टॉक सांगा", "साठा किती", "स्टॉक किती",
+            "साठा", "स्टॉक", "शिल्लक किती", "किती शिल्लक", "किती आहे", "शिल्लक आहे का", "आहे का",
+            "यादी दाखवा", "माल दाखवा", "शिल्लक माल", "शिल्लक साठा",
+            "stock batao", "stock dikhao", "kitna bacha hai", "kitna stock hai", "kya stock hai"
+        ]
+        if any(w in lower for w in query_triggers) or lower.strip() in ["stock", "stock?", "stock list"]:
+            return {"intent": "QUERY", "items": [], "vendor_note": "साठा तपासणी विनंती (Stock Query)", "source": "deterministic-vernacular-engine"}
+
         intent = "SALE"
         if any(w in lower for w in ["परत आली", "परत आले", "परत केले", "आले", "आणले", "आणली", "भरले", "भरली", "जमा केले", "वापस", "aali", "aale", "aala", "aaya", "restock", "add", "ghetla"]):
             intent = "RESTOCK"

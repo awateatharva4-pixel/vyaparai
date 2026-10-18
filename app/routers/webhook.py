@@ -327,9 +327,31 @@ async def handle_whatsapp_webhook(
                         escaped = xml.sax.saxutils.escape(receipt)
                         return Response(content=f'<?xml version="1.0" encoding="UTF-8"?>\n<Response>\n    <Message>{escaped}</Message>\n</Response>', media_type="application/xml")
 
-                # Customer Sandboxed Command Check (Zero Privilege Escalation)
-                if any(w in message_body.lower() for w in ["undo", "cancel", "चूक झाली", "रद्द करा", "साठा दाखवा", "स्टॉक"]):
-                    sandbox_msg = "🙏 *नमस्कार! बाबुराव किराणा स्टोअर्स* 🏪\nआपण ग्राहक सेवेशी जोडलेले आहात. कृपया आपली किराणा यादी पाठवा किंवा ऑर्डरसाठी संपर्क करा."
+                # Immediate Stock Query Check (Accessible to both Merchant and Customer)
+                query_triggers = [
+                    "satha dakhva", "saatha dakhva", "satha dakva", "sata dakhva", "sata dakva",
+                    "satha dakhav", "sata dakhav", "satha sanga", "saatha sanga", "sata sanga",
+                    "satha kiti", "saatha kiti", "satha", "saatha", "sata",
+                    "stock dakhva", "stock dakva", "stock dakhwa", "stock dakwa",
+                    "stock sanga", "stock saanga", "stock kiti", "stock kiti ahe", "stock kitna hai",
+                    "stock check", "check stock", "view stock", "show stock", "stock summary", "stock list",
+                    "shilak kiti", "shillak kiti", "kiti shillak", "kiti shilak",
+                    "kiti ahe", "kitna hai", "shilak", "shillak", "dakhva", "dakva", "dakhav",
+                    "साठा दाखवा", "स्टॉक दाखवा", "साठा सांगा", "स्टॉक सांगा", "साठा किती", "स्टॉक किती",
+                    "साठा", "स्टॉक", "शिल्लक किती", "किती शिल्लक", "किती आहे", "शिल्लक आहे का", "आहे का",
+                    "यादी दाखवा", "माल दाखवा", "शिल्लक माल", "शिल्लक साठा",
+                    "stock batao", "stock dikhao", "kitna bacha hai", "kitna stock hai", "kya stock hai"
+                ]
+                msg_body_lower = message_body.lower().strip()
+                if any(w in msg_body_lower for w in query_triggers) or msg_body_lower in ["stock", "stock?", "stock list", "satha", "saatha"]:
+                    stock_res = InventoryService.process_transaction_event(vendor_id, message_body, db)
+                    reply_text = stock_res.get("reply_message", "")
+                    escaped_reply = xml.sax.saxutils.escape(reply_text)
+                    return Response(content=f'<?xml version="1.0" encoding="UTF-8"?>\n<Response>\n    <Message>{escaped_reply}</Message>\n</Response>', media_type="application/xml")
+
+                # Customer Sandboxed Command Check (Prevent Unauthorized Rollbacks)
+                if any(w in msg_body_lower for w in ["undo", "cancel", "चूक झाली", "रद्द करा", "मागे घ्या"]):
+                    sandbox_msg = "🙏 *नमस्कार! बाबुराव किराणा स्टोअर्स* 🏪\nआपण ग्राहक सेवेशी जोडलेले आहात. केवळ अधिकृत दुकानदार व्यवहार रद्द करू शकतात."
                     escaped = xml.sax.saxutils.escape(sandbox_msg)
                     return Response(content=f'<?xml version="1.0" encoding="UTF-8"?>\n<Response>\n    <Message>{escaped}</Message>\n</Response>', media_type="application/xml")
 
@@ -595,12 +617,40 @@ async def handle_whatsapp_webhook(
                 return Response(status_code=200)
 
         if message_body:
+            # Immediate Stock Query Check (Accessible to both Merchant and Customer)
+            query_triggers = [
+                "satha dakhva", "saatha dakhva", "satha dakva", "sata dakhva", "sata dakva",
+                "satha dakhav", "sata dakhav", "satha sanga", "saatha sanga", "sata sanga",
+                "satha kiti", "saatha kiti", "satha", "saatha", "sata",
+                "stock dakhva", "stock dakva", "stock dakhwa", "stock dakwa",
+                "stock sanga", "stock saanga", "stock kiti", "stock kiti ahe", "stock kitna hai",
+                "stock check", "check stock", "view stock", "show stock", "stock summary", "stock list",
+                "shilak kiti", "shillak kiti", "kiti shillak", "kiti shilak",
+                "kiti ahe", "kitna hai", "shilak", "shillak", "dakhva", "dakva", "dakhav",
+                "साठा दाखवा", "स्टॉक दाखवा", "साठा सांगा", "स्टॉक सांगा", "साठा किती", "स्टॉक किती",
+                "साठा", "स्टॉक", "शिल्लक किती", "किती शिल्लक", "किती आहे", "शिल्लक आहे का", "आहे का",
+                "यादी दाखवा", "माल दाखवा", "शिल्लक माल", "शिल्लक साठा",
+                "stock batao", "stock dikhao", "kitna bacha hai", "kitna stock hai", "kya stock hai"
+            ]
+            msg_body_lower = message_body.lower().strip()
+            if any(w in msg_body_lower for w in query_triggers) or msg_body_lower in ["stock", "stock?", "stock list", "satha", "saatha"]:
+                background_tasks.add_task(
+                    background_process_message,
+                    vendor_id=vendor_id,
+                    message_body=message_body,
+                    message_id=message_id,
+                    to_phone=sender_phone,
+                    transcription=audio_transcription,
+                    parsed_payload={"intent": "QUERY", "items": [], "vendor_note": "साठा तपासणी विनंती (Stock Query)"}
+                )
+                return Response(content="EVENT_RECEIVED", status_code=200)
+
             # Dual-Role Security Firewall (Specification 03)
             is_merchant = is_merchant_sender(sender_phone)
             if not is_merchant:
                 # Customer Ingress Flow: Sandboxed rejection for admin commands
-                if any(w in message_body.lower() for w in ["undo", "cancel", "चूक झाली", "रद्द करा", "साठा दाखवा", "स्टॉक"]):
-                    sandbox_msg = "🙏 *नमस्कार! बाबुराव किराणा स्टोअर्स* 🏪\nआपण ग्राहक सेवेशी जोडलेले आहात. कृपया आपली किराणा यादी पाठवा किंवा ऑर्डरसाठी संपर्क करा."
+                if any(w in msg_body_lower for w in ["undo", "cancel", "चूक झाली", "रद्द करा", "मागे घ्या"]):
+                    sandbox_msg = "🙏 *नमस्कार! बाबुराव किराणा स्टोअर्स* 🏪\nआपण ग्राहक सेवेशी जोडलेले आहात. केवळ अधिकृत दुकानदार व्यवहार रद्द करू शकतात."
                     WhatsAppService.send_message(to_phone=sender_phone, message=sandbox_msg)
                     return Response(content="EVENT_RECEIVED", status_code=200)
 

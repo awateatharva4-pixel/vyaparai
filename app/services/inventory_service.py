@@ -550,14 +550,23 @@ class InventoryService:
         # Check if this is an explicit stock inquiry (either full catalog or specific SKU).
         if intent == "QUERY":
             query_triggers = [
-                "साठा दाखवा", "स्टॉक दाखवा", "शिल्लक किती", "किती शिल्लक", "किती आहे",
-                "आहे का", "शिल्लक आहे का", "साठा किती", "यादी दाखवा", "stock summary",
-                "kiti ahe", "kitna hai", "check stock", "stock check", "show stock", "view stock"
+                "satha dakhva", "saatha dakhva", "satha dakva", "sata dakhva", "sata dakva",
+                "satha dakhav", "sata dakhav", "satha sanga", "saatha sanga", "sata sanga",
+                "satha kiti", "saatha kiti", "satha", "saatha", "sata",
+                "stock dakhva", "stock dakva", "stock dakhwa", "stock dakwa",
+                "stock sanga", "stock saanga", "stock kiti", "stock kiti ahe", "stock kitna hai",
+                "stock check", "check stock", "view stock", "show stock", "stock summary", "stock list",
+                "shilak kiti", "shillak kiti", "kiti shillak", "kiti shilak",
+                "kiti ahe", "kitna hai", "shilak", "shillak", "dakhva", "dakva", "dakhav",
+                "साठा दाखवा", "स्टॉक दाखवा", "साठा सांगा", "स्टॉक सांगा", "साठा किती", "स्टॉक किती",
+                "साठा", "स्टॉक", "शिल्लक किती", "किती शिल्लक", "किती आहे", "शिल्लक आहे का", "आहे का",
+                "यादी दाखवा", "माल दाखवा", "शिल्लक माल", "शिल्लक साठा",
+                "stock batao", "stock dikhao", "kitna bacha hai", "kitna stock hai", "kya stock hai"
             ]
-            raw_lower = raw_text.lower()
-            has_explicit_query = any(w in raw_lower for w in query_triggers)
+            raw_lower = raw_text.lower().strip()
+            has_explicit_query = any(w in raw_lower for w in query_triggers) or raw_lower in ["stock", "stock?", "stock list", "satha", "saatha"]
 
-            if has_explicit_query:
+            if has_explicit_query or (not extracted_items and not re.search(r"\d", raw_text)):
                 # Check for single-item stock query (e.g. "तेल किती शिल्लक आहे?", "साखर किती आहे?")
                 target_sku = None
                 if extracted_items and extracted_items[0].get("sku_matched"):
@@ -890,11 +899,24 @@ class InventoryService:
 
     @classmethod
     def build_stock_summary(cls, vendor_id: str, db: Session) -> Dict[str, Any]:
-        products = db.query(Product).filter_by(vendor_id=vendor_id).all()
-        lines = [f"• {p.name_mr}: *{p.stock} {p.unit}* (₹{p.unit_price}/{p.unit})" for p in products]
-        summary_text = "📦 *सद्य साठा तपशील (Live Stock Summary):*\n\n" + "\n".join(lines)
+        products = db.query(Product).filter_by(vendor_id=vendor_id).order_by(Product.id).all()
+        lines = []
+        for p in products:
+            status = "🚨" if p.stock <= p.min_threshold else "🟢"
+            lines.append(f"{status} {p.name_mr}: *{p.stock:g} {p.unit}* (₹{p.unit_price:g}/{p.unit})")
+        summary_text = (
+            "📦 *बाबुराव किराणा स्टोअर्स - सद्य साठा (Live Stock)* 🏪\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            + "\n".join(lines)
+            + "\n━━━━━━━━━━━━━━━━━━━━\n"
+            "💡 *विक्री नोंद:* '२ लिटर तेल' किंवा '५ साखर' असा मेसेज करा."
+        )
         return {
             "success": True,
+            "intent": "QUERY",
+            "updates": [],
+            "total_amount": 0.0,
+            "alerts": [],
             "reply_message": summary_text
         }
 

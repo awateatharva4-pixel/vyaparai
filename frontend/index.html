@@ -1834,7 +1834,13 @@
               </svg>
               Inventory Status
             </h2>
-            <span style="font-size: 0.74rem; color: var(--text-tertiary);">Live Catalog Register</span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 0.74rem; color: var(--text-tertiary);">Live Catalog Register</span>
+              <div id="liveSyncStatusBadge" class="live-status-pill" style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 999px; font-size: 0.70rem; font-weight: 600; background: rgba(37, 211, 102, 0.12); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.25);">
+                <span id="liveSyncStatusDot" style="width: 6px; height: 6px; border-radius: 50%; background: #25d366; box-shadow: 0 0 6px #25d366;"></span>
+                <span id="liveSyncStatusText">LIVE WS SYNC</span>
+              </div>
+            </div>
           </div>
 
           <div class="apple-table-wrap">
@@ -2747,6 +2753,172 @@
       });
     }
 
+    // -------------------------------------------------------------------------
+    // Real-Time Reactive DOM Engine: Table, Carousel, Stats & Recent Sales Feed
+    // -------------------------------------------------------------------------
+    let previousStockMap = {};
+    let previousLatestTxId = null;
+
+    function renderInventoryTable(products) {
+      const tbody = document.getElementById('inventoryTableBody');
+      if (!tbody || !products || products.length === 0) return;
+      tbody.innerHTML = products.map(p => {
+        const isLow = p.stock <= (p.min_threshold || 10);
+        const img = p.img || (window.VyaparCore ? (VyaparCore.getSKU(p.sku) || {}).img : null) || 'assets/products/parle_g.png';
+        return `
+          <tr data-sku="${p.sku}" id="table-row-${p.sku}" style="transition: background 0.4s ease;">
+            <td>
+              <div class="table-prod-cell">
+                <img src="${img}" alt="${p.name_en || p.name_mr}" class="table-prod-thumb" onerror="this.src='assets/products/parle_g.jpg'" />
+                <div>
+                  <div style="font-weight: 600; font-size: 0.84rem;">${p.name_en || p.name_mr}</div>
+                  <div style="font-size: 0.72rem; color: var(--text-tertiary);">${p.name_mr || ''}</div>
+                </div>
+              </div>
+            </td>
+            <td class="tabular-nums" style="font-size: 0.74rem; color: var(--text-tertiary);">${p.sku}</td>
+            <td><span class="category-tag">${p.category || 'Kirana Essentials'}</span></td>
+            <td style="text-align: right;" class="tabular-nums font-bold stock-qty-cell" id="stock-val-${p.sku}">
+              ${Number(p.stock).toLocaleString('en-IN', { maximumFractionDigits: 2 })} <span style="font-size: 0.72rem; font-weight: 500; color: var(--text-tertiary);">${p.unit}</span>
+            </td>
+            <td style="text-align: center;">
+              <span class="status-pill ${isLow ? 'status-low' : 'status-in'}" id="stock-pill-${p.sku}">
+                ${isLow ? '🚨 Low Stock' : '🟢 In Stock'}
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function updateCarouselStock(products) {
+      if (!products) return;
+      products.forEach(p => {
+        const card = document.querySelector(`.product-catalog-card[data-sku="${p.sku}"]`);
+        if (card) {
+          let badge = card.querySelector('.carousel-stock-badge');
+          if (!badge) {
+            badge = document.createElement('div');
+            badge.className = 'carousel-stock-badge';
+            badge.style.cssText = 'position: absolute; top: 10px; right: 10px; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; z-index: 2;';
+            card.style.position = 'relative';
+            card.appendChild(badge);
+          }
+          const isLow = p.stock <= (p.min_threshold || 10);
+          badge.className = `carousel-stock-badge tabular-nums ${isLow ? 'stock-badge-low' : 'stock-badge-in'}`;
+          badge.style.background = isLow ? 'rgba(255, 69, 58, 0.15)' : 'rgba(52, 199, 89, 0.15)';
+          badge.style.color = isLow ? '#ff453a' : '#30d158';
+          badge.style.border = isLow ? '1px solid rgba(255, 69, 58, 0.3)' : '1px solid rgba(52, 199, 89, 0.3)';
+          badge.textContent = `${Number(p.stock).toLocaleString('en-IN', { maximumFractionDigits: 1 })} ${p.unit}`;
+        }
+      });
+    }
+
+    function updateRecentSalesFeed(transactions) {
+      const feed = document.getElementById('recentSalesFeedList');
+      if (!feed || !transactions || transactions.length === 0) return;
+      feed.innerHTML = transactions.slice(0, 6).map(tx => {
+        const isSale = (tx.transaction_type || tx.type) === 'SALE';
+        const color = isSale ? '#25d366' : '#0071e3';
+        const bg = isSale ? 'rgba(37, 211, 102, 0.15)' : 'rgba(0, 113, 227, 0.15)';
+        const timeStr = tx.created_at ? new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
+        return `
+          <div class="sale-feed-row" style="animation: fadeIn 0.3s ease;">
+            <div class="sale-feed-left">
+              <div class="sale-icon-box" style="background: ${bg}; color: ${color};">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                </svg>
+              </div>
+              <div class="sale-meta-group">
+                <span class="sale-item-title">${tx.item_name || 'Kirana Sale'} (${Math.abs(tx.quantity_delta || 1)})</span>
+                <span class="sale-timestamp tabular-nums">${timeStr} • WhatsApp Ingress</span>
+              </div>
+            </div>
+            <span class="sale-customer-tag" style="color: ${color}; font-weight: 700;">+₹${tx.total_amount || 0}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleLiveMetricsUpdate(metrics) {
+      if (!metrics) return;
+
+      // 1. Update metric counters
+      const elSales = document.getElementById('statTotalSales');
+      const elOrders = document.getElementById('statOrdersCount');
+      if (elSales && metrics.today_revenue !== undefined) {
+        const curSales = parseInt(elSales.textContent.replace(/[₹,]/g, '')) || 0;
+        if (metrics.today_revenue !== curSales) {
+          animateCounter('statTotalSales', curSales, metrics.today_revenue, 700, '₹');
+        }
+      }
+      if (elOrders && metrics.today_sales_count !== undefined) {
+        const curOrders = parseInt(elOrders.textContent) || 0;
+        if (metrics.today_sales_count !== curOrders) {
+          animateCounter('statOrdersCount', curOrders, metrics.today_sales_count, 500);
+        }
+      }
+      const lowPill = document.querySelector('.metric-trend-pill');
+      if (lowPill && metrics.low_stock_count !== undefined) {
+        lowPill.textContent = `${metrics.low_stock_count} Items Low`;
+      }
+
+      // 2. Check for stock decreases (new sale from WhatsApp webhook!)
+      if (metrics.products) {
+        let saleDetected = false;
+        let soldItemName = '';
+        let soldAmount = 0;
+
+        metrics.products.forEach(p => {
+          const oldStock = previousStockMap[p.sku];
+          if (oldStock !== undefined && p.stock < oldStock) {
+            saleDetected = true;
+            soldItemName = p.name_en || p.name_mr;
+            soldAmount = Math.round((oldStock - p.stock) * p.unit_price);
+
+            // Flash green highlight on card and row!
+            const card = document.querySelector(`.product-catalog-card[data-sku="${p.sku}"]`);
+            if (card) {
+              card.style.transition = 'box-shadow 0.3s ease, transform 0.3s ease';
+              card.style.boxShadow = '0 0 25px rgba(37, 211, 102, 0.7)';
+              card.style.transform = 'scale(1.03)';
+              setTimeout(() => {
+                card.style.boxShadow = '';
+                card.style.transform = '';
+              }, 1600);
+            }
+            const row = document.getElementById(`table-row-${p.sku}`);
+            if (row) {
+              row.style.background = 'rgba(37, 211, 102, 0.18)';
+              setTimeout(() => { row.style.background = ''; }, 1600);
+            }
+          }
+          previousStockMap[p.sku] = p.stock;
+        });
+
+        if (saleDetected) {
+          if (window.VyaparCore && VyaparCore.playSoundboxChime) {
+            VyaparCore.playSoundboxChime(soldAmount || 50);
+          }
+          showAppleToast(`⚡ WhatsApp Ingress: Recorded sale for ${soldItemName}!`);
+        }
+
+        // Render table and carousel stock badges
+        renderInventoryTable(metrics.products);
+        updateCarouselStock(metrics.products);
+      }
+
+      // 3. Update Recent Sales Feed
+      if (metrics.recent_transactions && metrics.recent_transactions.length > 0) {
+        const latestTx = metrics.recent_transactions[0];
+        if (latestTx && latestTx.id !== previousLatestTxId) {
+          previousLatestTxId = latestTx.id;
+          updateRecentSalesFeed(metrics.recent_transactions);
+        }
+      }
+    }
+
     // 8. Cross-Frame Bi-Directional Message Sync with WhatsApp Console
     window.addEventListener('message', (event) => {
       if (event.data && event.data.type === 'NEW_SALE_RECORDED') {
@@ -2793,9 +2965,47 @@
       // Initialize Momentum Scroll
       initMomentumScroll('catalogCarousel');
 
+      // Initialize initial inventory table from local catalog
+      if (window.VyaparCore && VyaparCore.getSKUs) {
+        renderInventoryTable(VyaparCore.getSKUs());
+        updateCarouselStock(VyaparCore.getSKUs());
+      }
+
       // Initialize Number Counters
       animateCounter('statTotalSales', 0, 12450, 1100, '₹');
       animateCounter('statOrdersCount', 0, 42, 900);
+
+      // Launch Live Reactive Synchronization with Backend (WebSocket + Polling)
+      if (window.VyaparCore && VyaparCore.backend && VyaparCore.backend.startLiveSync) {
+        VyaparCore.backend.startLiveSync((eventType, data) => {
+          if (eventType === 'METRICS_UPDATE') {
+            handleLiveMetricsUpdate(data);
+          } else if (eventType === 'WS_STATUS') {
+            const badgeText = document.getElementById('liveSyncStatusText');
+            const badge = document.getElementById('liveSyncStatusBadge');
+            const dot = document.getElementById('liveSyncStatusDot');
+            if (badgeText && badge) {
+              if (data.connected) {
+                badgeText.textContent = "LIVE WS SYNC";
+                badge.style.background = "rgba(37, 211, 102, 0.12)";
+                badge.style.color = "#25d366";
+                badge.style.borderColor = "rgba(37, 211, 102, 0.25)";
+                if (dot) dot.style.background = "#25d366";
+              } else {
+                badgeText.textContent = "LIVE POLL SYNC";
+                badge.style.background = "rgba(255, 159, 10, 0.12)";
+                badge.style.color = "#ff9f0a";
+                badge.style.borderColor = "rgba(255, 159, 10, 0.25)";
+                if (dot) dot.style.background = "#ff9f0a";
+              }
+            }
+          } else if (eventType === 'NEW_CUSTOMER_YAADI') {
+            haptics.tap();
+            showAppleToast(`📥 New Remote Yaadi Arrived from WhatsApp!`);
+            renderPendingYaadiOrders();
+          }
+        });
+      }
 
       // Render Chart
       const ctx = document.getElementById('dailySalesChart');
