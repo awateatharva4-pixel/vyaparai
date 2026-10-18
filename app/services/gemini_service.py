@@ -493,70 +493,67 @@ class GeminiService:
             if k and k not in candidate_keys:
                 candidate_keys.append(k)
 
+        models_to_try = ["gemini-3.5-flash-lite", "gemini-flash-lite-latest", "gemini-3.8-flash", "gemini-2.5-flash"]
         if GENAI_AVAILABLE and candidate_keys:
             for key in candidate_keys:
-                try:
-                    client = genai.Client(api_key=key)
-                    video_part = types.Part.from_bytes(data=video_bytes, mime_type=clean_mime)
-                    response = client.models.generate_content(
-                        model="gemini-2.5-flash",
-                        contents=[video_part, VIDEO_DIGITIZATION_PROMPT],
-                        config=types.GenerateContentConfig(
-                            response_mime_type="application/json",
-                            temperature=0.1,
-                            max_output_tokens=2048
+                client = genai.Client(api_key=key)
+                for model_name in models_to_try:
+                    try:
+                        video_part = types.Part.from_bytes(data=video_bytes, mime_type=clean_mime)
+                        response = client.models.generate_content(
+                            model=model_name,
+                            contents=[video_part, VIDEO_DIGITIZATION_PROMPT],
+                            config=types.GenerateContentConfig(
+                                response_mime_type="application/json",
+                                temperature=0.1,
+                                max_output_tokens=2048
+                            )
                         )
-                    )
-                    raw_text = (response.text or "").strip()
-                    if "```" in raw_text:
-                        raw_text = re.sub(r"^```(?:json)?|```$", "", raw_text, flags=re.MULTILINE).strip()
-                    json_match = re.search(r"(\{.*\})", raw_text, re.DOTALL)
-                    if json_match:
-                        raw_text = json_match.group(1)
-                    parsed = json.loads(raw_text)
-                    products = parsed.get("products", [])
-                    if products and isinstance(products, list):
-                        sanitized = []
-                        for p in products:
-                            if not isinstance(p, dict):
-                                continue
-                            name_en = str(p.get("name_en", "")).strip()
-                            name_mr = str(p.get("name_mr", "")).strip() or name_en
-                            if not name_en and not name_mr:
-                                continue
-                            stock = max(1.0, float(p.get("stock", 1.0)))
-                            unit_price = max(0.0, float(p.get("unit_price", 10.0)))
-                            min_threshold = max(1.0, float(p.get("min_threshold", max(1.0, round(stock * 0.2, 1)))))
-                            unit = str(p.get("unit", "piece")).strip()
-                            category = str(p.get("category", "General Store")).strip()
-                            aliases = p.get("aliases", [])
-                            if not isinstance(aliases, list):
-                                aliases = [str(aliases)]
-                            aliases = [str(a).strip().lower() for a in aliases if str(a).strip()]
-                            if name_en.lower() not in aliases:
-                                aliases.append(name_en.lower())
-
-                            sanitized.append({
-                                "name_en": name_en,
-                                "name_mr": name_mr,
-                                "category": category,
-                                "stock": round(stock, 2),
-                                "unit_price": round(unit_price, 2),
-                                "unit": unit,
-                                "min_threshold": round(min_threshold, 2),
-                                "aliases": aliases
-                            })
-                        if sanitized:
-                            print(f"[GEMINI VIDEO] Successfully digitized {len(sanitized)} products from video.")
-                            return sanitized
-                except Exception as e:
-                    err_str = str(e)
-                    print(f"[GEMINI VIDEO WARN]: {err_str}")
-                    if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "503" in err_str:
-                        continue
-                    elif "404" in err_str:
-                        continue
-                    else:
+                        raw_text = (response.text or "").strip()
+                        if "```" in raw_text:
+                            raw_text = re.sub(r"^```(?:json)?|```$", "", raw_text, flags=re.MULTILINE).strip()
+                        json_match = re.search(r"(\{.*\})", raw_text, re.DOTALL)
+                        if json_match:
+                            raw_text = json_match.group(1)
+                        parsed = json.loads(raw_text)
+                        products = parsed.get("products", [])
+                        if products and isinstance(products, list):
+                            sanitized = []
+                            for p in products:
+                                if not isinstance(p, dict):
+                                    continue
+                                name_en = str(p.get("name_en", "")).strip()
+                                name_mr = str(p.get("name_mr", "")).strip() or name_en
+                                if not name_en and not name_mr:
+                                    continue
+                                stock = max(1.0, float(p.get("stock", 1.0)))
+                                unit_price = max(0.0, float(p.get("unit_price", 10.0)))
+                                min_threshold = max(1.0, float(p.get("min_threshold", max(1.0, round(stock * 0.2, 1)))))
+                                unit = str(p.get("unit", "piece")).strip()
+                                category = str(p.get("category", "General Store")).strip()
+                                aliases = p.get("aliases", [])
+                                if not isinstance(aliases, list):
+                                    aliases = [str(aliases)]
+                                aliases = [str(a).strip().lower() for a in aliases if str(a).strip()]
+                                sanitized.append({
+                                    "name_en": name_en,
+                                    "name_mr": name_mr,
+                                    "stock": stock,
+                                    "unit_price": unit_price,
+                                    "min_threshold": min_threshold,
+                                    "unit": unit,
+                                    "category": category,
+                                    "aliases": aliases
+                                })
+                            if sanitized:
+                                return {
+                                    "status": "SUCCESS",
+                                    "products": sanitized,
+                                    "source": f"gemini-vision-{model_name}"
+                                }
+                    except Exception as e:
+                        err_str = str(e)
+                        print(f"[GEMINI VIDEO WARN] {model_name}: {err_str[:100]}")
                         continue
 
         # Offline Resilience Fallback: ensures test and demo continuity with 0 crashes
@@ -602,34 +599,35 @@ class GeminiService:
             if k and k not in candidate_keys:
                 candidate_keys.append(k)
 
+        models_to_try = ["gemini-3.5-flash-lite", "gemini-flash-lite-latest", "gemini-3.8-flash", "gemini-2.5-flash"]
         if GENAI_AVAILABLE and image_bytes and candidate_keys:
             for key in candidate_keys:
-                try:
-                    client = genai.Client(api_key=key)
-                    img_part = types.Part.from_bytes(data=image_bytes, mime_type=clean_mime)
-                    response = client.models.generate_content(
-                        model="gemini-2.5-flash",
-                        contents=[img_part, prompt],
-                        config=types.GenerateContentConfig(
-                            response_mime_type="application/json",
-                            temperature=0.1,
-                            max_output_tokens=2048
+                client = genai.Client(api_key=key)
+                for model_name in models_to_try:
+                    try:
+                        img_part = types.Part.from_bytes(data=image_bytes, mime_type=clean_mime)
+                        response = client.models.generate_content(
+                            model=model_name,
+                            contents=[img_part, prompt],
+                            config=types.GenerateContentConfig(
+                                response_mime_type="application/json",
+                                temperature=0.1,
+                                max_output_tokens=2048
+                            )
                         )
-                    )
-                    raw_text = (response.text or "").strip()
-                    if "```" in raw_text:
-                        raw_text = re.sub(r"^```(?:json)?|```$", "", raw_text, flags=re.MULTILINE).strip()
-                    json_match = re.search(r"(\{.*\})", raw_text, re.DOTALL)
-                    if json_match:
-                        data = json.loads(json_match.group(1))
-                        if "order_items" in data:
-                            return data
-                except Exception as e:
-                    err_str = str(e)
-                    print(f"[GEMINI YAADI WARN]: {err_str}")
-                    if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "503" in err_str:
+                        raw_text = (response.text or "").strip()
+                        if "```" in raw_text:
+                            raw_text = re.sub(r"^```(?:json)?|```$", "", raw_text, flags=re.MULTILINE).strip()
+                        json_match = re.search(r"(\{.*\})", raw_text, re.DOTALL)
+                        if json_match:
+                            data = json.loads(json_match.group(1))
+                            if "order_items" in data:
+                                print(f"[GEMINI YAADI SUCCESS] Read note with {model_name}: {len(data['order_items'])} items")
+                                return data
+                    except Exception as e:
+                        err_str = str(e)
+                        print(f"[GEMINI YAADI WARN] {model_name}: {err_str[:100]}")
                         continue
-                    continue
 
         # Offline High-Fidelity Fallback
         print("[AI FALLBACK] Gemini yaadi OCR unavailable, using grounded offline yaadi fallback")
