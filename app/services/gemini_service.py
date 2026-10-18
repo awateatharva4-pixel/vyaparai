@@ -185,11 +185,11 @@ OFFLINE_VIDEO_CATALOG_FALLBACK: List[Dict[str, Any]] = [
         "name_en": "Classmate Notebook",
         "name_mr": "क्लासमेट वही (Classmate Notebook)",
         "category": "Stationery & Office",
-        "stock": 1.0,
+        "stock": 10.0,
         "unit_price": 65.0,
         "unit": "book",
-        "min_threshold": 1.0,
-        "aliases": ["notebook", "classmate", "वही", "क्लासमेट", "नोटबुक", "classmate book"]
+        "min_threshold": 2.0,
+        "aliases": ["notebook", "classmate", "वही", "क्लासमेट", "नोटबुक", "classmate book", "classment", "classment book", "classment notebook"]
     },
     {
         "name_en": "Parle-G 100g",
@@ -509,10 +509,30 @@ class GeminiService:
                 client = genai.Client(api_key=key)
                 for model_name in models_to_try:
                     try:
-                        video_part = types.Part.from_bytes(data=video_bytes, mime_type=clean_mime)
+                        if len(video_bytes) > 15 * 1024 * 1024:
+                            import tempfile, time
+                            with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
+                                tmp.write(video_bytes)
+                                tmp_path = tmp.name
+                            try:
+                                uploaded_file = client.files.upload(file=tmp_path)
+                                for _ in range(30):
+                                    f_info = client.files.get(name=uploaded_file.name)
+                                    if f_info.state.name == "ACTIVE":
+                                        break
+                                    time.sleep(1)
+                                video_input = f_info
+                            finally:
+                                try:
+                                    os.remove(tmp_path)
+                                except Exception:
+                                    pass
+                        else:
+                            video_input = types.Part.from_bytes(data=video_bytes, mime_type=clean_mime)
+
                         response = client.models.generate_content(
                             model=model_name,
-                            contents=[video_part, VIDEO_DIGITIZATION_PROMPT],
+                            contents=[video_input, VIDEO_DIGITIZATION_PROMPT],
                             config=types.GenerateContentConfig(
                                 response_mime_type="application/json",
                                 temperature=0.1,
