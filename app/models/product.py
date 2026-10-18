@@ -58,6 +58,38 @@ class Product(Base):
     def extra_meta(self, value):
         self.extra_meta_json = json.dumps(value, ensure_ascii=False)
 
+    @property
+    def image_url(self):
+        import os
+        sku_clean = (self.sku or "").strip()
+        static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static", "products"))
+        # 1. Check exact SKU filename
+        if os.path.exists(os.path.join(static_dir, f"{sku_clean}.jpg")):
+            return f"/static/products/{sku_clean}.jpg"
+        # 2. Check alias or slug
+        slug_map = {
+            "GROC-SUG-001": "sugar.jpg",
+            "FMCG-PARLE-100G": "parle_g.jpg",
+            "OIL-FORT-1L": "fortune_oil.jpg",
+            "BAK-PAV-LADI": "ladi_pav.jpg",
+            "DAL-TUR-001": "tur_dal.jpg",
+            "GROC-SALT-1K": "tata_salt.jpg",
+            "GROC-ATTA-5K": "aashirvaad_atta.jpg",
+            "FMCG-MAGGI-70G": "maggi.jpg",
+            "VEG-KANDA-001": "red_onion.jpg",
+            "VEG-BATATA-001": "potato.jpg",
+            "KINLEY": "kinley_water.jpg",
+            "PEN": "reynolds_pen.jpg",
+            "NOTEBOOK": "classmate_notebook.jpg",
+            "AMUL": "amul_milk.jpg"
+        }
+        if sku_clean in slug_map and os.path.exists(os.path.join(static_dir, slug_map[sku_clean])):
+            return f"/static/products/{slug_map[sku_clean]}"
+        for k, v in slug_map.items():
+            if k in sku_clean.upper() and os.path.exists(os.path.join(static_dir, v)):
+                return f"/static/products/{v}"
+        return f"/static/products/parle_g.jpg"
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -73,6 +105,7 @@ class Product(Base):
             "is_low_stock": self.stock <= self.min_threshold,
             "aliases": self.aliases,
             "extra_meta": self.extra_meta,
+            "image_url": self.image_url,
             "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S") if self.updated_at else ""
         }
 
