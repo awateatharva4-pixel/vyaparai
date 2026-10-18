@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>VyaparAI — Store Ingress & Vendor Auth</title>
+  
+  <!-- Apple Typography: SF Pro / Inter font stack -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@300;400;450;500;550;600;650;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/calacatta-theme.css" />
+  <link rel="stylesheet" href="assets/godly-loader.css" />
+
+  <style>
+    /* ==========================================================================
+       Hero & Auth Page Custom Styles (Italian Calacatta Marble + Apple Frosted Glass)
+       ========================================================================== */
+    .auth-page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow-x: hidden;
+      padding: 24px 32px;
+      z-index: 10;
+    }
+
+    /* Top Navigation Bar */
+    .auth-top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1380px;
+      width: 100%;
+      margin: 0 auto 30px auto;
+    }
+    .auth-brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .auth-logo-img {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 113, 227, 0.35);
+      object-fit: cover;
+      transition: transform 0.28s var(--spring-snappy);
+    }
+    .auth-brand-lockup:hover .auth-logo-img {
+      transform: scale(1.08) rotate(-2deg);
+    }
+    .auth-brand-text {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--emerald-900);
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .auth-brand-sub {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      color: var(--brass-600);
+      font-weight: 600;
+      text-transform: uppercase;
+      padding-left: 8px;
+      border-left: 1px solid var(--brass-border);
+    }
+
+    .auth-top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-pill-btn {
+      padding: 8px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(220, 215, 205, 0.6);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.22s var(--spring-snappy);
+    }
+    .nav-pill-btn:hover {
+      background: #fff;
+      color: var(--emerald-700);
+      border-color: var(--brass-500);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Main Split Hero & Auth Grid */
+    .hero-auth-container {
+      display: grid;
+      grid-template-columns: 1.15fr 0.95fr;
+      gap: 48px;
+      align-items: center;
+      max-width: 1380px;
+      width: 100%;
+      margin: auto;
+      padding: 20px 0;
+    }
+
+    /* Left: Hero Section */
+    .hero-content-col {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .hero-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(45, 106, 111, 0.08);
+      border: 1px solid rgba(45, 106, 111, 0.22);
+      font-size: 0.78rem;
+      font-weight: 650;
+      color: var(--emerald-700);
+      width: fit-content;
+    }
+    .hero-badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--whatsapp-teal);
+      box-shadow: 0 0 8px rgba(37, 211, 102, 0.6);
+      animation: pulseGreen 1.8s infinite;
+    }
+    @keyframes pulseGreen {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    .hero-title {
+      font-size: 3.1rem;
+      line-height: 1.12;
+      font-weight: 750;
+      letter-spacing: -0.035em;
+      color: var(--emerald-900);
+    }
+    .hero-title span.gold-highlight {
+      background: linear-gradient(135deg, var(--brass-600) 0%, #d4af37 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-description {
+      font-size: 1.05rem;
+      line-height: 1.55;
+      color: var(--text-secondary);
+      max-width: 540px;
+    }
+
+    /* Key Benefits Grid */
+    .hero-benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 6px;
+    }
+    .benefit-card {
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(225, 220, 210, 0.6);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: all 0.22s var(--spring-snappy);
+    }
+    .benefit-card:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(45, 106, 111, 0.06);
+      border-color: var(--brass-500);
+    }
+    .benefit-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(0, 113, 227, 0.08);
+      color: var(--apple-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .benefit-icon-box.green {
+      background: rgba(40, 205, 65, 0.12);
+      color: var(--apple-green);
+    }
+    .benefit-icon-box.amber {
+      background: rgba(255, 149, 0, 0.12);
+      color: var(--apple-amber);
+    }
+    .benefit-icon-box.coral {
+      background: rgba(255, 59, 48, 0.12);
+      color: var(--apple-coral);
+    }
+    .benefit-title {
+      font-size: 0.86rem;
+      font-weight: 650;
+      color: var(--text-primary);
+    }
+    .benefit-sub {
+      font-size: 0.74rem;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    /* Right: Auth Card */
+    .auth-card-col {
+      display: flex;
+      justify-content: center;
+    }
+    .auth-glass-box {
+      background: rgba(255, 255, 255, 0.85);
+      border: var(--glass-border-specular);
+      border-radius: 28px;
+      box-shadow: var(--glass-shadow-elevated);
+      padding: 36px 34px;
+      width: 100%;
+      max-width: 460px;
+      position: relative;
+      overflow: hidden;
+      contain: layout style paint;
+    }
+    .auth-glass-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--emerald-600) 0%, var(--brass-500) 50%, var(--apple-blue) 100%);
+    }
+
+    .auth-card-header {
+      margin-bottom: 24px;
+      text-align: left;
+    }
+    .auth-card-title {
+      font-size: 1.45rem;
+      font-weight: 750;
+      color: var(--emerald-900);
+      letter-spacing: -0.02em;
+    }
+    .auth-card-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+    }
+
+    /* Form Fields */
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .form-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .form-label span.bilingual {
+      font-size: 0.74rem;
+      color: var(--text-tertiary);
+      font-weight: 450;
+    }
+
+    .input-field-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-field-icon {
+      position: absolute;
+      left: 14px;
+      width: 18px;
+      height: 18px;
+      color: var(--text-tertiary);
+      pointer-events: none;
+      transition: color 0.2s ease;
+    }
+    .auth-input {
+      width: 100%;
+      height: 46px;
+      padding: 0 42px 0 42px;
+      border-radius: 14px;
+      border: 1px solid rgba(215, 210, 200, 0.7);
+      background: rgba(255, 255, 255, 0.85);
+      font-size: 0.92rem;
+      color: var(--text-primary);
+      font-family: inherit;
+      transition: all 0.22s var(--spring-snappy);
+    }
+    .auth-input:focus {
+      outline: none;
+      background: #ffffff;
+      border-color: var(--emerald-600);
+      box-shadow: 0 0 0 3.5px rgba(45, 106, 111, 0.15);
+    }
+    .auth-input:focus + .input-field-icon {
+      color: var(--emerald-600);
+    }
+
+    .toggle-secret-btn {
+      position: absolute;
+      right: 12px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      border-radius: 8px;
+      transition: color 0.2s ease;
+    }
+    .toggle-secret-btn:hover {
+      color: var(--text-primary);
+    }
+
+    /* Quick Demo Login Pills */
+    .quick-demo-section {
+      margin-top: 10px;
+    }
+    .quick-demo-label {
+      font-size: 0.74rem;
+      font-weight: 650;
+      color: var(--brass-700);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .demo-pills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .demo-store-pill {
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: rgba(201, 169, 110, 0.12);
+      border: 1px solid rgba(201, 169, 110, 0.35);
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--emerald-900);
+      cursor: pointer;
+      transition: all 0.2s var(--spring-snappy);
+    }
+    .demo-store-pill:hover {
+      background: var(--brass-500);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px var(--brass-glow);
+    }
+
+    /* Submit Button */
+    .auth-submit-btn {
+      width: 100%;
+      height: 48px;
+      margin-top: 8px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, var(--emerald-700) 0%, var(--emerald-800) 100%);
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 650;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(26, 75, 79, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.24s var(--spring-snappy);
+    }
+    .auth-submit-btn:hover {
+      background: linear-gradient(135deg, var(--emerald-600) 0%, var(--emerald-700) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(26, 75, 79, 0.35);
+    }
+    .auth-submit-btn:active {
+      transform: scale(0.975) translateY(1px);
+    }
+
+    /* Footer */
+    .auth-footer {
+      text-align: center;
+      font-size: 0.76rem;
+      color: var(--text-tertiary);
+      max-width: 1380px;
+      margin: 20px auto 0 auto;
+    }
+
+    /* ==========================================================================
+       3. Godly Cool Loading Screen with Expanding Waves & Translucent Skeleton
+       Apple Blue rgba(0, 113, 227, 0.6) & Florentine Gold rgba(201, 169, 110, 0.4)
+       60 FPS GPU-Accelerated Keyframes • 4 Concentric Pulsing Rings
+       ========================================================================== */
+    .godly-loader-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(249, 246, 240, 0.94);
+      backdrop-filter: blur(36px) saturate(190%) contrast(102%);
+      -webkit-backdrop-filter: blur(36px) saturate(190%) contrast(102%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+    .godly-loader-screen.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Ambient Radial Halo Behind Logo */
+    .wave-ambient-halo {
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle, 
+        rgba(0, 113, 227, 0.32) 0%, 
+        rgba(201, 169, 110, 0.24) 40%, 
+        rgba(0, 113, 227, 0.08) 65%, 
+        transparent 80%
+      );
+      filter: blur(16px);
+      pointer-events: none;
+      z-index: 2;
+      animation: haloBreath 3.2s ease-in-out infinite alternate;
+      will-change: transform, opacity;
+      transform: translateZ(0);
+    }
+    @keyframes haloBreath {
+      0% { transform: scale(0.9) translateZ(0); opacity: 0.7; }
+      100% { transform: scale(1.25) translateZ(0); opacity: 1; }
+    }
+
+    /* Concentric Expanding Ripple Waves with Dual-Tone Glow */
+    .wave-rings-container {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .wave-ring {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      opacity: 0;
+      transform: scale(0.65) translateZ(0);
+      transform-origin: center center;
+      animation: waveSpread 3.6s cubic-bezier(0.12, 0.8, 0.24, 1) infinite;
+      will-change: transform, opacity;
+      pointer-events: none;
+    }
+    .wave-ring.wave-1 {
+      animation-delay: 0s;
+      border: 2px solid rgba(0, 113, 227, 0.85);
+      box-shadow: 
+        0 0 28px rgba(0, 113, 227, 0.6),
+        0 0 55px rgba(201, 169, 110, 0.4),
+        inset 0 0 18px rgba(0, 113, 227, 0.35);
+    }
+    .wave-ring.wave-2 {
+      animation-delay: 0.9s;
+      border: 2px solid rgba(201, 169, 110, 0.85);
+      box-shadow: 
+        0 0 35px rgba(201, 169, 110, 0.45),
+        0 0 70px rgba(0, 113, 227, 0.5),
+        inset 0 0 22px rgba(201, 169, 110, 0.35);
+    }
+    .wave-ring.wave-3 {
+      animation-delay: 1.8s;
+      border: 2px solid rgba(0, 113, 227, 0.75);
+      box-shadow: 
+        0 0 45px rgba(0, 113, 227, 0.6),
+        0 0 90px rgba(201, 169, 110, 0.4),
+        inset 0 0 26px rgba(0, 113, 227, 0.3);
+    }
+    .wave-ring.wave-4 {
+      animation-delay: 2.7s;
+      border: 2px solid rgba(201, 169, 110, 0.8);
+      box-shadow: 
+        0 0 58px rgba(201, 169, 110, 0.4),
+        0 0 110px rgba(0, 113, 227, 0.55),
+        inset 0 0 32px rgba(201, 169, 110, 0.25);
+    }
+
+    @keyframes waveSpread {
+      0% {
+        transform: scale(0.65) translateZ(0);
+        opacity: 0.95;
+      }
+      25% {
+        opacity: 0.82;
+      }
+      60% {
+        opacity: 0.42;
+      }
+      100% {
+        transform: scale(30) translateZ(0);
+        opacity: 0;
+      }
+    }
+
+    /* Central 3D Floating Logo Card */
+    .central-logo-card {
+      width: 104px;
+      height: 104px;
+      border-radius: 26px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      z-index: 5;
+      animation: logoBreathing 2.8s ease-in-out infinite alternate;
+      will-change: transform;
+      transform: translateZ(0);
+    }
+    .central-logo-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 26px;
+      object-fit: cover;
+      box-shadow: 
+        0 16px 42px rgba(0, 113, 227, 0.4),
+        0 6px 20px rgba(201, 169, 110, 0.32),
+        0 2px 8px rgba(0, 0, 0, 0.12),
+        inset 0 1px 2px rgba(255, 255, 255, 0.95);
+      border: 1.5px solid rgba(255, 255, 255, 0.85);
+    }
+    @keyframes logoBreathing {
+      0% { transform: translateY(0px) scale(1) translateZ(0); }
+      100% { transform: translateY(-8px) scale(1.05) translateZ(0); }
+    }
+
+    /* Status Text Block */
+    .loader-status-block {
+      margin-top: 36px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      z-index: 5;
+    }
+    .loader-brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--emerald-900);
+      letter-spacing: -0.015em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .loader-brand-title span.luxury-tag {
+      font-family: 'Cinzel', serif;
+      font-size: 0.76rem;
+      letter-spacing: 0.12em;
+      color: var(--brass-600);
+      font-weight: 600;
+      text-transform: uppercase;
+      padding-left: 6px;
+      border-left: 1px solid rgba(201, 169, 110, 0.4);
+    }
+    .loader-dynamic-phrase {
+      font-size: 0.86rem;
+      font-weight: 550;
+      color: var(--emerald-600);
+      min-height: 22px;
+      transition: all 0.24s ease;
+    }
+    .loader-progress-track {
+      width: 240px;
+      height: 4px;
+      border-radius: 9999px;
+      background: rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      margin-top: 6px;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+    .loader-progress-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, #0071e3 0%, #c9a96e 50%, #25d366 100%);
+      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Responsive Queries */
+    @media (max-width: 980px) {
+      .hero-auth-container {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+      .hero-title {
+        font-size: 2.3rem;
+      }
+      .hero-benefits-grid {
+        grid-template-columns: 1fr;
+      }
+      .auth-glass-box {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Full Page Layout -->
+  <div class="auth-page-wrapper">
+
+    <!-- Top Navigation Bar -->
+    <header class="auth-top-nav">
+      <div class="auth-brand-lockup" onclick="window.location.href='index.html'">
+        <img src="assets/logo.png" alt="VyaparAI Logo" class="auth-logo-img" />
+        <div class="auth-brand-text">
+          VyaparAI
+          <span class="auth-brand-sub">Calacatta OS</span>
+        </div>
+      </div>
+
+      <div class="auth-top-actions">
+        <button type="button" class="nav-pill-btn" onclick="window.previewGodlyLoader()" style="border-color: rgba(201, 169, 110, 0.45); color: var(--brass-600); font-weight: 600;" title="Preview Godly Concentric Wave Loader">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12c3-4 6-4 9 0s6 4 9 0 6-4 9 0"></path>
+          </svg>
+          Preview Godly Loader
+          <span style="font-size: 0.68rem; background: rgba(0, 113, 227, 0.1); color: var(--apple-blue); padding: 1px 6px; border-radius: 4px; font-weight: 700;">60 FPS</span>
+        </button>
+        <a href="index.html" class="nav-pill-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="2"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="2"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="2"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+          </svg>
+          Direct Dashboard
+        </a>
+        <a href="alerts.html" class="nav-pill-btn" style="color: var(--apple-coral);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          Stock Alerts
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Split Hero & Auth Grid -->
+    <main class="hero-auth-container">
+
+      <!-- Left Column: High-Impact Apple Hero -->
+      <section class="hero-content-col">
+        <div class="hero-badge-pill">
+          <span class="hero-badge-dot"></span>
+          Smart India Hackathon • Next-Gen Kirana OS
+        </div>
+
+        <h1 class="hero-title">
+          The Intelligent Retail Engine for <span class="gold-highlight">Bharat's Kirana Stores</span>.
+        </h1>
+
+        <p class="hero-description">
+          Seamlessly manage store inventory, track low stock depletion velocity in real-time, and record daily sales automatically through conversational Marathi and Hindi WhatsApp audio notes.
+        </p>
+
+        <!-- 4 Key Value Pillars -->
+        <div class="hero-benefits-grid">
+          <div class="benefit-card">
+            <div class="benefit-icon-box green">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+              </svg>
+            </div>
+            <div>
+              <div class="benefit-title">WhatsApp AI Ingress</div>
+              <div class="benefit-sub">Speak or text sales to auto-sync ledger</div>
+            </div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon-box coral">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </div>
+            <div>
+              <div class="benefit-title">Predictive Low-Stock</div>
+              <div class="benefit-sub">Automated alerts before items run out</div>
+            </div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon-box amber">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </div>
+            <div>
+              <div class="benefit-title">60 FPS Calacatta UI</div>
+              <div class="benefit-sub">Zero-jank Italian marble morphism</div>
+            </div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                <line x1="2" y1="10" x2="22" y2="10"></line>
+              </svg>
+            </div>
+            <div>
+              <div class="benefit-title">Digital Khata Ledger</div>
+              <div class="benefit-sub">Transparent customer balance book</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Vendor Auth Glass Box -->
+      <section class="auth-card-col">
+        <div class="auth-glass-box">
+          <div class="auth-card-header">
+            <h2 class="auth-card-title">Vendor Portal Ingress</h2>
+            <p class="auth-card-subtitle">दुकानदार लॉगिन • Secure POS Terminal Access</p>
+          </div>
+
+          <form class="auth-form" id="vendorAuthForm" onsubmit="handleAuthSubmit(event)">
+            
+            <!-- Input 1: User Name -->
+            <div class="form-group">
+              <label class="form-label" for="userNameInput">
+                <span>User Name</span>
+                <span class="bilingual">वापरकर्त्याचे नाव</span>
+              </label>
+              <div class="input-field-wrap">
+                <input 
+                  type="text" 
+                  id="userNameInput" 
+                  class="auth-input" 
+                  placeholder="e.g. Atharva Awate / Admin" 
+                  value="अथर्व आवाटे (Admin)"
+                  required 
+                  autocomplete="username"
+                />
+                <svg class="input-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Input 2: User Number -->
+            <div class="form-group">
+              <label class="form-label" for="userNumberInput">
+                <span>User Number</span>
+                <span class="bilingual">मोबाईल नंबर</span>
+              </label>
+              <div class="input-field-wrap">
+                <input 
+                  type="tel" 
+                  id="userNumberInput" 
+                  class="auth-input" 
+                  placeholder="+91 95798 69506" 
+                  value="+91 95798 69506"
+                  pattern="[0-9+\s-]{10,15}"
+                  required 
+                  autocomplete="tel"
+                />
+                <svg class="input-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Input 3: Secret Code -->
+            <div class="form-group">
+              <label class="form-label" for="secretCodeInput">
+                <span>Secret Code</span>
+                <span class="bilingual">सिक्रेट पिन कोड</span>
+              </label>
+              <div class="input-field-wrap">
+                <input 
+                  type="password" 
+                  id="secretCodeInput" 
+                  class="auth-input" 
+                  placeholder="••••••" 
+                  value="957986"
+                  maxlength="8" 
+                  required 
+                  autocomplete="current-password"
+                />
+                <svg class="input-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <button type="button" class="toggle-secret-btn" onclick="toggleSecretVisibility()" title="Show/Hide Secret Code">
+                  <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick Demo One-Click Fill (Single Store Mode) -->
+            <div class="quick-demo-section">
+              <span class="quick-demo-label">Single Store Primary Ingress</span>
+              <div class="demo-pills-row">
+                <div class="demo-store-pill" style="border-color: rgba(16, 185, 129, 0.45); background: rgba(16, 185, 129, 0.08); font-weight: 650;" onclick="fillDemoCredentials('अथर्व आवाटे (Admin)', '+91 95798 69506', '957986')">
+                  🏪 अथर्व किराणा स्टोअर्स, कोल्हापूर (DEMO_KIRANA_KOP)
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="auth-submit-btn" id="authSubmitBtn">
+              <span>Enter Store Dashboard</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </form>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="auth-footer">
+      VyaparAI Retail Technologies Pvt. Ltd. • Secured with TLS 1.3 & AES-256 Tokenized POS • Calacatta Marble Morphism v2.4
+    </footer>
+
+  </div>
+
+  <!-- ==========================================================================
+       Godly Cool Loading Screen with Expanding Waves & Translucent Skeleton
+       ========================================================================== -->
+  <div class="godly-loader-screen" id="godlyLoaderScreen" role="dialog" aria-modal="true" aria-label="VyaparAI Loading Screen">
+    
+    <!-- Floating Preview Controls: Dismiss & Replay -->
+    <div class="godly-preview-controls-bar" id="godlyPreviewControls">
+      <button type="button" class="godly-preview-pill-btn" onclick="window.replayGodlyLoaderPreview()" title="Replay Wave Animation">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+        </svg>
+        Replay Wave
+      </button>
+      <button type="button" class="godly-preview-pill-btn" onclick="window.dismissGodlyLoaderPreview()" title="Dismiss Preview (Esc)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        Dismiss
+      </button>
+    </div>
+
+    <!-- High-Tech Translucent Skeleton Wireframe Canvas in Background -->
+    <div class="skeleton-background-canvas" aria-hidden="true">
+      <!-- Skeleton macOS Dock Sidebar Rail -->
+      <div class="skel-dock">
+        <div class="skel-dock-icon logo-icon"></div>
+        <div class="skel-dock-divider"></div>
+        <div class="skel-dock-icon active"></div>
+        <div class="skel-dock-icon"></div>
+        <div class="skel-dock-icon"></div>
+        <div class="skel-dock-icon"></div>
+        <div class="skel-dock-icon"></div>
+      </div>
+
+      <!-- Skeleton Main Dashboard Content -->
+      <div class="skel-main">
+        <!-- Skeleton Floating Island Top Header -->
+        <div class="skel-header">
+          <div class="skel-header-left">
+            <div class="skel-brand-pill"></div>
+          </div>
+          <div class="skel-search-pill"></div>
+          <div class="skel-header-right">
+            <div class="skel-pill-btn"></div>
+          </div>
+        </div>
+
+        <!-- Bento Row 1: Summary Trio + High-Tech Spline Chart Wave -->
+        <div class="skel-row1">
+          <!-- Summary Card -->
+          <div class="skel-card">
+            <div class="skel-card-head">
+              <div class="skel-card-title"></div>
+              <div class="skel-card-badge"></div>
+            </div>
+            <div class="skel-metrics-trio">
+              <div class="skel-metric-box">
+                <div class="skel-metric-label"></div>
+                <div class="skel-metric-val"></div>
+              </div>
+              <div class="skel-metric-box">
+                <div class="skel-metric-label"></div>
+                <div class="skel-metric-val"></div>
+              </div>
+              <div class="skel-metric-box">
+                <div class="skel-metric-label"></div>
+                <div class="skel-metric-val"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Daily Sales Chart Card with Glowing SVG Chart Wave -->
+          <div class="skel-card skel-chart-card">
+            <div class="skel-card-head">
+              <div class="skel-card-title" style="width: 170px;"></div>
+              <div class="skel-card-badge" style="background: rgba(0, 113, 227, 0.2);"></div>
+            </div>
+            <div class="skel-chart-wave-wrap">
+              <svg viewBox="0 0 540 130" class="skel-chart-wave-svg" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="skelChartWaveFillLogin" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(0, 113, 227, 0.45)" />
+                    <stop offset="50%" stop-color="rgba(201, 169, 110, 0.25)" />
+                    <stop offset="100%" stop-color="rgba(0, 113, 227, 0.0)" />
+                  </linearGradient>
+                  <linearGradient id="skelChartStrokeGradLogin" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="rgba(0, 113, 227, 0.9)" />
+                    <stop offset="45%" stop-color="rgba(201, 169, 110, 0.95)" />
+                    <stop offset="100%" stop-color="rgba(0, 113, 227, 0.85)" />
+                  </linearGradient>
+                </defs>
+                <line x1="0" y1="35" x2="540" y2="35" stroke="rgba(255, 255, 255, 0.18)" stroke-dasharray="4 4" />
+                <line x1="0" y1="75" x2="540" y2="75" stroke="rgba(255, 255, 255, 0.18)" stroke-dasharray="4 4" />
+                <line x1="0" y1="115" x2="540" y2="115" stroke="rgba(255, 255, 255, 0.18)" stroke-dasharray="4 4" />
+                <path d="M0,115 C60,110 110,65 170,80 C230,95 280,35 340,48 C400,60 450,22 540,25 L540,130 L0,130 Z" fill="url(#skelChartWaveFillLogin)" />
+                <path d="M0,115 C60,110 110,65 170,80 C230,95 280,35 340,48 C400,60 450,22 540,25" fill="none" stroke="url(#skelChartStrokeGradLogin)" stroke-width="3" stroke-linecap="round" />
+                <circle cx="170" cy="80" r="4.5" fill="#ffffff" stroke="rgba(0, 113, 227, 0.9)" stroke-width="2.5" />
+                <circle cx="340" cy="48" r="4.5" fill="#ffffff" stroke="rgba(201, 169, 110, 0.95)" stroke-width="2.5" />
+                <circle cx="500" cy="24" r="5" fill="#ffffff" stroke="rgba(0, 113, 227, 0.95)" stroke-width="2.5" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bento Row 2: Stock Overview + Urgency Alerts + Khata -->
+        <div class="skel-row2">
+          <div class="skel-card">
+            <div class="skel-card-head">
+              <div class="skel-card-title"></div>
+              <div class="skel-card-badge"></div>
+            </div>
+            <div class="skel-stock-rows">
+              <div class="skel-stock-item">
+                <div class="skel-stock-text"></div>
+                <div class="skel-bar-track"><div class="skel-bar-fill" style="width: 82%;"></div></div>
+              </div>
+              <div class="skel-stock-item">
+                <div class="skel-stock-text"></div>
+                <div class="skel-bar-track"><div class="skel-bar-fill coral" style="width: 26%;"></div></div>
+              </div>
+              <div class="skel-stock-item">
+                <div class="skel-stock-text"></div>
+                <div class="skel-bar-track"><div class="skel-bar-fill" style="width: 48%;"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="skel-card">
+            <div class="skel-card-head">
+              <div class="skel-card-title"></div>
+              <div class="skel-card-badge" style="background: rgba(255, 95, 87, 0.25);"></div>
+            </div>
+            <div class="skel-stock-rows">
+              <div class="skel-stock-item">
+                <div class="skel-stock-text" style="width: 75%;"></div>
+                <div class="skel-bar-track"><div class="skel-bar-fill coral" style="width: 75%;"></div></div>
+              </div>
+              <div class="skel-stock-item">
+                <div class="skel-stock-text" style="width: 60%;"></div>
+                <div class="skel-bar-track"><div class="skel-bar-fill" style="width: 60%;"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="skel-card">
+            <div class="skel-card-head">
+              <div class="skel-card-title"></div>
+              <div class="skel-card-badge" style="background: rgba(37, 211, 102, 0.25);"></div>
+            </div>
+            <div class="skel-stock-rows">
+              <div class="skel-stock-item">
+                <div class="skel-stock-text" style="width: 80%;"></div>
+                <div class="skel-bar-track"><div class="skel-bar-fill" style="width: 88%;"></div></div>
+              </div>
+              <div class="skel-stock-item">
+                <div class="skel-stock-text" style="width: 55%;"></div>
+                <div class="skel-bar-track"><div class="skel-bar-fill" style="width: 40%;"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Central Stage: Logo & Expanding Energy Waves -->
+    <div class="logo-wave-stage">
+      
+      <!-- Ambient Radial Halo Behind Logo -->
+      <div class="wave-ambient-halo"></div>
+
+      <!-- Concentric Ripple Rings with Dual-Tone Glow (Apple Blue & Florentine Gold) -->
+      <div class="wave-rings-container">
+        <div class="wave-ring wave-1"></div>
+        <div class="wave-ring wave-2"></div>
+        <div class="wave-ring wave-3"></div>
+        <div class="wave-ring wave-4"></div>
+      </div>
+
+      <!-- Floating 3D Logo Card -->
+      <div class="central-logo-card">
+        <img src="assets/logo.png" alt="VyaparAI V Logo" class="central-logo-img" />
+      </div>
+
+      <!-- Status Text Block -->
+      <div class="loader-status-block">
+        <div class="loader-brand-title">
+          VyaparAI Store Operating System
+          <span class="luxury-tag">Calacatta 2.4</span>
+        </div>
+        <div class="loader-dynamic-phrase" id="loaderDynamicPhrase">Verifying vendor terminal security token...</div>
+        <div class="loader-progress-track">
+          <div class="loader-progress-bar" id="loaderProgressBar"></div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ==========================================================================
+       Interactive Auth & Wave Loader Logic
+       ========================================================================== -->
+  <script>
+    // 1. Password Visibility Toggle
+    let isSecretVisible = false;
+    function toggleSecretVisibility() {
+      const input = document.getElementById('secretCodeInput');
+      const eyeIcon = document.getElementById('eyeIcon');
+      isSecretVisible = !isSecretVisible;
+      
+      if (isSecretVisible) {
+        input.type = 'text';
+        eyeIcon.innerHTML = `
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+        `;
+      } else {
+        input.type = 'password';
+        eyeIcon.innerHTML = `
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        `;
+      }
+    }
+
+    // 2. Demo Credentials Auto-Fill
+    function fillDemoCredentials(name, number, code) {
+      document.getElementById('userNameInput').value = name;
+      document.getElementById('userNumberInput').value = number;
+      document.getElementById('secretCodeInput').value = code;
+      
+      // Visual feedback
+      const box = document.querySelector('.auth-glass-box');
+      box.style.transform = 'scale(1.015)';
+      setTimeout(() => box.style.transform = '', 200);
+      playHaptic(180, 50);
+    }
+
+    // 3. Audio Micro-Haptic Click
+    function playHaptic(freq1 = 140, freq2 = 40) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq1, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freq2, ctx.currentTime + 0.02);
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.02);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.02);
+      } catch (e) {}
+    }
+
+    // 4. Form Submit & Godly Wave Loading Animation
+    function handleAuthSubmit(event) {
+      event.preventDefault();
+      playHaptic(200, 60);
+
+      const name = (document.getElementById('userNameInput').value || 'अथर्व आवाटे').trim();
+      const number = (document.getElementById('userNumberInput').value || '+91 95798 69506').trim();
+      const code = (document.getElementById('secretCodeInput').value || '957986').trim();
+      
+      // Store authenticated merchant session locked to Single Store
+      localStorage.setItem('vyaparai_auth_user', JSON.stringify({
+        name: name,
+        phone: number,
+        store: 'अथर्व किराणा स्टोअर्स, कोल्हापूर',
+        vendor_id: 'DEMO_KIRANA_KOP'
+      }));
+      localStorage.setItem('vyaparai_auth_token', 'AUTH_TOKEN_ATHARVA_' + Date.now());
+
+      const loader = document.getElementById('godlyLoaderScreen');
+      const phrase = document.getElementById('loaderDynamicPhrase');
+      const progress = document.getElementById('loaderProgressBar');
+      if (loader) loader.classList.add('active');
+
+      const steps = [
+        { pct: 25, text: "Verifying Kirana Vendor Security Token (DEMO_KIRANA_KOP)...", delay: 300 },
+        { pct: 55, text: "Connecting to Cloud Supabase & Kolhapur Catalog...", delay: 750 },
+        { pct: 85, text: "Synchronizing WhatsApp Voice & 30-min Auto-Undo Engine...", delay: 1250 },
+        { pct: 100, text: `Welcome, ${name.split(' ')[0]}! Calacatta OS Ready...`, delay: 1750 }
+      ];
+
+      steps.forEach((step) => {
+        setTimeout(() => {
+          if (progress) progress.style.width = step.pct + '%';
+          if (phrase) phrase.textContent = step.text;
+
+          if (step.pct === 100) {
+            setTimeout(() => {
+              window.location.href = 'index.html';
+            }, 400);
+          }
+        }, step.delay);
+      });
+    }
+  </script>
+  <script src="assets/godly-loader.js"></script>
+</body>
+</html>

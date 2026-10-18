@@ -9,6 +9,7 @@ from app.services.inventory_service import InventoryService
 from app.services.gemini_service import GeminiService
 from app.services.audio_service import AudioNormalizer
 from app.models.product import Product
+from app.models.customer_order import CustomerOrder
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "..", "templates")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
@@ -189,13 +190,45 @@ def list_pending_orders(vendor_id: str = "DEMO_KIRANA_KOP", db: Session = Depend
 def pack_customer_order(order_id: str, vendor_id: str = "DEMO_KIRANA_KOP", db: Session = Depends(get_db)):
     """
     Merchant packs a customer order from the dashboard queue.
-    Atomically decrements inventory stock for available items and notifies customer.
+    Atomically finalizes sales ledger and notifies customer and merchant.
     """
     result = InventoryService.pack_and_deduct_customer_order(order_id=order_id, vendor_id=vendor_id, db=db)
     if not result.get("success"):
         raise HTTPException(status_code=400, detail=result.get("message", "Failed to pack order"))
     metrics = InventoryService.get_dashboard_metrics(db)
     return {**result, "metrics": metrics}
+
+
+@router.post("/api/orders/{order_id}/expire-now")
+def trigger_order_expiration_rollback(order_id: str, vendor_id: str = "DEMO_KIRANA_KOP", db: Session = Depends(get_db)):
+    """
+    Auto-Undo Simulator: Triggers immediate 30-min expiration & stock rollback on an order.
+    Restitutes reserved stock back to active inventory and sends WhatsApp alert to 9579869506.
+    """
+    result = InventoryService.restitute_expired_order_stock(order_id=order_id, vendor_id=vendor_id, db=db)
+    metrics = InventoryService.get_dashboard_metrics(db)
+    return {**result, "metrics": metrics}
+
+
+@router.post("/api/orders/{order_id}/confirm")
+def trigger_customer_order_confirmation(order_id: str, vendor_id: str = "DEMO_KIRANA_KOP", db: Session = Depends(get_db)):
+    """
+    Two-Way Confirmation Simulator: Simulates customer replying 'हो' / 'Confirm' on WhatsApp.
+    Transitions status to CONFIRMED and alerts merchant on 9579869506.
+    """
+    order = db.query(CustomerOrder).filter_by(order_id=order_id, vendor_id=vendor_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    confirmed = InventoryService.confirm_customer_order(customer_phone=order.customer_phone, vendor_id=vendor_id, db=db)
+    return {"status": "SUCCESS", "order": confirmed.to_dict() if confirmed else order.to_dict()}
+
+
+@router.post("/api/orders/check-expirations")
+def trigger_expiration_sweeper(vendor_id: str = "DEMO_KIRANA_KOP", db: Session = Depends(get_db)):
+    """Sweeps all active orders and expires any exceeding 30-min window."""
+    expired = InventoryService.check_and_expire_orders(vendor_id=vendor_id, db=db)
+    metrics = InventoryService.get_dashboard_metrics(db)
+    return {"status": "SUCCESS", "expired_orders": expired, "metrics": metrics}
 
 
 @router.post("/api/simulator/customer-yaadi")

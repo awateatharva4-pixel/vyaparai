@@ -47,6 +47,12 @@ class Settings:
     # State Persistence & Admin Security
     ADMIN_TOKEN: str = os.getenv("ADMIN_TOKEN", "vyaparai_admin_2026")
     
+    # Single Store Architectural Lock
+    DEFAULT_VENDOR_ID: str = "DEMO_KIRANA_KOP"
+    STORE_NAME: str = "अथर्व किराणा स्टोअर्स, कोल्हापूर"
+    PROPRIETOR_NAME: str = "अथर्व आवाटे (Atharva Awate)"
+    MERCHANT_PHONE: str = "919579869506"
+    
     # Supabase Cloud Database & Gateway
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "https://cxyaaffdvvsnitmyzrow.supabase.co")
     SUPABASE_KEY: str = os.getenv("SUPABASE_KEY", "sb_publishable_eFxVztNVgKeytabZxqQ52Q_PDyq3_z0")

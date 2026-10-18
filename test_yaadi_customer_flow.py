@@ -272,10 +272,11 @@ def test_customer_order_db_lifecycle():
         )
         order_id = order.order_id
 
-        # VERIFY ZERO DIRECT DEDUCTION: Stock must NOT have changed yet!
+        # VERIFY IMMEDIATE STOCK RESERVATION: Stock must be decremented immediately to prevent overselling!
         db.refresh(sugar_before)
-        assert sugar_before.stock == initial_stock, f"Zero Direct Deduction violation! Stock changed from {initial_stock} to {sugar_before.stock}"
-        print(f"Zero Direct Deduction confirmed: Stock before packing = {sugar_before.stock} kg")
+        reserved_stock = initial_stock - order_qty
+        assert sugar_before.stock == reserved_stock, f"Stock reservation violation! Expected {reserved_stock}, got {sugar_before.stock}"
+        print(f"Immediate stock reservation confirmed: Stock after order creation = {sugar_before.stock} kg (-{order_qty} kg reserved)")
 
         # Step B: Merchant packs order via POST /api/orders/{order_id}/pack
         client = TestClient(app)
@@ -285,11 +286,10 @@ def test_customer_order_db_lifecycle():
         assert pack_data.get("success") is True
         assert pack_data["order"]["status"] == "PACKED"
 
-        # Step C: Verify atomic stock deduction in DB
+        # Step C: Verify ZERO DOUBLE-DEDUCTION: Stock remains at reserved_stock!
         db.refresh(sugar_before)
-        expected_stock = initial_stock - order_qty
-        assert sugar_before.stock == expected_stock, f"Expected stock {expected_stock}, got {sugar_before.stock}"
-        print(f"Atomic stock deduction confirmed: Stock after packing = {sugar_before.stock} kg (-{order_qty} kg)")
+        assert sugar_before.stock == reserved_stock, f"Double deduction violation! Expected {reserved_stock}, got {sugar_before.stock}"
+        print(f"Zero double-deduction confirmed: Stock after packing remains = {sugar_before.stock} kg")
 
         # Step D: Verify transaction recorded in DB
         tx = db.query(Transaction).filter(Transaction.remarks.like(f"%{order_id}%")).first()

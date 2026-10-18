@@ -298,7 +298,7 @@ const VyaparCore = (function() {
   let customers = load(KEY_CUSTOMERS, DEFAULT_CUSTOMERS);
   let transactions = load(KEY_TX, DEFAULT_TRANSACTIONS);
   let pendingOrders = load(KEY_ORDERS, DEFAULT_PENDING_ORDERS);
-  let activeDukaan = (typeof localStorage !== 'undefined' ? localStorage.getItem(KEY_STORE) : null) || "Ganesh Kirana (Rajarampuri)";
+  let activeDukaan = (typeof localStorage !== 'undefined' ? localStorage.getItem(KEY_STORE) : null) || "अथर्व किराणा स्टोअर्स, कोल्हापूर (DEMO_KIRANA_KOP)";
 
   // Backend URL configuration (Seamless for Render cloud HTTPS, localhost:8000, or file://)
   const RENDER_PROD_URL = "https://vyaparai-oddf.onrender.com";
@@ -927,7 +927,7 @@ const VyaparCore = (function() {
       customers = JSON.parse(JSON.stringify(DEFAULT_CUSTOMERS));
       transactions = JSON.parse(JSON.stringify(DEFAULT_TRANSACTIONS));
       pendingOrders = JSON.parse(JSON.stringify(DEFAULT_PENDING_ORDERS));
-      activeDukaan = "Ganesh Kirana (Rajarampuri)";
+      activeDukaan = "अथर्व किराणा स्टोअर्स, कोल्हापूर (DEMO_KIRANA_KOP)";
       save(KEY_SKUS, skus);
       save(KEY_CUSTOMERS, customers);
       save(KEY_TX, transactions);

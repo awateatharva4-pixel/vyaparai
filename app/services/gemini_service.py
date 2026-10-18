@@ -556,11 +556,7 @@ class GeminiService:
                                     "aliases": aliases
                                 })
                             if sanitized:
-                                return {
-                                    "status": "SUCCESS",
-                                    "products": sanitized,
-                                    "source": f"gemini-vision-{model_name}"
-                                }
+                                return sanitized
                     except Exception as e:
                         err_str = str(e)
                         print(f"[GEMINI VIDEO WARN] {model_name}: {err_str[:100]}")

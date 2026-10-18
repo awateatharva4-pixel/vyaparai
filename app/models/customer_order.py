@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, DateTime, Text
+from sqlalchemy import Column, Integer, String, Float, DateTime, Text, Boolean
 from app.core.database import Base
 
 
@@ -20,7 +20,11 @@ class CustomerOrder(Base):
     image_url = Column(Text, nullable=True)
     items_json = Column(Text, nullable=False, default="[]")  # Serialized JSON of order items
     total_amount = Column(Float, default=0.0)
-    status = Column(String(24), default="PENDING", index=True)  # PENDING, PACKED, CANCELLED
+    status = Column(String(32), default="PENDING", index=True)  # PENDING, CONFIRMED, PACKED, CANCELLED, EXPIRED_AUTO_CANCELLED
+    is_stock_reserved = Column(Boolean, default=True)  # Immediate stock reservation invariant
+    confirmed_by_customer = Column(Boolean, default=False)  # Two-way confirmation loop flag
+    reminder_sent = Column(Boolean, default=False)  # 25-min warning flag
+    expires_at = Column(DateTime, nullable=True, index=True)  # 30-minute auto-rollback timestamp
     created_at = Column(DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -59,6 +63,10 @@ class CustomerOrder(Base):
             "totalEstimated": round(self.total_amount, 2),
             "total_amount": round(self.total_amount, 2),
             "status": self.status,
+            "is_stock_reserved": bool(self.is_stock_reserved),
+            "confirmed_by_customer": bool(self.confirmed_by_customer),
+            "expires_at": self.expires_at.strftime("%Y-%m-%d %H:%M:%S") if self.expires_at else "",
+            "remaining_seconds": max(0, int((self.expires_at - datetime.utcnow()).total_seconds())) if (self.expires_at and self.status in ("PENDING", "CONFIRMED")) else 0,
             "timestamp": self.created_at.strftime("%I:%M %p") if self.created_at else "Just now",
             "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S") if self.created_at else ""
         }

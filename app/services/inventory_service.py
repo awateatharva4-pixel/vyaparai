@@ -16,6 +16,7 @@ from app.services.whatsapp_service import WhatsAppService
 from app.core.websocket import ws_manager
 from app.services.gemini_service import GeminiService
 from app.services.loose_commodity_service import LooseCommodityEngine
+from app.core.message_templates import MessageTemplates
 
 DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
 SEED_FILE_PATH = os.path.join(DATA_DIR, "seed_inventory.json")
@@ -284,8 +285,24 @@ class InventoryService:
                     "confirmation_receipt": "⚠️ व्हिडिओमधून कोणत्याही वस्तू ओळखता आल्या नाहीत."
                 }
 
+            if isinstance(extracted, dict):
+                items_to_process = extracted.get("products", [])
+            elif isinstance(extracted, list):
+                items_to_process = extracted
+            else:
+                items_to_process = []
+
+            if not items_to_process:
+                return {
+                    "success": False,
+                    "count": 0,
+                    "products": [],
+                    "reply_message": "⚠️ व्हिडिओमधून कोणत्याही वस्तू ओळखता आल्या नाहीत. कृपया चांगल्या प्रकाशात पुन्हा स्कॅन करा.",
+                    "confirmation_receipt": "⚠️ व्हिडिओमधून कोणत्याही वस्तू ओळखता आल्या नाहीत."
+                }
+
             created_products: List[Product] = []
-            for item in extracted:
+            for item in items_to_process:
                 # Generate collision-free SKU
                 existing_sku = item.get("sku")
                 if not existing_sku or not str(existing_sku).startswith("AUTO-VID-"):
@@ -729,6 +746,22 @@ class InventoryService:
             # Check low stock threshold
             if new_stock <= product.min_threshold:
                 alerts_triggered.append(f"⚠️ {product.name_mr}: फक्त {new_stock} {product.unit} शिल्लक!")
+                is_dairy = "dairy" in (product.category or "").lower() or "दूध" in product.name_mr
+                if is_dairy:
+                    quota_alert_msg = MessageTemplates.merchant_dairy_alert(
+                        product_name=product.name_mr,
+                        current_stock=new_stock,
+                        unit=product.unit
+                    )
+                else:
+                    quota_alert_msg = MessageTemplates.merchant_low_stock_quota_alert(
+                        product_name=product.name_mr,
+                        current_stock=new_stock,
+                        threshold=product.min_threshold,
+                        unit=product.unit,
+                        category=product.category or ""
+                    )
+                WhatsAppService.send_message(to_phone="919579869506", message=quota_alert_msg)
 
         db.commit()
 
@@ -1163,13 +1196,13 @@ class InventoryService:
         raw_message: str = "",
         image_url: str = "",
         vendor_id: str = "DEMO_KIRANA_KOP",
+        reservation_minutes: int = 30,
         db: Optional[Session] = None
     ) -> CustomerOrder:
         """
-        Creates a customer yaadi order in PENDING status (Specification 03).
-        Enforces Zero Direct Ledger Modification Invariant:
-        Inventory stock is NOT deducted on order creation.
-        Saves durable state snapshot and broadcasts NEW_CUSTOMER_YAADI via WebSocket.
+        Creates a customer yaadi order in PENDING status with IMMEDIATE STOCK RESERVATION.
+        Invariant: Deducts requested quantity from active inventory immediately to prevent overselling.
+        If order is not fulfilled within 30 minutes, restitute_expired_order_stock auto-cancels and restores stock.
         """
         close_db = False
         if db is None:
@@ -1194,6 +1227,42 @@ class InventoryService:
             )
 
             total_amount = sum(float(i.get("line_total", 0.0)) for i in items if i.get("is_available", True))
+            expires_at = datetime.utcnow() + timedelta(minutes=reservation_minutes)
+
+            # 1. IMMEDIATE STOCK RESERVATION (Deduct from inventory ledger immediately)
+            low_stock_alerts = []
+            for item in items:
+                if not item.get("is_available", True):
+                    continue
+                sku = item.get("sku_matched") or item.get("sku")
+                qty = float(item.get("quantity", 0.0))
+                prod = None
+                if sku:
+                    prod = db.query(Product).filter_by(sku=sku, vendor_id=vendor_id).first()
+                if not prod and item.get("name_mr"):
+                    prod = db.query(Product).filter(
+                        Product.vendor_id == vendor_id,
+                        Product.name_mr.ilike(f"%{item['name_mr']}%")
+                    ).first()
+                if not prod and item.get("name_en"):
+                    prod = db.query(Product).filter(
+                        Product.vendor_id == vendor_id,
+                        Product.name_en.ilike(f"%{item['name_en']}%")
+                    ).first()
+
+                if prod:
+                    item["sku_matched"] = prod.sku
+                    if qty > 0:
+                        prod.stock = max(0.0, round(prod.stock - qty, 3))
+                    # Check low stock quota breach (e.g. Sugar <= 15kg, Dairy <= 8)
+                    if prod.stock <= prod.min_threshold:
+                        low_stock_alerts.append({
+                            "name": prod.name_mr,
+                            "stock": prod.stock,
+                            "threshold": prod.min_threshold,
+                            "unit": prod.unit,
+                            "category": prod.category or ""
+                        })
 
             order = CustomerOrder(
                 order_id=order_id,
@@ -1204,23 +1273,51 @@ class InventoryService:
                 items_json=json.dumps(items, ensure_ascii=False),
                 total_amount=round(total_amount, 2),
                 status="PENDING",
+                is_stock_reserved=True,
+                confirmed_by_customer=False,
+                reminder_sent=False,
+                expires_at=expires_at,
                 created_at=datetime.utcnow()
             )
             db.add(order)
             db.commit()
             db.refresh(order)
 
+            # 2. Trigger low-stock quota alerts to Merchant WhatsApp (9579869506)
+            for alert in low_stock_alerts:
+                is_dairy = "dairy" in alert["category"].lower() or "दूध" in alert["name"]
+                if is_dairy:
+                    msg = MessageTemplates.merchant_dairy_alert(
+                        product_name=alert["name"],
+                        current_stock=alert["stock"],
+                        unit=alert["unit"]
+                    )
+                else:
+                    msg = MessageTemplates.merchant_low_stock_quota_alert(
+                        product_name=alert["name"],
+                        current_stock=alert["stock"],
+                        threshold=alert["threshold"],
+                        unit=alert["unit"],
+                        category=alert["category"]
+                    )
+                WhatsAppService.send_message(to_phone="919579869506", message=msg)
+
             # Persist durable snapshot
             cls.save_state_snapshot(db, vendor_id=vendor_id)
 
-            # Emit WebSocket broadcast
-            ws_payload = {
-                "event": "NEW_CUSTOMER_YAADI",
-                "type": "NEW_CUSTOMER_YAADI",
-                "order": order.to_dict()
-            }
+            # Emit WebSocket broadcast for both new order & updated metrics
             try:
-                ws_manager.broadcast_sync(ws_payload)
+                ws_manager.broadcast_sync({
+                    "event": "NEW_CUSTOMER_YAADI",
+                    "type": "NEW_CUSTOMER_YAADI",
+                    "order": order.to_dict()
+                })
+                metrics = cls.get_dashboard_metrics(db, vendor_id=vendor_id)
+                ws_manager.broadcast_sync({
+                    "type": "METRICS_UPDATE",
+                    "vendor_id": vendor_id,
+                    "metrics": metrics
+                })
             except Exception as ws_err:
                 print(f"[YAADI WS ERROR]: {ws_err}")
 
@@ -1230,18 +1327,17 @@ class InventoryService:
                 db.close()
 
     @classmethod
-    def pack_and_deduct_customer_order(
+    def restitute_expired_order_stock(
         cls,
         order_id: str,
         vendor_id: str = "DEMO_KIRANA_KOP",
         db: Optional[Session] = None
     ) -> Dict[str, Any]:
         """
-        Packs a pending customer order and atomically decrements inventory stock.
-        Only Available items in the order decrement stock.
-        Transitions status from PENDING to PACKED.
-        Saves state snapshot, emits CUSTOMER_ORDER_PACKED & METRICS_UPDATE via WebSocket,
-        and returns customer completion receipt.
+        Auto-Undo Engine (Specification):
+        If 30 minutes expire without merchant fulfillment, restores reserved stock
+        back to active inventory and cancels the order.
+        Dispatches WhatsApp notification to Merchant (9579869506) and broadcasts live UI update.
         """
         close_db = False
         if db is None:
@@ -1254,7 +1350,254 @@ class InventoryService:
             if not order:
                 return {"success": False, "message": f"Order {order_id} not found."}
 
-            if order.status != "PENDING":
+            if order.status not in ("PENDING", "CONFIRMED"):
+                return {"success": False, "message": f"Order {order_id} is already {order.status}."}
+
+            try:
+                items = json.loads(order.items_json) if order.items_json else []
+            except Exception:
+                items = []
+
+            restored_items = []
+            if order.is_stock_reserved:
+                for item in items:
+                    if not item.get("is_available", True):
+                        continue
+                    sku = item.get("sku_matched") or item.get("sku")
+                    qty = float(item.get("quantity", 0.0))
+                    prod = None
+                    if sku:
+                        prod = db.query(Product).filter_by(sku=sku, vendor_id=vendor_id).first()
+                    if not prod and item.get("name_mr"):
+                        prod = db.query(Product).filter(
+                            Product.vendor_id == vendor_id,
+                            Product.name_mr.ilike(f"%{item['name_mr']}%")
+                        ).first()
+                    if not prod and item.get("name_en"):
+                        prod = db.query(Product).filter(
+                            Product.vendor_id == vendor_id,
+                            Product.name_en.ilike(f"%{item['name_en']}%")
+                        ).first()
+
+                    if prod and qty > 0:
+                        prod.stock = round(prod.stock + qty, 3)
+                        # Log stock restitution transaction
+                        tx = Transaction(
+                            vendor_id=vendor_id,
+                            batch_id=f"AUTO_UNDO_{order.order_id}_{int(datetime.utcnow().timestamp())}",
+                            product_id=prod.id,
+                            sku=prod.sku,
+                            item_name=prod.name_mr,
+                            transaction_type="RESTOCK",
+                            quantity_delta=qty,
+                            stock_after=prod.stock,
+                            unit_price=prod.unit_price,
+                            total_amount=round(qty * prod.unit_price, 2),
+                            raw_message=f"Auto-rollback expired order {order.order_id}"
+                        )
+                        db.add(tx)
+                        restored_items.append({
+                            "name_mr": prod.name_mr,
+                            "sku": prod.sku,
+                            "quantity": qty,
+                            "unit": prod.unit
+                        })
+
+            order.status = "EXPIRED_AUTO_CANCELLED"
+            order.is_stock_reserved = False
+            db.commit()
+
+            cls.save_state_snapshot(db, vendor_id=vendor_id)
+
+            # Send WhatsApp Alert to Merchant Admin (9579869506)
+            cust_name = order.to_dict().get("customer_name", "ग्राहक")
+            alert_msg = MessageTemplates.merchant_auto_cancel_rollback_alert(
+                customer_name=cust_name,
+                order_id=order.order_id,
+                restored_items=restored_items
+            )
+            WhatsAppService.send_message(to_phone="919579869506", message=alert_msg)
+
+            # Broadcast WebSocket updates
+            try:
+                ws_manager.broadcast_sync({
+                    "event": "ORDER_EXPIRED_ROLLBACK",
+                    "type": "ORDER_EXPIRED_ROLLBACK",
+                    "order_id": order.order_id,
+                    "order": order.to_dict()
+                })
+                metrics = cls.get_dashboard_metrics(db, vendor_id=vendor_id)
+                ws_manager.broadcast_sync({
+                    "type": "METRICS_UPDATE",
+                    "vendor_id": vendor_id,
+                    "metrics": metrics
+                })
+            except Exception as ws_err:
+                print(f"[AUTO ROLLBACK WS ERROR]: {ws_err}")
+
+            return {
+                "success": True,
+                "order_id": order.order_id,
+                "status": "EXPIRED_AUTO_CANCELLED",
+                "restored_items": restored_items
+            }
+        finally:
+            if close_db:
+                db.close()
+
+    @classmethod
+    def confirm_customer_order(
+        cls,
+        customer_phone: str,
+        vendor_id: str = "DEMO_KIRANA_KOP",
+        db: Optional[Session] = None
+    ) -> Optional[CustomerOrder]:
+        """
+        Two-Way Confirmation Loop:
+        When customer replies 'हो' / 'Confirm', transitions latest pending order to CONFIRMED.
+        Notifies customer of receipt and notifies merchant (9579869506) of customer verification.
+        """
+        close_db = False
+        if db is None:
+            from app.core.database import SessionLocal
+            db = SessionLocal()
+            close_db = True
+
+        try:
+            clean_phone = (
+                str(customer_phone or "")
+                .replace("@c.us", "")
+                .replace("@g.us", "")
+                .replace("whatsapp:", "")
+                .replace("+", "")
+                .replace("-", "")
+                .replace(" ", "")
+                .strip()
+            )
+            order = db.query(CustomerOrder).filter(
+                CustomerOrder.vendor_id == vendor_id,
+                CustomerOrder.status == "PENDING",
+                CustomerOrder.customer_phone.ilike(f"%{clean_phone[-10:]}%")
+            ).order_by(CustomerOrder.created_at.desc()).first()
+
+            if not order:
+                return None
+
+            order.confirmed_by_customer = True
+            order.status = "CONFIRMED"
+            db.commit()
+
+            order_data = order.to_dict()
+            cust_name = order_data.get("customer_name", "ग्राहक")
+
+            # 1. Send customer confirmation receipt
+            conf_msg = MessageTemplates.customer_order_confirmed(
+                customer_name=cust_name,
+                order_id=order.order_id,
+                total_amount=order.total_amount
+            )
+            WhatsAppService.send_message(to_phone=order.customer_phone, message=conf_msg)
+
+            # 2. Send merchant high-priority alert (9579869506)
+            try:
+                items_list = json.loads(order.items_json) if order.items_json else []
+            except Exception:
+                items_list = []
+            merch_alert = MessageTemplates.merchant_new_order_alert(
+                customer_name=cust_name,
+                customer_phone=order.customer_phone,
+                items=items_list,
+                total_amount=order.total_amount,
+                order_id=order.order_id,
+                stock_already_reserved=True
+            )
+            WhatsAppService.send_message(to_phone="919579869506", message=merch_alert)
+
+            # 3. Emit WebSocket event to webapp
+            try:
+                ws_manager.broadcast_sync({
+                    "event": "ORDER_CONFIRMED",
+                    "type": "ORDER_CONFIRMED",
+                    "order": order.to_dict()
+                })
+            except Exception as e:
+                print(f"[CONFIRM ORDER WS ERROR]: {e}")
+
+            return order
+        finally:
+            if close_db:
+                db.close()
+
+    @classmethod
+    def check_and_expire_orders(cls, vendor_id: str = "DEMO_KIRANA_KOP", db: Optional[Session] = None) -> List[str]:
+        """
+        Background Sweeper: Scans for orders exceeding 30-min window or entering 5-min warning zone.
+        """
+        close_db = False
+        if db is None:
+            from app.core.database import SessionLocal
+            db = SessionLocal()
+            close_db = True
+
+        expired_ids = []
+        try:
+            now = datetime.utcnow()
+            active_orders = db.query(CustomerOrder).filter(
+                CustomerOrder.vendor_id == vendor_id,
+                CustomerOrder.status.in_(["PENDING", "CONFIRMED"])
+            ).all()
+
+            for order in active_orders:
+                if not order.expires_at:
+                    continue
+                # Expired -> Trigger Auto-Restitution
+                if order.expires_at <= now:
+                    cls.restitute_expired_order_stock(order.order_id, vendor_id=vendor_id, db=db)
+                    expired_ids.append(order.order_id)
+                # 5-Minute Warning to Merchant (9579869506)
+                elif not order.reminder_sent and (order.expires_at - timedelta(minutes=5)) <= now:
+                    order.reminder_sent = True
+                    db.commit()
+                    cust_name = order.to_dict().get("customer_name", "ग्राहक")
+                    rem_msg = MessageTemplates.merchant_half_hour_warning(
+                        customer_name=cust_name,
+                        order_id=order.order_id,
+                        remaining_mins=5
+                    )
+                    WhatsAppService.send_message(to_phone="919579869506", message=rem_msg)
+
+            return expired_ids
+        finally:
+            if close_db:
+                db.close()
+
+    @classmethod
+    def pack_and_deduct_customer_order(
+        cls,
+        order_id: str,
+        vendor_id: str = "DEMO_KIRANA_KOP",
+        db: Optional[Session] = None
+    ) -> Dict[str, Any]:
+        """
+        Packs a customer order from dashboard queue.
+        Zero Double-Deduction Guard:
+        If stock was already reserved at creation, stock is NOT deducted again.
+        Transitions status from PENDING/CONFIRMED to PACKED.
+        Saves state snapshot, emits CUSTOMER_ORDER_PACKED & METRICS_UPDATE via WebSocket,
+        and returns completion receipt.
+        """
+        close_db = False
+        if db is None:
+            from app.core.database import SessionLocal
+            db = SessionLocal()
+            close_db = True
+
+        try:
+            order = db.query(CustomerOrder).filter_by(order_id=order_id, vendor_id=vendor_id).first()
+            if not order:
+                return {"success": False, "message": f"Order {order_id} not found."}
+
+            if order.status not in ("PENDING", "CONFIRMED"):
                 return {"success": False, "message": f"Order {order_id} is already {order.status}."}
 
             try:
@@ -1269,7 +1612,7 @@ class InventoryService:
                 if not item.get("is_available", True):
                     continue
 
-                sku = item.get("sku_matched")
+                sku = item.get("sku_matched") or item.get("sku")
                 qty = float(item.get("quantity", 0.0))
                 prod = None
                 if sku:
@@ -1279,10 +1622,18 @@ class InventoryService:
                         Product.vendor_id == vendor_id,
                         Product.name_mr.ilike(f"%{item['name_mr']}%")
                     ).first()
+                if not prod and item.get("name_en"):
+                    prod = db.query(Product).filter(
+                        Product.vendor_id == vendor_id,
+                        Product.name_en.ilike(f"%{item['name_en']}%")
+                    ).first()
 
                 if prod:
                     stock_before = prod.stock
-                    prod.stock = max(0.0, round(prod.stock - qty, 3))
+                    # If stock was NOT already reserved, deduct now.
+                    if not order.is_stock_reserved:
+                        prod.stock = max(0.0, round(prod.stock - qty, 3))
+
                     tx = Transaction(
                         vendor_id=vendor_id,
                         batch_id=batch_id,
@@ -1294,7 +1645,7 @@ class InventoryService:
                         stock_after=prod.stock,
                         unit_price=prod.unit_price,
                         total_amount=round(qty * prod.unit_price, 2),
-                        raw_message=f"Customer Order {order.order_id} packed"
+                        raw_message=f"Customer Order {order.order_id} packed & fulfilled"
                     )
                     db.add(tx)
                     deducted_items.append({
@@ -1356,6 +1707,13 @@ class InventoryService:
                 except Exception as wa_err:
                     print(f"[ORDER PACK WA NOTICE]: {wa_err}")
 
+            # Notify Merchant phone (9579869506) that packing is complete
+            merch_receipt = (
+                f"✅ *ऑर्डर पूर्ण (Fulfilled)!* 📦\n"
+                f"ऑर्डर `{order.order_id}` यशस्वीरित्या पॅक झाली आहे. बिल: ₹{order.total_amount:g}."
+            )
+            WhatsAppService.send_message(to_phone="919579869506", message=merch_receipt)
+
             return {
                 "success": True,
                 "order_id": order.order_id,
@@ -1372,43 +1730,26 @@ class InventoryService:
     @classmethod
     def format_customer_yaadi_receipt(cls, order: CustomerOrder) -> str:
         """
-        Formats instant WhatsApp acknowledgment receipt sent to customer upon receiving their yaadi.
-        Highlights available items with prices and missing items with polite warning (Section 6.1).
+        Formats instant WhatsApp confirmation request sent to customer upon receiving their yaadi.
         """
         try:
             items = json.loads(order.items_json) if order.items_json else []
         except Exception:
             items = []
-
-        lines = [
-            "🙏 *नमस्कार! बाबुराव किराणा स्टोअर्स* 🏪",
-            "आपली किराणा यादी प्राप्त झाली आहे! 📝",
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            f"📦 *ऑर्डर आयडी:* #{order.order_id}\n"
-        ]
-
-        for i, it in enumerate(items, 1):
-            name = it.get("name_mr") or it.get("name_raw")
-            qty = it.get("quantity", 1.0)
-            unit = it.get("unit", "")
-            if it.get("is_available", True):
-                tot = it.get("line_total", 0.0)
-                lines.append(f"{i}. ✅ *{name}* ({qty} {unit}) - ₹{tot:.2f}")
-            else:
-                lines.append(f"{i}. ⚠️ *{name}* - (सध्या उपलब्ध नाही)")
-
-        lines.append("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        lines.append(f"💰 *अंदाजे एकूण बिल:* *₹{order.total_amount:.2f}*")
-        lines.append("⏱️ *पॅकिंग वेळ:* साधारण १० ते १५ मिनिटांत तयार होईल.")
-        lines.append("सामान तयार झाल्यावर आम्ही आपणास लगेच कळवू!")
-
-        return "\n".join(lines)
+        cust_name = order.to_dict().get("customer_name", "ग्राहक")
+        return MessageTemplates.customer_confirmation_request(
+            customer_name=cust_name,
+            items=items,
+            total_amount=order.total_amount,
+            order_id=order.order_id,
+            reservation_mins=30
+        )
 
     @classmethod
     def get_pending_customer_orders(cls, db: Session, vendor_id: str = "DEMO_KIRANA_KOP") -> List[Dict[str, Any]]:
         orders = db.query(CustomerOrder).filter(
             CustomerOrder.vendor_id == vendor_id,
-            CustomerOrder.status == "PENDING"
+            CustomerOrder.status.in_(["PENDING", "CONFIRMED"])
         ).order_by(CustomerOrder.created_at.desc()).all()
         return [o.to_dict() for o in orders]
 

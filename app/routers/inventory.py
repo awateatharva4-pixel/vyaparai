@@ -38,6 +38,7 @@ def get_metrics(db: Session = Depends(get_db)):
     return InventoryService.get_dashboard_metrics(db)
 
 @router.get("/inventory/items")
+@router.get("/catalog")
 def get_inventory_items(db: Session = Depends(get_db)):
     """Provides direct list of catalog products for judge API inspection."""
     return InventoryService.get_dashboard_metrics(db).get("products", [])

@@ -7,8 +7,19 @@
     "stock": 50.0,
     "unit": "kg",
     "unit_price": 42.0,
-    "min_threshold": 10.0,
+    "min_threshold": 15.0,
     "aliases": ["साखर", "sakhar", "saakhar", "sugar", "shakkar", "sakhri", "madhur sugar", "shakkhar"]
+  },
+  {
+    "sku": "DAIRY-MILK-500ML",
+    "name_mr": "गोकुळ / अमूल ताझा दूध (Fresh Milk 500ml)",
+    "name_en": "Fresh Cow Milk 500ml",
+    "category": "Dairy & Perishables / डेअरी व दुग्धजन्य",
+    "stock": 20.0,
+    "unit": "pouch",
+    "unit_price": 27.0,
+    "min_threshold": 8.0,
+    "aliases": ["दूध", "अमुल दूध", "गोकुळ दूध", "milk", "taaza milk", "fresh milk", "dudh", "doodh", "पिशवी दूध"]
   },
   {
     "sku": "FMCG-PARLE-100G",

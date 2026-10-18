@@ -224,11 +224,41 @@ def background_process_customer_yaadi_text(
 ):
     """
     Background worker for Customer Text Yaadi Ingress (Specification 03).
-    Parses customer grocery order text, creates CustomerOrder in PENDING status,
-    and dispatches itemized Marathi confirmation receipt.
+    Implements Two-Way Confirmation Loop & Stock Reservation:
+    1. If customer replies 'हो' / 'Confirm': confirms order and notifies merchant (9579869506).
+    2. If customer replies 'cancel' / 'रद्द करा': rolls back reserved stock immediately.
+    3. Otherwise: parses items, reserves stock immediately, sends confirmation to customer,
+       and alerts merchant on 9579869506 with 30m window.
     """
     db: Session = SessionLocal()
     try:
+        norm_txt = (text_message or "").strip().lower()
+
+        # 1. Customer Confirmation Loop
+        if norm_txt in ["हो", "ho", "yes", "confirm", "nakkie", "नक्की", "theek ahe", "chalel", "चालेल", "करा", "पाठवा", "done", "ok", "okay"]:
+            confirmed_order = InventoryService.confirm_customer_order(
+                customer_phone=customer_phone,
+                vendor_id=vendor_id,
+                db=db
+            )
+            if confirmed_order:
+                print(f"[CUSTOMER CONFIRMATION SUCCESS]: Order {confirmed_order.order_id} confirmed by customer {customer_phone}")
+                return
+
+        # 2. Customer Cancellation Loop
+        if any(w in norm_txt for w in ["cancel", "रद्द करा", "नको", "nako", "मागे घ्या"]):
+            clean_p = customer_phone.replace("+", "").replace("@c.us", "").strip()
+            pending_order = db.query(CustomerOrder).filter(
+                CustomerOrder.vendor_id == vendor_id,
+                CustomerOrder.status.in_(["PENDING", "CONFIRMED"]),
+                CustomerOrder.customer_phone.ilike(f"%{clean_p[-10:]}%")
+            ).order_by(CustomerOrder.created_at.desc()).first()
+            if pending_order:
+                InventoryService.restitute_expired_order_stock(pending_order.order_id, vendor_id=vendor_id, db=db)
+                WhatsAppService.send_message(to_phone=customer_phone, message=f"❌ आपली ऑर्डर `{pending_order.order_id}` रद्द केली आहे व साठा पूर्ववत केला आहे.")
+                return
+
+        # 3. New Order Placement with Immediate Stock Reservation
         prods = db.query(Product).filter_by(vendor_id=vendor_id).all()
         catalog_items = [p.to_dict() for p in prods]
         parsed = GeminiService.parse_yaadi_from_text(
@@ -240,6 +270,7 @@ def background_process_customer_yaadi_text(
             items=parsed.get("order_items", []),
             raw_message=text_message,
             vendor_id=vendor_id,
+            reservation_minutes=30,
             db=db
         )
         receipt = InventoryService.format_customer_yaadi_receipt(order)
@@ -255,8 +286,9 @@ def background_process_customer_yaadi_text(
             f"📞 *फोन:* {customer_phone}\n"
             f"📝 *सामान:* {items_summary or text_message}\n"
             f"💰 *अंदाजे बिल:* ₹{order.total_amount:g}\n"
-            f"📦 *ऑर्डर आयडी:* `{order.order_id}`\n\n"
-            f"⚡ *स्थिती:* PENDING (पॅक करण्यासाठी डॅशबोर्ड तपासा)"
+            f"📦 *ऑर्डर आयडी:* `{order.order_id}`\n"
+            f"✅ *साठा तात्काळ आरक्षित (Reserved) केला आहे!*\n\n"
+            f"⏳ *३० मिनिटांचा कालावधी:* अर्ध्या तासात डॅशबोर्डवर 'Pack & Fulfill' करा अन्यथा साठा पुन्हा जमा (Auto-Undo) होईल."
         )
         WhatsAppService.send_message(to_phone="919579869506", message=merchant_alert)
     except Exception as e:

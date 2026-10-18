@@ -32,15 +32,45 @@ except Exception as e:
     pass
 
 
+import asyncio
+
+async def order_expiration_worker():
+    """
+    Autonomous 30-Minute Order Expiration & Stock Auto-Undo Sweeper.
+    Scans every 30 seconds:
+    1. Automatically cancels unfulfilled orders older than 30 mins and restitutes stock.
+    2. Sends 5-minute warning alert to merchant phone (9579869506).
+    """
+    while True:
+        try:
+            await asyncio.sleep(30)
+            db = SessionLocal()
+            try:
+                InventoryService.check_and_expire_orders(db=db)
+            finally:
+                db.close()
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            print(f"[EXPIRATION WORKER WARN]: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Modern ASGI Lifespan: Guarantees self-healing seed on boot."""
+    """Modern ASGI Lifespan: Guarantees self-healing seed on boot and launches expiration worker."""
     db = SessionLocal()
     try:
         InventoryService.seed_initial_catalog(db)
     finally:
         db.close()
+
+    worker_task = asyncio.create_task(order_expiration_worker())
     yield
+    worker_task.cancel()
+    try:
+        await worker_task
+    except asyncio.CancelledError:
+        pass
 
 
 app = FastAPI(
