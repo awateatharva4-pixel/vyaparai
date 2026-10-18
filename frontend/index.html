@@ -1833,8 +1833,14 @@
               </svg>
               Inventory Status
             </h2>
-            <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
               <span style="font-size: 0.74rem; color: var(--text-tertiary);">Live Catalog Register</span>
+              <button onclick="handleManualSyncNow()" id="btnManualSync" title="Force Sync with Backend" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; background: rgba(0, 113, 227, 0.1); color: #0071e3; border: 1px solid rgba(0, 113, 227, 0.25); cursor: pointer;">
+                🔄 Sync Now
+              </button>
+              <button onclick="handleRestockAllDemo()" id="btnRestockAll" title="Restock All SKUs to Full Demo Values" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; background: rgba(37, 211, 102, 0.1); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.25); cursor: pointer;">
+                📦 Restock All
+              </button>
               <div id="liveSyncStatusBadge" class="live-status-pill" style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 999px; font-size: 0.70rem; font-weight: 600; background: rgba(37, 211, 102, 0.12); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.25);">
                 <span id="liveSyncStatusDot" style="width: 6px; height: 6px; border-radius: 50%; background: #25d366; box-shadow: 0 0 6px #25d366;"></span>
                 <span id="liveSyncStatusText">LIVE WS SYNC</span>
@@ -2981,6 +2987,13 @@
         VyaparCore.backend.startLiveSync((eventType, data) => {
           if (eventType === 'METRICS_UPDATE') {
             handleLiveMetricsUpdate(data);
+            if (typeof renderPendingYaadiOrders === 'function') {
+              renderPendingYaadiOrders();
+            }
+          } else if (eventType === 'PENDING_ORDERS_UPDATED') {
+            if (typeof renderPendingYaadiOrders === 'function') {
+              renderPendingYaadiOrders();
+            }
           } else if (eventType === 'WS_STATUS') {
             const badgeText = document.getElementById('liveSyncStatusText');
             const badge = document.getElementById('liveSyncStatusBadge');
@@ -3003,7 +3016,9 @@
           } else if (eventType === 'NEW_CUSTOMER_YAADI') {
             haptics.tap();
             showAppleToast(`📥 New Remote Yaadi Arrived from WhatsApp!`);
-            renderPendingYaadiOrders();
+            if (typeof renderPendingYaadiOrders === 'function') {
+              renderPendingYaadiOrders();
+            }
           }
         });
       }
@@ -3462,6 +3477,50 @@
         VyaparCore.backend.quickAddDairy("Gokul Cow Milk 500ml", 28, 50);
       }
     }
+
+    async function handleManualSyncNow() {
+      haptics.tap();
+      showAppleToast("🔄 Synchronizing live inventory with backend...");
+      if (window.VyaparCore) {
+        if (VyaparCore.performLiveSync) {
+          await VyaparCore.performLiveSync();
+        } else if (VyaparCore.backend && VyaparCore.backend.syncLiveMetrics) {
+          await VyaparCore.backend.syncLiveMetrics();
+        }
+        renderInventoryTable(VyaparCore.getSKUs());
+        updateCarouselStock(VyaparCore.getSKUs());
+        if (typeof renderPendingYaadiOrders === 'function') {
+          renderPendingYaadiOrders();
+        }
+        showAppleToast("✅ Live Inventory 100% Synced!");
+      }
+    }
+
+    async function handleRestockAllDemo() {
+      haptics.tap();
+      showAppleToast("📦 Restocking all 16 SKUs to full capacity...");
+      if (window.VyaparCore) {
+        if (VyaparCore.resetAllAndRestock) {
+          await VyaparCore.resetAllAndRestock();
+        } else {
+          VyaparCore.resetDefaults();
+          if (VyaparCore.performLiveSync) await VyaparCore.performLiveSync();
+        }
+        renderInventoryTable(VyaparCore.getSKUs());
+        updateCarouselStock(VyaparCore.getSKUs());
+        if (typeof renderPendingYaadiOrders === 'function') {
+          renderPendingYaadiOrders();
+        }
+        showAppleToast("🎉 All 16 SKUs Restocked to Full Capacity!");
+        if (VyaparCore.playSoundboxChime) {
+          VyaparCore.playSoundboxChime(2500);
+        }
+      }
+    }
+
+    // Expose globally for browser console access
+    window.handleManualSyncNow = handleManualSyncNow;
+    window.handleRestockAllDemo = handleRestockAllDemo;
   </script>
 </body>
 </html>

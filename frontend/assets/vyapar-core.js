@@ -307,17 +307,22 @@ const VyaparCore = (function() {
     if (typeof window !== 'undefined' && window.location) {
       const origin = window.location.origin || "";
       const host = window.location.host || "";
+      const protocol = window.location.protocol || "";
       if (host.includes("render.com")) {
         return origin;
       }
       if (host.includes(":8000")) {
         return origin;
       }
+      // If accessed via file://, localhost, 127.0.0.1, Live Server (port 5500/3000), point to local FastAPI uvicorn on port 8000!
+      if (protocol === "file:" || host.includes("localhost") || host.includes("127.0.0.1") || origin === "null") {
+        return "http://localhost:8000";
+      }
       const customUrl = (typeof localStorage !== 'undefined') ? localStorage.getItem("VYAPAR_BACKEND_URL") : null;
       if (customUrl) return customUrl;
-      return RENDER_PROD_URL;
+      return "http://localhost:8000";
     }
-    return RENDER_PROD_URL;
+    return "http://localhost:8000";
   }
 
   function getWebSocketUrl() {
@@ -387,7 +392,7 @@ const VyaparCore = (function() {
 
         // Background sync pending customer yaadi orders from backend
         try {
-          const ordRes = await fetch(`${backendUrl}/api/orders/pending`);
+          const ordRes = await fetch(`${getBackendUrl()}/api/orders/pending`);
           if (ordRes.ok) {
             const ordData = await ordRes.json();
             if (ordData && Array.isArray(ordData.orders)) {
@@ -935,6 +940,17 @@ const VyaparCore = (function() {
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem(KEY_STORE, activeDukaan);
       }
+    },
+
+    performLiveSync: performLiveSync,
+
+    resetAllAndRestock: async function() {
+      this.resetDefaults();
+      try {
+        await fetch(`${getBackendUrl()}/api/reset-demo`, { method: 'POST' });
+      } catch(e) {}
+      await performLiveSync();
+      return skus;
     }
   };
 })();
