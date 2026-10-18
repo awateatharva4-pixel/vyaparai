@@ -139,12 +139,16 @@ def background_process_customer_yaadi_image(
     vendor_id: str,
     customer_phone: str,
     image_bytes: bytes,
-    mime_type: str = "image/jpeg"
+    mime_type: str = "image/jpeg",
+    caption: str = ""
 ):
     """
-    Background worker for Customer Handwritten Yaadi Photo Ingress (Specification 03).
-    Grounds handwritten slip against active catalog, creates CustomerOrder in PENDING status,
-    and dispatches itemized Marathi confirmation receipt to customer.
+    Background worker for WhatsApp Photo Ingress:
+    1. If caption indicates restock (e.g. 'restock', 'माल आला', 'भरले', 'आले', 'आणले', 'supplier', 'inward'),
+       it parses the items and directly INCREMENTS stock (restocks the store).
+    2. Otherwise, treats as Customer Handwritten Yaadi Photo Ingress (Specification 03):
+       Grounds handwritten slip against active catalog, creates CustomerOrder in PENDING status,
+       stages in Merchant UI, and dispatches itemized Marathi confirmation receipt to customer.
     """
     db: Session = SessionLocal()
     try:
@@ -155,10 +159,38 @@ def background_process_customer_yaadi_image(
             mime_type=mime_type,
             catalog_items=catalog_items
         )
+        order_items = parsed.get("order_items", [])
+
+        # Check for Restock Photo Inward
+        clean_caption = (caption or "").lower().strip()
+        is_restock = any(w in clean_caption for w in ["restock", "माल आला", "भरले", "आले", "आणले", "supplier", "inward", "invoice", "पावती"])
+
+        if is_restock and order_items:
+            from app.core.websocket import ws_manager
+            restocked_lines = []
+            for item in order_items:
+                sku = item.get("sku_matched")
+                qty = float(item.get("quantity", 0.0))
+                if sku and qty > 0:
+                    p = db.query(Product).filter_by(vendor_id=vendor_id, sku=sku).first()
+                    if p:
+                        p.stock += qty
+                        restocked_lines.append(f"• {p.name_mr}: +{qty:g} {p.unit} (सद्य साठा: {p.stock:g} {p.unit})")
+            db.commit()
+            InventoryService.save_state_snapshot(db, vendor_id=vendor_id)
+            metrics = InventoryService.get_dashboard_metrics(db, vendor_id=vendor_id)
+            try:
+                ws_manager.broadcast_sync({"type": "METRICS_UPDATE", "vendor_id": vendor_id, "metrics": metrics})
+            except Exception:
+                pass
+            receipt = "🚚 *फोटोवरून माल भरला (Restock Success)!* 📦\n━━━━━━━━━━━━━━━━━━━━\n" + "\n".join(restocked_lines) + "\n━━━━━━━━━━━━━━━━━━━━\nदुकान साठा यशस्वीरित्या अपडेट झाला."
+            WhatsAppService.send_message(to_phone=customer_phone, message=receipt)
+            return
+
         order = InventoryService.create_customer_yaadi_order(
             customer_phone=customer_phone,
-            items=parsed.get("order_items", []),
-            raw_message="Handwritten Chit / किराणा यादी (Photo)",
+            items=order_items,
+            raw_message=f"Handwritten Chit / किराणा यादी (Photo){': ' + caption if caption else ''}",
             vendor_id=vendor_id,
             db=db
         )
@@ -543,13 +575,21 @@ async def handle_whatsapp_webhook(
                     except Exception as e:
                         print(f"[GREEN-API YAADI DOWNLOADFILE ERROR]: {e}")
 
+                caption = (
+                    msg_data.get("caption")
+                    or msg_data.get("fileMessageData", {}).get("caption")
+                    or body_json.get("caption")
+                    or ""
+                ).strip()
+
                 if raw_img_bytes:
                     background_tasks.add_task(
                         background_process_customer_yaadi_image,
                         vendor_id=vendor_id,
                         customer_phone=sender_phone,
                         image_bytes=raw_img_bytes,
-                        mime_type=mime_type
+                        mime_type=mime_type,
+                        caption=caption
                     )
                 return Response(content="EVENT_RECEIVED", status_code=200)
 
