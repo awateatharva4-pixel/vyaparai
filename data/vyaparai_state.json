@@ -1,16 +1,16 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-18T09:36:08.273032+00:00",
+  "timestamp": "2026-10-18T09:37:58.865060+00:00",
   "vendor_id": "DEMO_KIRANA_KOP",
   "metrics": {
     "total_skus": 11,
-    "total_valuation": 24295.0,
+    "total_valuation": 24598.0,
     "low_stock_count": 0,
     "today_sales_count": 0,
     "today_revenue": 0,
     "udhar_count": 4,
     "udhar_total": 1534.0,
-    "pending_orders_count": 35
+    "pending_orders_count": 32
   },
   "products": [
     {
@@ -86,32 +86,6 @@
       "updated_at": "2026-10-18 09:36:07"
     },
     {
-      "id": 956,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "GROC-SUG-001",
-      "name_mr": "साखर (Madhur Sugar)",
-      "name_en": "Sugar",
-      "category": "Grains & Sweeteners / धान्य व साखर",
-      "stock": 50.0,
-      "unit": "kg",
-      "unit_price": 42.0,
-      "min_threshold": 15.0,
-      "is_low_stock": false,
-      "aliases": [
-        "साखर",
-        "sakhar",
-        "saakhar",
-        "sugar",
-        "shakkar",
-        "sakhri",
-        "madhur sugar",
-        "shakkhar"
-      ],
-      "extra_meta": {},
-      "image_url": "/static/products/GROC-SUG-001.jpg",
-      "updated_at": "2026-10-18 09:36:07"
-    },
-    {
       "id": 957,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "DAIRY-MILK-500ML",
@@ -165,33 +139,6 @@
       ],
       "extra_meta": {},
       "image_url": "/static/products/FMCG-PARLE-100G.jpg",
-      "updated_at": "2026-10-18 09:36:07"
-    },
-    {
-      "id": 959,
-      "vendor_id": "DEMO_KIRANA_KOP",
-      "sku": "OIL-FORT-1L",
-      "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
-      "name_en": "Fortune Sunflower Oil 1L",
-      "category": "Edible Oils / खाद्यतेल",
-      "stock": 25.0,
-      "unit": "pouch",
-      "unit_price": 135.0,
-      "min_threshold": 5.0,
-      "is_low_stock": false,
-      "aliases": [
-        "तेल",
-        "फॉर्च्युन",
-        "oil",
-        "fortune oil",
-        "tel",
-        "surajmukhi tel",
-        "sunflower oil",
-        "पिशवी",
-        "पॉऊच"
-      ],
-      "extra_meta": {},
-      "image_url": "/static/products/OIL-FORT-1L.jpg",
       "updated_at": "2026-10-18 09:36:07"
     },
     {
@@ -268,6 +215,59 @@
       "updated_at": "2026-10-18 09:36:07"
     },
     {
+      "id": 959,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "OIL-FORT-1L",
+      "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+      "name_en": "Fortune Sunflower Oil 1L",
+      "category": "Edible Oils / खाद्यतेल",
+      "stock": 26.0,
+      "unit": "pouch",
+      "unit_price": 135.0,
+      "min_threshold": 5.0,
+      "is_low_stock": false,
+      "aliases": [
+        "तेल",
+        "फॉर्च्युन",
+        "oil",
+        "fortune oil",
+        "tel",
+        "surajmukhi tel",
+        "sunflower oil",
+        "पिशवी",
+        "पॉऊच"
+      ],
+      "extra_meta": {},
+      "image_url": "/static/products/OIL-FORT-1L.jpg",
+      "updated_at": "2026-10-18 09:36:55"
+    },
+    {
+      "id": 956,
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "sku": "GROC-SUG-001",
+      "name_mr": "साखर (Madhur Sugar)",
+      "name_en": "Sugar",
+      "category": "Grains & Sweeteners / धान्य व साखर",
+      "stock": 54.0,
+      "unit": "kg",
+      "unit_price": 42.0,
+      "min_threshold": 15.0,
+      "is_low_stock": false,
+      "aliases": [
+        "साखर",
+        "sakhar",
+        "saakhar",
+        "sugar",
+        "shakkar",
+        "sakhri",
+        "madhur sugar",
+        "shakkhar"
+      ],
+      "extra_meta": {},
+      "image_url": "/static/products/GROC-SUG-001.jpg",
+      "updated_at": "2026-10-18 09:37:58"
+    },
+    {
       "id": 963,
       "vendor_id": "DEMO_KIRANA_KOP",
       "sku": "GROC-ATTA-5K",
@@ -294,7 +294,59 @@
       "updated_at": "2026-10-18 09:36:07"
     }
   ],
-  "transactions": [],
+  "transactions": [
+    {
+      "id": 53,
+      "batch_id": "AUTO_UNDO_ORD-436B_1792296415",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 956,
+      "sku": "GROC-SUG-001",
+      "item_name": "साखर (Madhur Sugar)",
+      "type": "RESTOCK",
+      "delta": 2.0,
+      "stock_after": 52.0,
+      "unit_price": 42.0,
+      "amount": 84.0,
+      "raw_message": "Auto-rollback expired order ORD-436B",
+      "is_reversed": false,
+      "created_at": "2026-10-18T09:36:55.438884",
+      "time": "09:36:55"
+    },
+    {
+      "id": 54,
+      "batch_id": "AUTO_UNDO_ORD-436B_1792296415",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 959,
+      "sku": "OIL-FORT-1L",
+      "item_name": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
+      "type": "RESTOCK",
+      "delta": 1.0,
+      "stock_after": 26.0,
+      "unit_price": 135.0,
+      "amount": 135.0,
+      "raw_message": "Auto-rollback expired order ORD-436B",
+      "is_reversed": false,
+      "created_at": "2026-10-18T09:36:55.438884",
+      "time": "09:36:55"
+    },
+    {
+      "id": 55,
+      "batch_id": "AUTO_UNDO_ORD-06A6_1792296478",
+      "vendor_id": "DEMO_KIRANA_KOP",
+      "product_id": 956,
+      "sku": "GROC-SUG-001",
+      "item_name": "साखर (Madhur Sugar)",
+      "type": "RESTOCK",
+      "delta": 2.0,
+      "stock_after": 54.0,
+      "unit_price": 42.0,
+      "amount": 84.0,
+      "raw_message": "Auto-rollback expired order ORD-06A6",
+      "is_reversed": false,
+      "created_at": "2026-10-18T09:37:58.662392",
+      "time": "09:37:58"
+    }
+  ],
   "customer_credits": [
     {
       "id": 163,
@@ -2812,11 +2864,11 @@
       ],
       "totalEstimated": 219.0,
       "total_amount": 219.0,
-      "status": "PENDING",
-      "is_stock_reserved": true,
+      "status": "EXPIRED_AUTO_CANCELLED",
+      "is_stock_reserved": false,
       "confirmed_by_customer": false,
       "expires_at": "2026-10-18 09:36:55",
-      "remaining_seconds": 46,
+      "remaining_seconds": 0,
       "timestamp": "09:06 AM",
       "created_at": "2026-10-18 09:06:55"
     },
@@ -2834,11 +2886,11 @@
       "items": [],
       "totalEstimated": 0.0,
       "total_amount": 0.0,
-      "status": "PENDING",
-      "is_stock_reserved": true,
+      "status": "EXPIRED_AUTO_CANCELLED",
+      "is_stock_reserved": false,
       "confirmed_by_customer": false,
       "expires_at": "2026-10-18 09:37:55",
-      "remaining_seconds": 107,
+      "remaining_seconds": 0,
       "timestamp": "09:07 AM",
       "created_at": "2026-10-18 09:07:55"
     },
@@ -2879,11 +2931,11 @@
       ],
       "totalEstimated": 84.0,
       "total_amount": 84.0,
-      "status": "PENDING",
-      "is_stock_reserved": true,
+      "status": "EXPIRED_AUTO_CANCELLED",
+      "is_stock_reserved": false,
       "confirmed_by_customer": false,
       "expires_at": "2026-10-18 09:37:56",
-      "remaining_seconds": 108,
+      "remaining_seconds": 0,
       "timestamp": "09:07 AM",
       "created_at": "2026-10-18 09:07:56"
     },
