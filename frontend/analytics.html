@@ -1,0 +1,1822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>VyaparAI — Kirana Store Management Dashboard</title>
+  
+  <!-- Apple Typography: SF Pro / Inter font stack -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@300;400;450;500;550;600;650;700&display=swap" rel="stylesheet" />
+  
+  <!-- Chart.js for 60 FPS lightweight responsive chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- VyaparCore Single Source of Truth Engine & Backend Client -->
+  <script src="assets/vyapar-core.js"></script>
+  <style>
+    /* ==========================================================================
+       1. Apple HIG & Italian Calacatta Marble Design Tokens
+       ========================================================================== */
+    :root {
+      /* Marble & Luxury Substrate Palette */
+      --bg-marble-base: #f9f6f0;
+      --bg-marble-cream: #f4ede2;
+      --bg-marble-highlight: #ffffff;
+      
+      /* Imperial Emerald / Deep Teal (Primary Executive Anchor) */
+      --emerald-900: #0f2e31;
+      --emerald-800: #1a4b4f;
+      --emerald-700: #245e63;
+      --emerald-600: #2d6a6f;
+      --emerald-500: #3b878d;
+      --emerald-glow: rgba(45, 106, 111, 0.18);
+      --emerald-subtle: rgba(45, 106, 111, 0.06);
+
+      /* Warm Italian Brass / Florentine Gold (Secondary Luxury Accent) */
+      --brass-700: #8c6e32;
+      --brass-600: #a8864d;
+      --brass-500: #c9a96e;
+      --brass-400: #dfc28d;
+      --brass-glow: rgba(201, 169, 110, 0.24);
+      --brass-border: rgba(201, 169, 110, 0.38);
+
+      /* Neutral Monochrome Typography — Tuned for WCAG AAA (≥ 7:1) */
+      --text-primary: #1d1d1f;      /* Apple SF Pro High Contrast */
+      --text-secondary: #424245;    /* 7.2:1 contrast ratio */
+      --text-tertiary: #636366;     /* 4.85:1 contrast ratio */
+      --text-quaternary: #8e8e93;
+
+      /* Apple Semantic State Tokens */
+      --apple-green: #28cd41;
+      --apple-green-bg: rgba(40, 205, 65, 0.12);
+      --apple-coral: #ff3b30;
+      --apple-coral-bg: rgba(255, 59, 48, 0.12);
+      --apple-amber: #ff9500;
+      --apple-amber-bg: rgba(255, 149, 0, 0.12);
+      --apple-blue: #0071e3;
+      --whatsapp-teal: #25d366;
+      --whatsapp-dark: #128c7e;
+
+      /* Apple visionOS / macOS Sonoma Frosted Surface Tokens */
+      --glass-surface-card: rgba(255, 255, 255, 0.82);
+      --glass-surface-hover: rgba(255, 255, 255, 0.94);
+      --glass-surface-floating: rgba(255, 255, 255, 0.72);
+      
+      /* Directional Specular Highlights (Simulating upper-left key light) */
+      --glass-border-specular: 1px solid rgba(255, 255, 255, 0.85);
+      --glass-border-subtle: 1px solid rgba(220, 215, 205, 0.45);
+      
+      --glass-shadow-flat: 
+        0 1px 3px rgba(0, 0, 0, 0.02),
+        0 4px 16px rgba(45, 106, 111, 0.04),
+        inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.95),
+        inset 1px 0 1px 0 rgba(255, 255, 255, 0.60),
+        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.03);
+
+      --glass-shadow-elevated: 
+        0 12px 32px rgba(45, 106, 111, 0.09),
+        0 2px 8px rgba(0, 0, 0, 0.03),
+        inset 0 1px 2px rgba(255, 255, 255, 1);
+
+      --glass-shadow-floating: 
+        0 20px 48px -6px rgba(26, 75, 79, 0.14),
+        0 6px 18px rgba(0, 0, 0, 0.04),
+        inset 0 1px 2px rgba(255, 255, 255, 1);
+
+      /* Apple Fluid Motion Spring Curves */
+      --spring-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+      --spring-press: cubic-bezier(0.2, 0.8, 0.2, 1);
+      --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ==========================================================================
+       2. Zero-Repaint Compositor-Only Background Substrate
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", sans-serif;
+      color: var(--text-primary);
+      background-color: var(--bg-marble-base);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Decoupled Fixed GPU Layer for Marble Substrate (Eliminates scroll paint invalidation) */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      transform: translate3d(0, 0, 0);
+      background-color: var(--bg-marble-base);
+      background-image:
+        radial-gradient(ellipse 80% 50% at 15% 10%, rgba(255, 255, 255, 0.95) 0%, transparent 60%),
+        radial-gradient(ellipse 65% 45% at 85% 25%, rgba(201, 169, 110, 0.09) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 60% at 75% 85%, rgba(45, 106, 111, 0.06) 0%, transparent 60%),
+        linear-gradient(132deg, transparent 38%, rgba(201, 169, 110, 0.08) 42%, rgba(255, 255, 255, 0.6) 43%, transparent 47%),
+        linear-gradient(42deg, transparent 62%, rgba(180, 175, 165, 0.07) 65%, transparent 69%),
+        linear-gradient(110deg, #f7f3ed 0%, #faf8f5 45%, #f2ebe0 100%);
+      background-size: cover;
+    }
+
+    /* Tabular numbers for financial and stock figures */
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1, "cv05" 1;
+    }
+
+    /* Universal Apple Spring Press Feedback */
+    button:active, 
+    .interactive-card:active, 
+    .dock-btn:active,
+    .apple-pill-btn:active {
+      transform: scale(0.975) translateY(1px) !important;
+      transition: transform 0.09s var(--spring-press) !important;
+    }
+
+    /* ==========================================================================
+       3. Main Layout Architecture (macOS Dock + Floating Island + Bento Grid)
+       ========================================================================== */
+    .app-viewport {
+      display: flex;
+      min-height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
+
+    /* Left Dock-Style Sidebar Rail */
+    .apple-dock-rail {
+      width: 68px;
+      padding: 16px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      z-index: 40;
+      flex-shrink: 0;
+    }
+
+    .dock-brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0071e3 0%, #0056b3 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(0, 113, 227, 0.35);
+      cursor: pointer;
+      margin-bottom: 24px;
+      transition: transform 0.28s var(--spring-snappy);
+    }
+    .dock-brand-logo:hover {
+      transform: scale(1.08);
+    }
+
+    .dock-items-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      padding: 8px 6px;
+      border-radius: 20px;
+      border: var(--glass-border-specular);
+      box-shadow: var(--glass-shadow-flat);
+    }
+
+    .dock-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.24s var(--spring-snappy);
+      position: relative;
+    }
+    .dock-btn svg {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.24s var(--spring-snappy);
+    }
+    .dock-btn:hover {
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--emerald-600);
+      transform: scale(1.14);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+    .dock-btn.active {
+      background: #ffffff;
+      color: var(--emerald-700);
+      box-shadow: 0 4px 14px rgba(45, 106, 111, 0.16);
+    }
+    .dock-btn.active::after {
+      content: '';
+      position: absolute;
+      right: -8px;
+      width: 4px;
+      height: 16px;
+      border-radius: 4px;
+      background: var(--emerald-600);
+    }
+
+    /* Main Dashboard Content Canvas */
+    .dashboard-canvas {
+      flex: 1;
+      padding: 16px 28px 40px 18px;
+      max-width: 1560px;
+      margin: 0 auto;
+      width: calc(100% - 68px);
+    }
+
+    /* Floating Island Header Bar */
+    .floating-island-header {
+      background: rgba(255, 255, 255, 0.76);
+      backdrop-filter: blur(24px) saturate(190%) contrast(102%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%) contrast(102%);
+      border: var(--glass-border-specular);
+      border-radius: 20px;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--glass-shadow-flat);
+      margin-bottom: 22px;
+      position: sticky;
+      top: 14px;
+      z-index: 30;
+      transition: box-shadow 0.28s ease;
+    }
+
+    .header-left-cluster {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--emerald-900);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-title span.luxury-sub {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.14em;
+      color: var(--brass-600);
+      font-weight: 600;
+      text-transform: uppercase;
+      padding-left: 6px;
+      border-left: 1px solid var(--brass-border);
+    }
+
+    /* Search Bar Input */
+    .apple-search-wrap {
+      position: relative;
+      width: 320px;
+    }
+    .apple-search-input {
+      width: 100%;
+      height: 38px;
+      padding: 0 38px 0 36px;
+      border-radius: 12px;
+      border: 1px solid rgba(210, 205, 195, 0.55);
+      background: rgba(255, 255, 255, 0.7);
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      transition: all 0.2s var(--spring-snappy);
+    }
+    .apple-search-input:focus {
+      outline: none;
+      background: #ffffff;
+      border-color: var(--emerald-500);
+      box-shadow: 0 0 0 3px rgba(45, 106, 111, 0.12);
+    }
+    .search-icon-svg {
+      position: absolute;
+      left: 11px;
+      top: 10px;
+      width: 16px;
+      height: 16px;
+      color: var(--text-tertiary);
+      pointer-events: none;
+    }
+    .search-cmd-k {
+      position: absolute;
+      right: 9px;
+      top: 9px;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.06);
+      color: var(--text-tertiary);
+      font-weight: 600;
+    }
+
+    .header-right-cluster {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-pill-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(220, 215, 205, 0.5);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.22s var(--spring-snappy);
+    }
+    .header-pill-item:hover {
+      background: #ffffff;
+      color: var(--text-primary);
+      border-color: var(--brass-500);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .header-pill-item svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Store Switcher Pill */
+    .store-select-pill {
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid var(--brass-border);
+      border-radius: 12px;
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--emerald-800);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.22s ease;
+    }
+    .store-select-pill:hover {
+      background: #ffffff;
+      box-shadow: 0 2px 10px var(--brass-glow);
+    }
+
+    /* ==========================================================================
+       4. Bento Grid Framework
+       ========================================================================== */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    /* Solid Composite Frosted Glass Cards (Zero Blur Avalanche - Pure 60 FPS) */
+    .glass-card {
+      background: var(--glass-surface-card);
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border-radius: 20px;
+      border: var(--glass-border-specular);
+      box-shadow: var(--glass-shadow-flat);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      contain: layout style paint;
+      transition: transform 0.28s var(--spring-snappy), 
+                  box-shadow 0.28s var(--spring-snappy),
+                  border-color 0.28s ease;
+    }
+    .glass-card:hover {
+      border-color: rgba(201, 169, 110, 0.45);
+      box-shadow: var(--glass-shadow-elevated);
+      will-change: transform, box-shadow;
+    }
+
+    /* Section Card Header */
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .card-heading {
+      font-size: 0.96rem;
+      font-weight: 650;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.01em;
+    }
+    .card-heading svg {
+      width: 17px;
+      height: 17px;
+      color: var(--emerald-600);
+    }
+
+    /* Specular Light Reflection Sweep Effect */
+    .glass-card .specular-sweep {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -130%;
+      width: 80%;
+      height: 100%;
+      background: linear-gradient(
+        105deg,
+        transparent 20%,
+        rgba(255, 255, 255, 0.38) 50%,
+        transparent 80%
+      );
+      transform: skewX(-20deg);
+      pointer-events: none;
+      transition: left 0.85s var(--spring-snappy);
+    }
+    .glass-card:hover .specular-sweep {
+      left: 160%;
+    }
+
+    /* ==========================================================================
+       5. Section Specific Styling
+       ========================================================================== */
+
+    /* ROW 1: Quick Summary (Cols 1-8) & Daily Sales Chart (Cols 9-12) */
+    .quick-summary-card {
+      grid-column: span 8;
+    }
+    .daily-sales-card {
+      grid-column: span 4;
+    }
+
+    .summary-metrics-trio {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .metric-sub-card {
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 16px;
+      border: 1px solid rgba(225, 220, 210, 0.6);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 104px;
+      transition: all 0.24s var(--spring-snappy);
+      position: relative;
+    }
+    .metric-sub-card:hover {
+      background: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+      border-color: var(--brass-500);
+    }
+    .metric-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .metric-title {
+      font-size: 0.82rem;
+      font-weight: 550;
+      color: var(--text-secondary);
+    }
+    .metric-pill-badge {
+      font-size: 0.72rem;
+      font-weight: 650;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .badge-green {
+      background: var(--apple-green-bg);
+      color: var(--apple-green);
+    }
+    .badge-icon-box {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 113, 227, 0.08);
+      color: var(--apple-blue);
+    }
+    .badge-icon-box.green-box {
+      background: var(--apple-green-bg);
+      color: var(--apple-green);
+    }
+    .metric-value-num {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+      margin-top: 10px;
+    }
+    .metric-prod-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--emerald-800);
+      margin-top: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    /* ROW 2: Stock Overview (Cols 1-4), Inventory Status (Cols 5-9), Top Products (Cols 10-12) */
+    .stock-overview-card {
+      grid-column: span 3;
+    }
+    .inventory-status-card {
+      grid-column: span 6;
+    }
+    .top-products-card {
+      grid-column: span 3;
+    }
+
+    /* Stock Overview Progress Bars */
+    .stock-meter-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 6px;
+    }
+    .stock-meter-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .meter-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-weight: 550;
+    }
+    .meter-prod-title {
+      color: var(--text-primary);
+    }
+    .meter-percent-val {
+      font-weight: 650;
+    }
+    .val-danger { color: var(--apple-coral); }
+    .val-normal { color: var(--apple-blue); }
+
+    .meter-track {
+      width: 100%;
+      height: 6px;
+      border-radius: 9999px;
+      background: rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      position: relative;
+    }
+    .meter-fill {
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 1s var(--spring-snappy);
+    }
+    .fill-danger { background: var(--apple-coral); }
+    .fill-blue { background: var(--apple-blue); }
+
+    /* Inventory Status Table */
+    .apple-table-wrap {
+      overflow-x: auto;
+      margin-top: 4px;
+    }
+    .apple-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.83rem;
+    }
+    .apple-table th {
+      color: var(--text-tertiary);
+      font-weight: 600;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(220, 215, 205, 0.5);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .apple-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(235, 230, 222, 0.6);
+      color: var(--text-secondary);
+      font-weight: 500;
+      vertical-align: middle;
+    }
+    .apple-table tr:last-child td {
+      border-bottom: none;
+    }
+    .apple-table tr:hover td {
+      background: rgba(255, 255, 255, 0.5);
+    }
+    .table-prod-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .table-prod-thumb {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      object-fit: contain;
+      background: rgba(240, 235, 228, 0.7);
+      border: 1px solid rgba(200, 195, 185, 0.4);
+      flex-shrink: 0;
+    }
+
+    .status-pill {
+      font-size: 0.72rem;
+      font-weight: 650;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      display: inline-block;
+      text-align: center;
+    }
+    .status-low {
+      background: var(--apple-coral-bg);
+      color: var(--apple-coral);
+    }
+    .status-in {
+      background: var(--apple-green-bg);
+      color: var(--apple-green);
+    }
+
+    /* Top Products Table */
+    .top-products-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 6px;
+    }
+    .top-product-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(225, 220, 210, 0.5);
+      transition: all 0.2s ease;
+    }
+    .top-product-item:hover {
+      background: #ffffff;
+      transform: translateX(3px);
+      border-color: var(--brass-500);
+    }
+    .top-prod-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .top-prod-meta {
+      display: flex;
+      flex-direction: column;
+    }
+    .top-prod-name {
+      font-size: 0.83rem;
+      font-weight: 650;
+      color: var(--text-primary);
+    }
+    .top-prod-sku {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+    }
+    .top-prod-revenue {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--emerald-800);
+    }
+
+    /* ROW 3: Product Catalog Cards (Cols 1-5), Low Stock Alerts (Cols 6-8), Recent Sales (Cols 9-12) */
+    .product-catalog-section {
+      grid-column: span 5;
+    }
+    .low-stock-alerts-card {
+      grid-column: span 3;
+    }
+    .recent-sales-card {
+      grid-column: span 4;
+    }
+
+    /* Momentum Scroll Catalog Carousel */
+    .catalog-carousel-container {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-top: 8px;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      cursor: grab;
+      touch-action: pan-y;
+      user-select: none;
+    }
+    .catalog-carousel-container.grabbing {
+      cursor: grabbing;
+      scroll-behavior: auto;
+    }
+    .catalog-carousel-container::-webkit-scrollbar {
+      height: 5px;
+    }
+    .catalog-carousel-container::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.04);
+      border-radius: 9999px;
+    }
+    .catalog-carousel-container::-webkit-scrollbar-thumb {
+      background: rgba(201, 169, 110, 0.4);
+      border-radius: 9999px;
+    }
+
+    /* Individual Product Card */
+    .product-catalog-card {
+      width: 156px;
+      flex-shrink: 0;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.75);
+      border: var(--glass-border-specular);
+      box-shadow: var(--glass-shadow-flat);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transform: translate3d(0, 0, 0);
+      transition: transform 0.28s var(--spring-snappy), box-shadow 0.28s var(--spring-snappy);
+    }
+    .product-catalog-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: var(--glass-shadow-elevated);
+      border-color: rgba(201, 169, 110, 0.5);
+    }
+
+    .product-image-pedestal {
+      width: 100%;
+      height: 94px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .pedestal-peach { background: linear-gradient(135deg, rgba(255, 235, 230, 0.9) 0%, rgba(255, 225, 218, 0.75) 100%); }
+    .pedestal-blue  { background: linear-gradient(135deg, rgba(228, 242, 255, 0.9) 0%, rgba(212, 233, 255, 0.75) 100%); }
+    .pedestal-green { background: linear-gradient(135deg, rgba(232, 248, 238, 0.9) 0%, rgba(216, 242, 226, 0.75) 100%); }
+    .pedestal-azure { background: linear-gradient(135deg, rgba(235, 246, 255, 0.9) 0%, rgba(220, 239, 255, 0.75) 100%); }
+    .pedestal-rose  { background: linear-gradient(135deg, rgba(255, 238, 240, 0.9) 0%, rgba(255, 222, 226, 0.75) 100%); }
+
+    .product-thumb-img {
+      max-width: 82%;
+      max-height: 82%;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.08));
+      transition: transform 0.32s var(--spring-snappy);
+    }
+    .product-catalog-card:hover .product-thumb-img {
+      transform: scale(1.08) translateY(-2px);
+    }
+
+    .product-name {
+      font-size: 0.82rem;
+      font-weight: 650;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .product-category-sub {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      margin-top: 1px;
+    }
+    .product-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .product-price {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--emerald-900);
+    }
+    .apple-pill-btn {
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 650;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s var(--spring-snappy);
+    }
+    .btn-stock {
+      background: var(--apple-green-bg);
+      color: var(--apple-green);
+    }
+    .btn-stock:hover {
+      background: var(--apple-green);
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(40, 205, 65, 0.35);
+    }
+
+    /* Low Stock Alerts Box */
+    .alerts-list-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .alert-item-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 59, 48, 0.25);
+      transition: all 0.22s ease;
+    }
+    .alert-item-box:hover {
+      background: #ffffff;
+      transform: translateX(3px);
+      box-shadow: 0 4px 14px rgba(255, 59, 48, 0.1);
+    }
+    .alert-left-details {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .alert-thumb {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: rgba(255, 235, 235, 0.8);
+      border: 1px solid rgba(255, 180, 180, 0.5);
+    }
+    .alert-text-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .alert-prod-name {
+      font-size: 0.83rem;
+      font-weight: 650;
+      color: var(--text-primary);
+    }
+    .alert-category-tag {
+      font-size: 0.7rem;
+      color: var(--apple-coral);
+      font-weight: 550;
+    }
+    .restock-btn {
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 0.74rem;
+      font-weight: 650;
+      border: 1px solid var(--apple-blue);
+      background: rgba(0, 113, 227, 0.08);
+      color: var(--apple-blue);
+      cursor: pointer;
+      transition: all 0.2s var(--spring-snappy);
+    }
+    .restock-btn:hover {
+      background: var(--apple-blue);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+    }
+
+    /* Recent Sales Feed */
+    .recent-sales-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .sale-feed-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(225, 220, 210, 0.5);
+      transition: all 0.2s ease;
+    }
+    .sale-feed-row:hover {
+      background: #ffffff;
+      transform: translateX(3px);
+      border-color: var(--brass-500);
+    }
+    .sale-icon-box {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: rgba(0, 113, 227, 0.08);
+      color: var(--apple-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sale-icon-box.basket {
+      background: rgba(45, 106, 111, 0.1);
+      color: var(--emerald-600);
+    }
+    .sale-feed-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sale-meta-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .sale-item-title {
+      font-size: 0.83rem;
+      font-weight: 650;
+      color: var(--text-primary);
+    }
+    .sale-timestamp {
+      font-size: 0.71rem;
+      color: var(--text-tertiary);
+    }
+    .sale-customer-tag {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    /* ==========================================================================
+       6. Floating WhatsApp Ingress Dynamic Island Pill & Slide-Over Drawer
+       ========================================================================== */
+    .whatsapp-floating-island {
+      position: fixed;
+      bottom: 24px;
+      right: 28px;
+      z-index: 50;
+      background: rgba(18, 140, 126, 0.92);
+      backdrop-filter: blur(20px) saturate(190%);
+      -webkit-backdrop-filter: blur(20px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 28px rgba(18, 140, 126, 0.35);
+      cursor: pointer;
+      font-size: 0.86rem;
+      font-weight: 600;
+      transition: all 0.28s var(--spring-snappy);
+    }
+    .whatsapp-floating-island:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 14px 36px rgba(18, 140, 126, 0.45);
+      background: rgba(18, 140, 126, 1);
+    }
+    .pulse-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #25d366;
+      box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+      animation: applePulse 1.8s infinite;
+    }
+    @keyframes applePulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(37, 211, 102, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+    }
+
+    /* iPhone 15 Pro Titanium Slide-Over Frame Drawer */
+    .iphone-drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 46, 49, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 60;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.32s ease;
+    }
+    .iphone-drawer-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .iphone-drawer-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 480px;
+      max-width: 95vw;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border-left: var(--glass-border-specular);
+      box-shadow: -16px 0 48px rgba(0, 0, 0, 0.15);
+      z-index: 61;
+      transform: translate3d(100%, 0, 0);
+      transition: transform 0.42s var(--spring-snappy);
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .iphone-drawer-backdrop.open .iphone-drawer-panel {
+      transform: translate3d(0, 0, 0);
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(220, 215, 205, 0.6);
+    }
+    .drawer-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--emerald-900);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .close-drawer-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid rgba(200, 195, 185, 0.5);
+      background: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+    }
+    .close-drawer-btn:hover {
+      background: #ffffff;
+      color: var(--text-primary);
+      transform: scale(1.1);
+    }
+
+    /* iPhone Device Frame Container */
+    .iphone-frame-bezel {
+      flex: 1;
+      background: #111;
+      border-radius: 46px;
+      padding: 10px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25), inset 0 0 4px 2px rgba(255, 255, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .dynamic-island {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 105px;
+      height: 28px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+    }
+    .dynamic-island-cam {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #1a1a1a;
+      box-shadow: inset 0 0 2px rgba(0, 113, 227, 0.5);
+    }
+    .dynamic-island-sensor {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #141414;
+    }
+
+    .iphone-screen-content {
+      flex: 1;
+      border-radius: 38px;
+      overflow: hidden;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+    .iphone-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Apple Interactive Toast */
+    .apple-toast {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translate3d(-50%, -100px, 0);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      border: var(--glass-border-specular);
+      border-radius: 9999px;
+      padding: 10px 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
+      z-index: 100;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      transition: transform 0.4s var(--spring-snappy);
+      pointer-events: none;
+    }
+    .apple-toast.show {
+      transform: translate3d(-50%, 0, 0);
+    }
+    .toast-icon {
+      color: var(--apple-green);
+      display: flex;
+      align-items: center;
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 1200px) {
+      .quick-summary-card { grid-column: span 12; }
+      .daily-sales-card { grid-column: span 12; }
+      .stock-overview-card { grid-column: span 6; }
+      .inventory-status-card { grid-column: span 6; }
+      .top-products-card { grid-column: span 12; }
+      .product-catalog-section { grid-column: span 12; }
+      .low-stock-alerts-card { grid-column: span 6; }
+      .recent-sales-card { grid-column: span 6; }
+    }
+    @media (max-width: 768px) {
+      .apple-dock-rail { display: none; }
+      .dashboard-canvas { width: 100%; padding: 12px; }
+      .bento-grid { gap: 12px; }
+      .stock-overview-card, .inventory-status-card, .low-stock-alerts-card, .recent-sales-card {
+        grid-column: span 12;
+      }
+      .summary-metrics-trio { grid-template-columns: 1fr; }
+      .apple-search-wrap { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-viewport">
+    <!-- 1. Apple macOS Dock-Style Sidebar Rail -->
+    <aside class="apple-dock-rail">
+      <div class="dock-top-cluster">
+        <div class="dock-brand-logo" title="VyaparAI Enterprise" onclick="window.location.href='index.html'">V</div>
+        
+        <nav class="dock-items-group">
+          <!-- Dashboard -->
+          <button class="dock-btn" title="Dashboard" onclick="window.location.href='index.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="2"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="2"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="2"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+            </svg>
+          </button>
+          <!-- Sales & Ledger -->
+          <button class="dock-btn" title="Sales & Ledger" onclick="window.location.href='sales.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+              <line x1="2" y1="10" x2="22" y2="10"></line>
+            </svg>
+          </button>
+          <!-- Customers & Khata -->
+          <button class="dock-btn" title="Customers & Khata" onclick="window.location.href='customers.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </button>
+          <!-- Inventory Stock -->
+          <button class="dock-btn" title="Inventory Stock" onclick="window.location.href='inventory.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+          </button>
+          <!-- Analytics & SIH Reports -->
+          <button class="dock-btn active" title="Analytics & SIH Reports" onclick="window.location.href='analytics.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+          </button>
+          <!-- WhatsApp AI Ingress -->
+          <button class="dock-btn" title="WhatsApp AI Ingress" onclick="toggleWhatsAppDrawer()" style="color: #25d366;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+          </button>
+        </nav>
+      </div>
+
+      <div class="dock-bottom-cluster">
+        <button class="dock-btn" title="Settings" onclick="window.location.href='settings.html'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </aside>
+    <main class="dashboard-canvas">
+      <!-- Floating Island Top Header -->
+      <header class="floating-island-header">
+        <div class="header-left-cluster">
+          <div class="brand-title" onclick="window.location.href='index.html'" style="cursor: pointer;">
+            VyaparAI
+            <span class="luxury-sub">Analytics & SIH Reports</span>
+          </div>
+
+          <!-- Apple ⌘K Search Bar -->
+          <div class="apple-search-wrap">
+            <svg class="search-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="apple-search-input" id="globalSearchInput" placeholder="Search analytics & sih reports... ⌘K" oninput="handleTableSearch(this.value)" />
+            <span class="search-cmd-k">⌘K</span>
+          </div>
+        </div>
+
+        <div class="header-right-cluster">
+          <!-- Store Selector -->
+          <div class="store-select-pill" onclick="cycleDukaans()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span id="currentDukaanName">All Dukaans</span> ▾
+          </div>
+
+          <!-- Admin Pill -->
+          <div class="header-pill-item" onclick="showAppleToast('Admin: Ganesh Kirana Store')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            Admin
+          </div>
+
+          <!-- Profile Pill -->
+          <div class="header-pill-item" onclick="showAppleToast('Profile: Atharva (Owner)')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Profile
+          </div>
+
+          <!-- Live WhatsApp Ingress Status Indicator -->
+          <div class="header-pill-item" onclick="toggleWhatsAppDrawer()" style="color: #25d366; cursor: pointer;">
+            <span style="width: 7px; height: 7px; border-radius: 50%; background: #25d366; display: inline-block; box-shadow: 0 0 8px #25d366;"></span>
+            WhatsApp
+          </div>
+        </div>
+      </header>
+
+      <!-- Bento Grid Content System -->
+      <div class="bento-grid">
+
+        <!-- ROW 1: Executive KPI Trio & Growth Chart -->
+        <div class="glass-card quick-summary-card">
+          <div class="card-header-row">
+            <h2 class="card-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+              Executive Growth & Margin Matrix
+            </h2>
+            <span class="store-select-pill" style="font-size: 0.76rem; padding: 4px 10px;" onclick="cycleDukaans()">
+              All Dukaans ▾
+            </span>
+          </div>
+
+          <div class="summary-metrics-trio">
+            <div class="metric-sub-card">
+              <div class="metric-top-bar">
+                <span class="metric-title">Monthly Gross Volume</span>
+                <span class="metric-pill-badge badge-green">+24.2%</span>
+              </div>
+              <div class="metric-value-num tabular-nums" id="statMonthlyRev">₹3,84,200</div>
+            </div>
+
+            <div class="metric-sub-card">
+              <div class="metric-top-bar">
+                <span class="metric-title">Net Profit Margin</span>
+                <span class="metric-pill-badge badge-green">Healthy</span>
+              </div>
+              <div class="metric-value-num tabular-nums" id="statMargin">23.8%</div>
+            </div>
+
+            <div class="metric-sub-card">
+              <div class="metric-top-bar">
+                <span class="metric-title">Customer Repeat Rate</span>
+                <div class="badge-icon-box green-box">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+              </div>
+              <div class="metric-value-num tabular-nums" id="statRepeat">88.4%</div>
+            </div>
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+        <!-- Monthly Sales Growth Chart -->
+        <div class="glass-card daily-sales-card">
+          <div class="card-header-row" style="margin-bottom: 8px;">
+            <h2 class="card-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+              Quarterly Revenue Velocity
+            </h2>
+            <span style="font-size: 0.72rem; color: var(--apple-blue); font-weight: 600;">FY26 Q3</span>
+          </div>
+          
+          <div style="height: 125px; width: 100%; position: relative;">
+            <canvas id="quarterlyGrowthChart"></canvas>
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+        <!-- ROW 2: Category Revenue Breakdown (Cols 1-6) + Fast Movers vs Dead Stock (Cols 7-12) -->
+        <div class="glass-card inventory-status-card" style="grid-column: span 6;">
+          <div class="card-header-row">
+            <h2 class="card-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 2a10 10 0 0 1 10 10h-10z"></path>
+              </svg>
+              Sales Share by Category
+            </h2>
+            <span style="font-size: 0.72rem; color: var(--brass-600); font-weight: 600;">Top: Staples (42%)</span>
+          </div>
+
+          <div style="height: 220px; width: 100%; position: relative; margin-top: 10px;">
+            <canvas id="categoryShareChart"></canvas>
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+        <div class="glass-card top-products-card" style="grid-column: span 6;">
+          <div class="card-header-row">
+            <h2 class="card-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              Product Velocity Index
+            </h2>
+            <span style="font-size: 0.72rem; color: var(--apple-green); font-weight: 600;">Turnover / 30 Days</span>
+          </div>
+
+          <div class="top-products-list">
+            <div class="top-product-item">
+              <div class="top-prod-left">
+                <img src="assets/products/parle_g.png" alt="Parle-G" class="table-prod-thumb" />
+                <div class="top-prod-meta">
+                  <span class="top-prod-name">Parle-G Biscuits</span>
+                  <span class="top-prod-sku tabular-nums">Velocity: 94/100 • 540 packs sold</span>
+                </div>
+              </div>
+              <span class="status-pill status-in">Super Mover</span>
+            </div>
+
+            <div class="top-product-item">
+              <div class="top-prod-left">
+                <img src="assets/products/sugar.png" alt="Sugar" class="table-prod-thumb" />
+                <div class="top-prod-meta">
+                  <span class="top-prod-name">Madhur Crystal Sugar</span>
+                  <span class="top-prod-sku tabular-nums">Velocity: 88/100 • 320 kg sold</span>
+                </div>
+              </div>
+              <span class="status-pill status-in">Super Mover</span>
+            </div>
+
+            <div class="top-product-item">
+              <div class="top-prod-left">
+                <img src="assets/products/alert_colgate.png" alt="Colgate" class="table-prod-thumb" />
+                <div class="top-prod-meta">
+                  <span class="top-prod-name">Colgate Strong Teeth</span>
+                  <span class="top-prod-sku tabular-nums">Velocity: 72/100 • 95 units sold</span>
+                </div>
+              </div>
+              <span class="status-pill status-in">Moderate</span>
+            </div>
+
+            <div class="top-product-item">
+              <div class="top-prod-left">
+                <img src="assets/products/dove.png" alt="Dove" class="table-prod-thumb" />
+                <div class="top-prod-meta">
+                  <span class="top-prod-name">Dove Soap (100g)</span>
+                  <span class="top-prod-sku tabular-nums">Velocity: 32/100 • 28 units sold</span>
+                </div>
+              </div>
+              <span class="status-pill status-low">Slow Mover</span>
+            </div>
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+        <!-- ROW 3: AI Profit Recommendations & Hackathon SIH Deck -->
+        <div class="glass-card low-stock-alerts-card" style="grid-column: span 12;">
+          <div class="card-header-row">
+            <h2 class="card-heading" style="color: var(--brass-700);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              AI Profit Optimization Recommendations (SIH Hackathon Engine)
+            </h2>
+            <span class="status-pill status-in">Estimated Gain: +₹14,200/mo</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 6px;">
+            <div style="background: rgba(255, 255, 255, 0.65); padding: 14px; border-radius: 14px; border: var(--glass-border-subtle);">
+              <div style="font-weight: 700; color: var(--emerald-900); margin-bottom: 4px;">Edible Oil 5L Can Conversion</div>
+              <p style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4;">
+                Stocking 5L Fortune Cans instead of 1L pouches increases net margin from 8.4% to 14.2% via wholesale discount at Kolhapur Yard.
+              </p>
+              <div style="margin-top: 10px; font-weight: 700; color: var(--apple-green); font-size: 0.78rem;">+₹4,800/mo Profit</div>
+            </div>
+
+            <div style="background: rgba(255, 255, 255, 0.65); padding: 14px; border-radius: 14px; border: var(--glass-border-subtle);">
+              <div style="font-weight: 700; color: var(--emerald-900); margin-bottom: 4px;">Evening Tea Combo Bundle</div>
+              <p style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4;">
+                64% of 5 PM - 7 PM walk-ins buy Parle-G + Sugar. Bundling with Wagh Bakri Tea at ₹135 boosts basket size by 22%.
+              </p>
+              <div style="margin-top: 10px; font-weight: 700; color: var(--apple-green); font-size: 0.78rem;">+₹5,600/mo Profit</div>
+            </div>
+
+            <div style="background: rgba(255, 255, 255, 0.65); padding: 14px; border-radius: 14px; border: var(--glass-border-subtle);">
+              <div style="font-weight: 700; color: var(--emerald-900); margin-bottom: 4px;">Automated Udhar WhatsApp Recovery</div>
+              <p style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4;">
+                Sending polite automated Marathi reminders on Day 7 reduces overdue credit cycles from 28 days to 9 days.
+              </p>
+              <div style="margin-top: 10px; font-weight: 700; color: var(--apple-green); font-size: 0.78rem;">+₹3,800 Working Capital</div>
+            </div>
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+  <!-- 3. Floating WhatsApp Ingress Trigger Pill -->
+  <div class="whatsapp-floating-island" onclick="toggleWhatsAppDrawer()" title="Open iPhone WhatsApp AI Console">
+    <div class="pulse-dot"></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+    </svg>
+    <span>WhatsApp AI Ingress</span>
+  </div>
+
+  <!-- 4. iPhone 15 Pro Titanium Slide-Over Frame Drawer -->
+  <div class="iphone-drawer-backdrop" id="iphoneDrawerBackdrop" onclick="closeDrawerOnBackdrop(event)">
+    <div class="iphone-drawer-panel" id="iphoneDrawerPanel">
+      
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color: #25d366;">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+          </svg>
+          WhatsApp AI Ingress Console
+        </div>
+        <button class="close-drawer-btn" onclick="toggleWhatsAppDrawer()" title="Close Drawer">✕</button>
+      </div>
+
+      <p style="font-size: 0.78rem; color: var(--text-tertiary); margin-bottom: 14px;">
+        Interactive WhatsApp Voice & Ingress Simulation — Orders recorded here synchronize live with the VyaparAI dashboard.
+      </p>
+
+      <!-- iPhone Titanium Frame Housing -->
+      <div class="iphone-frame-bezel">
+        <!-- Dynamic Island Pill -->
+        <div class="dynamic-island">
+          <div class="dynamic-island-cam"></div>
+          <div class="dynamic-island-sensor"></div>
+        </div>
+
+        <!-- Embedded Interactive Console -->
+        <div class="iphone-screen-content">
+          <iframe src="whatsapp-console.html" class="iphone-iframe" id="whatsappConsoleIframe" title="WhatsApp Ingress Console"></iframe>
+        </div>
+      </div>
+
+      <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.74rem; color: var(--emerald-700); font-weight: 600;">VyaparAI Live Ingress Hook Active</span>
+        <a href="whatsapp-console.html" target="_blank" style="font-size: 0.74rem; color: var(--apple-blue); font-weight: 600; text-decoration: none;">
+          Open Fullscreen ↗
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Apple Global Interactive Toast -->
+  <div class="apple-toast" id="appleToastNotification">
+    <div class="toast-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+    </div>
+    <span id="appleToastMessage">Action completed successfully</span>
+  </div>
+
+  <!-- Apple-Grade Micro-Interactions, Haptics & Sync -->
+  <script>
+    const inrFormatter = new Intl.NumberFormat('en-IN');
+
+    class AppleHapticEngine {
+      constructor() {
+        this.ctx = null;
+        this.unlocked = false;
+        this.bindUnlock();
+      }
+
+      bindUnlock() {
+        const unlock = () => {
+          if (!this.unlocked) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+              this.ctx = new AudioContext();
+              if (this.ctx.state === 'suspended') {
+                this.ctx.resume();
+              }
+              this.unlocked = true;
+            }
+            window.removeEventListener('click', unlock);
+            window.removeEventListener('keydown', unlock);
+          }
+        };
+        window.addEventListener('click', unlock, { passive: true });
+        window.addEventListener('keydown', unlock, { passive: true });
+      }
+
+      playTick() {
+        if (!this.unlocked || !this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.035);
+          gain.gain.setValueAtTime(0.045, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.035);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.035);
+        } catch(e) {}
+      }
+
+      playSuccess() {
+        if (!this.unlocked || !this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.06);
+          gain.gain.setValueAtTime(0.05, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(now + 0.14);
+        } catch(e) {}
+      }
+    }
+
+    const haptics = new AppleHapticEngine();
+
+    let toastTimeout = null;
+    function showAppleToast(msg) {
+      const toast = document.getElementById('appleToastNotification');
+      const text = document.getElementById('appleToastMessage');
+      if (!toast || !text) return;
+      text.textContent = msg;
+      toast.classList.add('visible');
+      haptics.playTick();
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('visible');
+      }, 3200);
+    }
+
+    function toggleWhatsAppDrawer() {
+      const backdrop = document.getElementById('iphoneDrawerBackdrop');
+      if (!backdrop) return;
+      const isOpen = backdrop.classList.contains('open');
+      if (isOpen) {
+        backdrop.classList.remove('open');
+        document.body.style.overflow = '';
+      } else {
+        backdrop.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        haptics.playTick();
+      }
+    }
+
+    function closeDrawerOnBackdrop(e) {
+      if (e.target.id === 'iphoneDrawerBackdrop') {
+        toggleWhatsAppDrawer();
+      }
+    }
+
+    const dukaans = ['All Dukaans', 'Ganesh Kirana (Shahupuri)', 'Laxmi Stores (Rajarampuri)', 'Kolhapur Central Depot'];
+    let dIndex = 0;
+    function cycleDukaans() {
+      dIndex = (dIndex + 1) % dukaans.length;
+      const el = document.getElementById('currentDukaanName');
+      if (el) {
+        el.textContent = dukaans[dIndex];
+        showAppleToast(`Active Store: ${dukaans[dIndex]}`);
+      }
+    }
+
+    function handleTableSearch(val) {
+      val = val.toLowerCase().trim();
+      const rows = document.querySelectorAll('table tbody tr');
+      rows.forEach(r => {
+        const txt = r.textContent.toLowerCase();
+        r.style.display = txt.includes(val) ? '' : 'none';
+      });
+    }
+
+    function animateCounter(id, start, end, duration, prefix = '') {
+      const obj = document.getElementById(id);
+      if (!obj) return;
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const easeProgress = 1 - Math.pow(1 - progress, 4);
+        const currentVal = Math.floor(easeProgress * (end - start) + start);
+        obj.textContent = `${prefix}${inrFormatter.format(currentVal)}`;
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        }
+      };
+      window.requestAnimationFrame(step);
+    }
+
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'NEW_SALE') {
+        const sale = event.data.payload || {};
+        showAppleToast(`New WhatsApp Order: ₹${sale.amount || '340'} (${sale.item || 'Order'})!`);
+        haptics.playSuccess();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const inp = document.getElementById('globalSearchInput');
+        if (inp) {
+          inp.focus();
+          inp.select();
+        }
+      }
+      if (e.key === 'Escape') {
+        const backdrop = document.getElementById('iphoneDrawerBackdrop');
+        if (backdrop && backdrop.classList.contains('open')) {
+          toggleWhatsAppDrawer();
+        }
+      }
+    });
+
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      animateCounter('statMonthlyRev', 0, 384200, 1100, '₹');
+      animateCounter('statRepeat', 0, 88.4, 900, '%');
+
+      const ctxGrowth = document.getElementById('quarterlyGrowthChart');
+      if (ctxGrowth) {
+        new Chart(ctxGrowth, {
+          type: 'line',
+          data: {
+            labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
+            datasets: [{
+              label: 'Revenue',
+              data: [280000, 310000, 345000, 330000, 360000, 384200],
+              borderColor: '#28cd41',
+              backgroundColor: 'rgba(40, 205, 65, 0.12)',
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2.2,
+              pointRadius: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false } },
+              y: { grid: { color: 'rgba(0,0,0,0.04)' } }
+            }
+          }
+        });
+      }
+
+      const ctxCat = document.getElementById('categoryShareChart');
+      if (ctxCat) {
+        new Chart(ctxCat, {
+          type: 'doughnut',
+          data: {
+            labels: ['Staples', 'Biscuits & Snacks', 'Edible Oils', 'Personal Care', 'Dairy & Bakery'],
+            datasets: [{
+              data: [42, 24, 16, 10, 8],
+              backgroundColor: ['#2d6a6f', '#c9a96e', '#0071e3', '#ff9500', '#28cd41'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: { boxWidth: 10, font: { size: 9.5 } }
+              }
+            },
+            cutout: '68%'
+          }
+        });
+      }
+    });
+
+  </script>
+</body>
+</html>

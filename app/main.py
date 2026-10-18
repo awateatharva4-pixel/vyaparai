@@ -8,7 +8,7 @@ if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 if hasattr(sys.stderr, 'reconfigure'):
     sys.stderr.reconfigure(encoding='utf-8', errors='replace')
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
@@ -76,6 +76,18 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+# Cross-platform Frontend path resolution (Docker/Render Linux container & local Windows)
+REPO_ROOT = os.path.dirname(BASE_DIR)
+FRONTEND_DIR = os.path.join(REPO_ROOT, "frontend")
+if not os.path.exists(FRONTEND_DIR):
+    FRONTEND_DIR = r"E:\front end vyapar"
+
+if os.path.exists(FRONTEND_DIR):
+    app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+    assets_dir = os.path.join(FRONTEND_DIR, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir, html=True), name="assets")
+
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 # Include sub-routers
@@ -84,10 +96,26 @@ app.include_router(inventory.router)
 app.include_router(simulator.router)
 
 
-@app.get("/", response_class=HTMLResponse)
-@app.get("/dashboard", response_class=HTMLResponse)
+@app.get("/")
+@app.get("/dashboard")
 def render_dashboard(request: Request, db: Session = Depends(get_db)):
-    """Main Merchant Dashboard Portal."""
+    """Main Merchant Dashboard Portal - serves the interactive Calacatta Marble frontend."""
+    if os.path.exists(FRONTEND_DIR):
+        return RedirectResponse(url="/frontend/index.html")
+    metrics = InventoryService.get_dashboard_metrics(db)
+    return templates.TemplateResponse(
+        request=request,
+        name="dashboard.html",
+        context={
+            "metrics": metrics,
+            "gemini_keys_count": len(settings.get_gemini_keys())
+        }
+    )
+
+
+@app.get("/dashboard-classic", response_class=HTMLResponse)
+def render_classic_dashboard(request: Request, db: Session = Depends(get_db)):
+    """Legacy Tailwind Dashboard fallback."""
     metrics = InventoryService.get_dashboard_metrics(db)
     return templates.TemplateResponse(
         request=request,

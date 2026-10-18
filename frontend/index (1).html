@@ -1,0 +1,3121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>VyaparAI — Kirana Store Management Dashboard</title>
+  
+  <!-- Apple Typography: SF Pro / Inter font stack -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@300;400;450;500;550;600;650;700&display=swap" rel="stylesheet" />
+  
+  <!-- Chart.js for 60 FPS lightweight responsive chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="assets/vyapar-core.js"></script>
+
+  <style>
+    /* ==========================================================================
+       1. Apple HIG & Italian Calacatta Marble Design Tokens
+       ========================================================================== */
+    :root {
+      /* Marble & Luxury Substrate Palette */
+      --bg-marble-base: #f9f6f0;
+      --bg-marble-cream: #f4ede2;
+      --bg-marble-highlight: #ffffff;
+      
+      /* Imperial Emerald / Deep Teal (Primary Executive Anchor) */
+      --emerald-900: #0f2e31;
+      --emerald-800: #1a4b4f;
+      --emerald-700: #245e63;
+      --emerald-600: #2d6a6f;
+      --emerald-500: #3b878d;
+      --emerald-glow: rgba(45, 106, 111, 0.18);
+      --emerald-subtle: rgba(45, 106, 111, 0.06);
+
+      /* Warm Italian Brass / Florentine Gold (Secondary Luxury Accent) */
+      --brass-700: #8c6e32;
+      --brass-600: #a8864d;
+      --brass-500: #c9a96e;
+      --brass-400: #dfc28d;
+      --brass-glow: rgba(201, 169, 110, 0.24);
+      --brass-border: rgba(201, 169, 110, 0.38);
+
+      /* Neutral Monochrome Typography — Tuned for WCAG AAA (≥ 7:1) */
+      --text-primary: #1d1d1f;      /* Apple SF Pro High Contrast */
+      --text-secondary: #424245;    /* 7.2:1 contrast ratio */
+      --text-tertiary: #636366;     /* 4.85:1 contrast ratio */
+      --text-quaternary: #8e8e93;
+
+      /* Apple Semantic State Tokens */
+      --apple-green: #28cd41;
+      --apple-green-bg: rgba(40, 205, 65, 0.12);
+      --apple-coral: #ff3b30;
+      --apple-coral-bg: rgba(255, 59, 48, 0.12);
+      --apple-amber: #ff9500;
+      --apple-amber-bg: rgba(255, 149, 0, 0.12);
+      --apple-blue: #0071e3;
+      --whatsapp-teal: #25d366;
+      --whatsapp-dark: #128c7e;
+
+      /* Apple visionOS / macOS Sonoma Frosted Surface Tokens */
+      --glass-surface-card: rgba(255, 255, 255, 0.82);
+      --glass-surface-hover: rgba(255, 255, 255, 0.94);
+      --glass-surface-floating: rgba(255, 255, 255, 0.72);
+      
+      /* Directional Specular Highlights (Simulating upper-left key light) */
+      --glass-border-specular: 1px solid rgba(255, 255, 255, 0.85);
+      --glass-border-subtle: 1px solid rgba(220, 215, 205, 0.45);
+      
+      --glass-shadow-flat: 
+        0 1px 3px rgba(0, 0, 0, 0.02),
+        0 4px 16px rgba(45, 106, 111, 0.04),
+        inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.95),
+        inset 1px 0 1px 0 rgba(255, 255, 255, 0.60),
+        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.03);
+
+      --glass-shadow-elevated: 
+        0 12px 32px rgba(45, 106, 111, 0.09),
+        0 2px 8px rgba(0, 0, 0, 0.03),
+        inset 0 1px 2px rgba(255, 255, 255, 1);
+
+      --glass-shadow-floating: 
+        0 20px 48px -6px rgba(26, 75, 79, 0.14),
+        0 6px 18px rgba(0, 0, 0, 0.04),
+        inset 0 1px 2px rgba(255, 255, 255, 1);
+
+      /* Apple Fluid Motion Spring Curves */
+      --spring-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+      --spring-press: cubic-bezier(0.2, 0.8, 0.2, 1);
+      --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ==========================================================================
+       2. Zero-Repaint Compositor-Only Background Substrate
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", sans-serif;
+      color: var(--text-primary);
+      background-color: var(--bg-marble-base);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Decoupled Fixed GPU Layer for Marble Substrate (Eliminates scroll paint invalidation) */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      transform: translate3d(0, 0, 0);
+      background-color: var(--bg-marble-base);
+      background-image:
+        radial-gradient(ellipse 80% 50% at 15% 10%, rgba(255, 255, 255, 0.95) 0%, transparent 60%),
+        radial-gradient(ellipse 65% 45% at 85% 25%, rgba(201, 169, 110, 0.09) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 60% at 75% 85%, rgba(45, 106, 111, 0.06) 0%, transparent 60%),
+        linear-gradient(132deg, transparent 38%, rgba(201, 169, 110, 0.08) 42%, rgba(255, 255, 255, 0.6) 43%, transparent 47%),
+        linear-gradient(42deg, transparent 62%, rgba(180, 175, 165, 0.07) 65%, transparent 69%),
+        linear-gradient(110deg, #f7f3ed 0%, #faf8f5 45%, #f2ebe0 100%);
+      background-size: cover;
+    }
+
+    /* Tabular numbers for financial and stock figures */
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1, "cv05" 1;
+    }
+
+    /* Universal Apple Spring Press Feedback */
+    button:active, 
+    .interactive-card:active, 
+    .dock-btn:active,
+    .apple-pill-btn:active {
+      transform: scale(0.975) translateY(1px) !important;
+      transition: transform 0.09s var(--spring-press) !important;
+    }
+
+    /* ==========================================================================
+       3. Main Layout Architecture (macOS Dock + Floating Island + Bento Grid)
+       ========================================================================== */
+    .app-viewport {
+      display: flex;
+      min-height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
+
+    /* Left Dock-Style Sidebar Rail */
+    .apple-dock-rail {
+      width: 68px;
+      padding: 16px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      z-index: 40;
+      flex-shrink: 0;
+    }
+
+    .dock-brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0071e3 0%, #0056b3 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(0, 113, 227, 0.35);
+      cursor: pointer;
+      margin-bottom: 24px;
+      transition: transform 0.28s var(--spring-snappy);
+    }
+    .dock-brand-logo:hover {
+      transform: scale(1.08);
+    }
+
+    .dock-items-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      padding: 8px 6px;
+      border-radius: 20px;
+      border: var(--glass-border-specular);
+      box-shadow: var(--glass-shadow-flat);
+    }
+
+    .dock-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.24s var(--spring-snappy);
+      position: relative;
+    }
+    .dock-btn svg {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.24s var(--spring-snappy);
+    }
+    .dock-btn:hover {
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--emerald-600);
+      transform: scale(1.14);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+    .dock-btn.active {
+      background: #ffffff;
+      color: var(--emerald-700);
+      box-shadow: 0 4px 14px rgba(45, 106, 111, 0.16);
+    }
+    .dock-btn.active::after {
+      content: '';
+      position: absolute;
+      right: -8px;
+      width: 4px;
+      height: 16px;
+      border-radius: 4px;
+      background: var(--emerald-600);
+    }
+
+    /* Main Dashboard Content Canvas */
+    .dashboard-canvas {
+      flex: 1;
+      padding: 16px 28px 40px 18px;
+      max-width: 1560px;
+      margin: 0 auto;
+      width: calc(100% - 68px);
+    }
+
+    /* Floating Island Header Bar */
+    .floating-island-header {
+      background: rgba(255, 255, 255, 0.76);
+      backdrop-filter: blur(24px) saturate(190%) contrast(102%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%) contrast(102%);
+      border: var(--glass-border-specular);
+      border-radius: 20px;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--glass-shadow-flat);
+      margin-bottom: 22px;
+      position: sticky;
+      top: 14px;
+      z-index: 30;
+      transition: box-shadow 0.28s ease;
+    }
+
+    .header-left-cluster {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--emerald-900);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-title span.luxury-sub {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.14em;
+      color: var(--brass-600);
+      font-weight: 600;
+      text-transform: uppercase;
+      padding-left: 6px;
+      border-left: 1px solid var(--brass-border);
+    }
+
+    /* Search Bar Input */
+    .apple-search-wrap {
+      position: relative;
+      width: 320px;
+    }
+    .apple-search-input {
+      width: 100%;
+      height: 38px;
+      padding: 0 38px 0 36px;
+      border-radius: 12px;
+      border: 1px solid rgba(210, 205, 195, 0.55);
+      background: rgba(255, 255, 255, 0.7);
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      transition: all 0.2s var(--spring-snappy);
+    }
+    .apple-search-input:focus {
+      outline: none;
+      background: #ffffff;
+      border-color: var(--emerald-500);
+      box-shadow: 0 0 0 3px rgba(45, 106, 111, 0.12);
+    }
+    .search-icon-svg {
+      position: absolute;
+      left: 11px;
+      top: 10px;
+      width: 16px;
+      height: 16px;
+      color: var(--text-tertiary);
+      pointer-events: none;
+    }
+    .search-cmd-k {
+      position: absolute;
+      right: 9px;
+      top: 9px;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.06);
+      color: var(--text-tertiary);
+      font-weight: 600;
+    }
+
+    .header-right-cluster {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-pill-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(220, 215, 205, 0.5);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.22s var(--spring-snappy);
+    }
+    .header-pill-item:hover {
+      background: #ffffff;
+      color: var(--text-primary);
+      border-color: var(--brass-500);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .header-pill-item svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Store Switcher Pill */
+    .store-select-pill {
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid var(--brass-border);
+      border-radius: 12px;
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--emerald-800);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.22s ease;
+    }
+    .store-select-pill:hover {
+      background: #ffffff;
+      box-shadow: 0 2px 10px var(--brass-glow);
+    }
+
+    /* ==========================================================================
+       4. Bento Grid Framework
+       ========================================================================== */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    /* Solid Composite Frosted Glass Cards (Zero Blur Avalanche - Pure 60 FPS) */
+    .glass-card {
+      background: var(--glass-surface-card);
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border-radius: 20px;
+      border: var(--glass-border-specular);
+      box-shadow: var(--glass-shadow-flat);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      contain: layout style paint;
+      transition: transform 0.28s var(--spring-snappy), 
+                  box-shadow 0.28s var(--spring-snappy),
+                  border-color 0.28s ease;
+    }
+    .glass-card:hover {
+      border-color: rgba(201, 169, 110, 0.45);
+      box-shadow: var(--glass-shadow-elevated);
+      will-change: transform, box-shadow;
+    }
+
+    /* Section Card Header */
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .card-heading {
+      font-size: 0.96rem;
+      font-weight: 650;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.01em;
+    }
+    .card-heading svg {
+      width: 17px;
+      height: 17px;
+      color: var(--emerald-600);
+    }
+
+    /* Specular Light Reflection Sweep Effect */
+    .glass-card .specular-sweep {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -130%;
+      width: 80%;
+      height: 100%;
+      background: linear-gradient(
+        105deg,
+        transparent 20%,
+        rgba(255, 255, 255, 0.38) 50%,
+        transparent 80%
+      );
+      transform: skewX(-20deg);
+      pointer-events: none;
+      transition: left 0.85s var(--spring-snappy);
+    }
+    .glass-card:hover .specular-sweep {
+      left: 160%;
+    }
+
+    /* ==========================================================================
+       5. Section Specific Styling
+       ========================================================================== */
+
+    /* ROW 1: Quick Summary (Cols 1-8) & Daily Sales Chart (Cols 9-12) */
+    .quick-summary-card {
+      grid-column: span 8;
+    }
+    .daily-sales-card {
+      grid-column: span 4;
+    }
+
+    .summary-metrics-trio {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .metric-sub-card {
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 16px;
+      border: 1px solid rgba(225, 220, 210, 0.6);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 104px;
+      transition: all 0.24s var(--spring-snappy);
+      position: relative;
+    }
+    .metric-sub-card:hover {
+      background: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+      border-color: var(--brass-500);
+    }
+    .metric-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .metric-title {
+      font-size: 0.82rem;
+      font-weight: 550;
+      color: var(--text-secondary);
+    }
+    .metric-pill-badge {
+      font-size: 0.72rem;
+      font-weight: 650;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .badge-green {
+      background: var(--apple-green-bg);
+      color: var(--apple-green);
+    }
+    .badge-icon-box {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 113, 227, 0.08);
+      color: var(--apple-blue);
+    }
+    .badge-icon-box.green-box {
+      background: var(--apple-green-bg);
+      color: var(--apple-green);
+    }
+    .metric-value-num {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+      margin-top: 10px;
+    }
+    .metric-prod-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--emerald-800);
+      margin-top: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    /* ROW 2: Stock Overview (Cols 1-4), Inventory Status (Cols 5-9), Top Products (Cols 10-12) */
+    .stock-overview-card {
+      grid-column: span 3;
+    }
+    .inventory-status-card {
+      grid-column: span 6;
+    }
+    .top-products-card {
+      grid-column: span 3;
+    }
+
+    /* Stock Overview Progress Bars */
+    .stock-meter-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 6px;
+    }
+    .stock-meter-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .meter-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-weight: 550;
+    }
+    .meter-prod-title {
+      color: var(--text-primary);
+    }
+    .meter-percent-val {
+      font-weight: 650;
+    }
+    .val-danger { color: var(--apple-coral); }
+    .val-normal { color: var(--apple-blue); }
+
+    .meter-track {
+      width: 100%;
+      height: 6px;
+      border-radius: 9999px;
+      background: rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      position: relative;
+    }
+    .meter-fill {
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 1s var(--spring-snappy);
+    }
+    .fill-danger { background: var(--apple-coral); }
+    .fill-blue { background: var(--apple-blue); }
+
+    /* Inventory Status Table */
+    .apple-table-wrap {
+      overflow-x: auto;
+      margin-top: 4px;
+    }
+    .apple-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.83rem;
+    }
+    .apple-table th {
+      color: var(--text-tertiary);
+      font-weight: 600;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(220, 215, 205, 0.5);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .apple-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(235, 230, 222, 0.6);
+      color: var(--text-secondary);
+      font-weight: 500;
+      vertical-align: middle;
+    }
+    .apple-table tr:last-child td {
+      border-bottom: none;
+    }
+    .apple-table tr:hover td {
+      background: rgba(255, 255, 255, 0.5);
+    }
+    .table-prod-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .table-prod-thumb {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      object-fit: contain;
+      background: rgba(240, 235, 228, 0.7);
+      border: 1px solid rgba(200, 195, 185, 0.4);
+      flex-shrink: 0;
+    }
+
+    .status-pill {
+      font-size: 0.72rem;
+      font-weight: 650;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      display: inline-block;
+      text-align: center;
+    }
+    .status-low {
+      background: var(--apple-coral-bg);
+      color: var(--apple-coral);
+    }
+    .status-in {
+      background: var(--apple-green-bg);
+      color: var(--apple-green);
+    }
+
+    /* Top Products Table */
+    .top-products-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 6px;
+    }
+    .top-product-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(225, 220, 210, 0.5);
+      transition: all 0.2s ease;
+    }
+    .top-product-item:hover {
+      background: #ffffff;
+      transform: translateX(3px);
+      border-color: var(--brass-500);
+    }
+    .top-prod-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .top-prod-meta {
+      display: flex;
+      flex-direction: column;
+    }
+    .top-prod-name {
+      font-size: 0.83rem;
+      font-weight: 650;
+      color: var(--text-primary);
+    }
+    .top-prod-sku {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+    }
+    .top-prod-revenue {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--emerald-800);
+    }
+
+    /* ROW 3: Product Catalog Cards (Cols 1-5), Low Stock Alerts (Cols 6-8), Recent Sales (Cols 9-12) */
+    .product-catalog-section {
+      grid-column: span 5;
+    }
+    .low-stock-alerts-card {
+      grid-column: span 3;
+    }
+    .recent-sales-card {
+      grid-column: span 4;
+    }
+
+    /* Momentum Scroll Catalog Carousel */
+    .catalog-carousel-container {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-top: 8px;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      cursor: grab;
+      touch-action: pan-y;
+      user-select: none;
+    }
+    .catalog-carousel-container.grabbing {
+      cursor: grabbing;
+      scroll-behavior: auto;
+    }
+    .catalog-carousel-container::-webkit-scrollbar {
+      height: 5px;
+    }
+    .catalog-carousel-container::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.04);
+      border-radius: 9999px;
+    }
+    .catalog-carousel-container::-webkit-scrollbar-thumb {
+      background: rgba(201, 169, 110, 0.4);
+      border-radius: 9999px;
+    }
+
+    /* Individual Product Card */
+    .product-catalog-card {
+      width: 156px;
+      flex-shrink: 0;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.75);
+      border: var(--glass-border-specular);
+      box-shadow: var(--glass-shadow-flat);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transform: translate3d(0, 0, 0);
+      transition: transform 0.28s var(--spring-snappy), box-shadow 0.28s var(--spring-snappy);
+    }
+    .product-catalog-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: var(--glass-shadow-elevated);
+      border-color: rgba(201, 169, 110, 0.5);
+    }
+
+    .product-image-pedestal {
+      width: 100%;
+      height: 94px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .pedestal-peach { background: linear-gradient(135deg, rgba(255, 235, 230, 0.9) 0%, rgba(255, 225, 218, 0.75) 100%); }
+    .pedestal-blue  { background: linear-gradient(135deg, rgba(228, 242, 255, 0.9) 0%, rgba(212, 233, 255, 0.75) 100%); }
+    .pedestal-green { background: linear-gradient(135deg, rgba(232, 248, 238, 0.9) 0%, rgba(216, 242, 226, 0.75) 100%); }
+    .pedestal-azure { background: linear-gradient(135deg, rgba(235, 246, 255, 0.9) 0%, rgba(220, 239, 255, 0.75) 100%); }
+    .pedestal-rose  { background: linear-gradient(135deg, rgba(255, 238, 240, 0.9) 0%, rgba(255, 222, 226, 0.75) 100%); }
+
+    .product-thumb-img {
+      max-width: 82%;
+      max-height: 82%;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.08));
+      transition: transform 0.32s var(--spring-snappy);
+    }
+    .product-catalog-card:hover .product-thumb-img {
+      transform: scale(1.08) translateY(-2px);
+    }
+
+    .product-name {
+      font-size: 0.82rem;
+      font-weight: 650;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .product-category-sub {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      margin-top: 1px;
+    }
+    .product-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .product-price {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--emerald-900);
+    }
+    .apple-pill-btn {
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 650;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s var(--spring-snappy);
+    }
+    .btn-stock {
+      background: var(--apple-green-bg);
+      color: var(--apple-green);
+    }
+    .btn-stock:hover {
+      background: var(--apple-green);
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(40, 205, 65, 0.35);
+    }
+
+    /* Low Stock Alerts Box */
+    .alerts-list-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .alert-item-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 59, 48, 0.25);
+      transition: all 0.22s ease;
+    }
+    .alert-item-box:hover {
+      background: #ffffff;
+      transform: translateX(3px);
+      box-shadow: 0 4px 14px rgba(255, 59, 48, 0.1);
+    }
+    .alert-left-details {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .alert-thumb {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: rgba(255, 235, 235, 0.8);
+      border: 1px solid rgba(255, 180, 180, 0.5);
+    }
+    .alert-text-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .alert-prod-name {
+      font-size: 0.83rem;
+      font-weight: 650;
+      color: var(--text-primary);
+    }
+    .alert-category-tag {
+      font-size: 0.7rem;
+      color: var(--apple-coral);
+      font-weight: 550;
+    }
+    .restock-btn {
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 0.74rem;
+      font-weight: 650;
+      border: 1px solid var(--apple-blue);
+      background: rgba(0, 113, 227, 0.08);
+      color: var(--apple-blue);
+      cursor: pointer;
+      transition: all 0.2s var(--spring-snappy);
+    }
+    .restock-btn:hover {
+      background: var(--apple-blue);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+    }
+
+    /* Recent Sales Feed */
+    .recent-sales-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .sale-feed-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(225, 220, 210, 0.5);
+      transition: all 0.2s ease;
+    }
+    .sale-feed-row:hover {
+      background: #ffffff;
+      transform: translateX(3px);
+      border-color: var(--brass-500);
+    }
+    .sale-icon-box {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: rgba(0, 113, 227, 0.08);
+      color: var(--apple-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sale-icon-box.basket {
+      background: rgba(45, 106, 111, 0.1);
+      color: var(--emerald-600);
+    }
+    .sale-feed-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sale-meta-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .sale-item-title {
+      font-size: 0.83rem;
+      font-weight: 650;
+      color: var(--text-primary);
+    }
+    .sale-timestamp {
+      font-size: 0.71rem;
+      color: var(--text-tertiary);
+    }
+    .sale-customer-tag {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    /* ==========================================================================
+       6. Floating WhatsApp Ingress Dynamic Island Pill & Slide-Over Drawer
+       ========================================================================== */
+    .whatsapp-floating-island {
+      position: fixed;
+      bottom: 24px;
+      right: 28px;
+      z-index: 50;
+      background: rgba(18, 140, 126, 0.92);
+      backdrop-filter: blur(20px) saturate(190%);
+      -webkit-backdrop-filter: blur(20px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 28px rgba(18, 140, 126, 0.35);
+      cursor: pointer;
+      font-size: 0.86rem;
+      font-weight: 600;
+      transition: all 0.28s var(--spring-snappy);
+    }
+    .whatsapp-floating-island:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 14px 36px rgba(18, 140, 126, 0.45);
+      background: rgba(18, 140, 126, 1);
+    }
+    .pulse-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #25d366;
+      box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+      animation: applePulse 1.8s infinite;
+    }
+    @keyframes applePulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(37, 211, 102, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+    }
+
+    /* iPhone 15 Pro Titanium Slide-Over Frame Drawer */
+    .iphone-drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 46, 49, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 60;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.32s ease;
+    }
+    .iphone-drawer-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .iphone-drawer-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 480px;
+      max-width: 95vw;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border-left: var(--glass-border-specular);
+      box-shadow: -16px 0 48px rgba(0, 0, 0, 0.15);
+      z-index: 61;
+      transform: translate3d(100%, 0, 0);
+      transition: transform 0.42s var(--spring-snappy);
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .iphone-drawer-backdrop.open .iphone-drawer-panel {
+      transform: translate3d(0, 0, 0);
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(220, 215, 205, 0.6);
+    }
+    .drawer-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--emerald-900);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .close-drawer-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid rgba(200, 195, 185, 0.5);
+      background: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+    }
+    .close-drawer-btn:hover {
+      background: #ffffff;
+      color: var(--text-primary);
+      transform: scale(1.1);
+    }
+
+    /* iPhone Device Frame Container */
+    .iphone-frame-bezel {
+      flex: 1;
+      background: #111;
+      border-radius: 46px;
+      padding: 10px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25), inset 0 0 4px 2px rgba(255, 255, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .dynamic-island {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 105px;
+      height: 28px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+    }
+    .dynamic-island-cam {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #1a1a1a;
+      box-shadow: inset 0 0 2px rgba(0, 113, 227, 0.5);
+    }
+    .dynamic-island-sensor {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #141414;
+    }
+
+    .iphone-screen-content {
+      flex: 1;
+      border-radius: 38px;
+      overflow: hidden;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+    .iphone-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Apple Interactive Toast */
+    .apple-toast {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translate3d(-50%, -100px, 0);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      border: var(--glass-border-specular);
+      border-radius: 9999px;
+      padding: 10px 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
+      z-index: 100;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      transition: transform 0.4s var(--spring-snappy);
+      pointer-events: none;
+    }
+    .apple-toast.show {
+      transform: translate3d(-50%, 0, 0);
+    }
+    .toast-icon {
+      color: var(--apple-green);
+      display: flex;
+      align-items: center;
+    }
+
+    /* ROW 4: Remote Yaadi Queue (Cols 1-7) & Voice-to-Scale Engine (Cols 8-12) */
+    .remote-yaadi-card {
+      grid-column: span 7;
+    }
+    .reverse-math-card {
+      grid-column: span 5;
+    }
+
+    /* Remote Yaadi Queue Styling */
+    .yaadi-orders-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .yaadi-order-box {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(225, 220, 210, 0.7);
+      border-radius: 16px;
+      padding: 14px 16px;
+      transition: all 0.22s var(--spring-snappy);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .yaadi-order-box:hover {
+      background: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+      border-color: var(--brass-500);
+    }
+    .yaadi-order-box.fulfilled {
+      opacity: 0.65;
+      background: rgba(245, 248, 245, 0.6);
+      border-color: rgba(40, 205, 65, 0.3);
+    }
+    .yaadi-order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .yaadi-cust-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .yaadi-cust-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: rgba(45, 106, 111, 0.12);
+      color: var(--emerald-800);
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .yaadi-cust-name {
+      font-size: 0.86rem;
+      font-weight: 650;
+      color: var(--text-primary);
+    }
+    .yaadi-cust-phone {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+    }
+    .yaadi-items-list {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      background: rgba(248, 245, 238, 0.5);
+      border-radius: 10px;
+      padding: 8px 12px;
+      border-left: 3px solid var(--brass-500);
+    }
+    .yaadi-footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 4px;
+    }
+    .yaadi-est-total {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--emerald-900);
+    }
+    .btn-pack-order {
+      padding: 6px 14px;
+      border-radius: 10px;
+      font-size: 0.76rem;
+      font-weight: 650;
+      border: none;
+      background: var(--emerald-800);
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s var(--spring-snappy);
+      box-shadow: 0 2px 8px rgba(26, 75, 79, 0.25);
+    }
+    .btn-pack-order:hover {
+      background: var(--emerald-700);
+      transform: scale(1.03);
+    }
+    .btn-pack-order:disabled {
+      background: rgba(142, 142, 147, 0.3);
+      color: var(--text-tertiary);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* Reverse Math Loose Commodity Scale Styling */
+    .scale-card-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .scale-digital-display {
+      background: linear-gradient(135deg, #0e1e20 0%, #173235 100%);
+      border-radius: 18px;
+      padding: 16px 20px;
+      color: #ffffff;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(15, 46, 49, 0.18);
+      position: relative;
+      border: 1px solid rgba(201, 169, 110, 0.35);
+    }
+    .scale-display-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--brass-400);
+      font-weight: 600;
+    }
+    .scale-digits-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-top: 6px;
+    }
+    .scale-main-digits {
+      font-size: 2.6rem;
+      font-weight: 800;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+      letter-spacing: -0.04em;
+      color: #38ef7d;
+      text-shadow: 0 0 16px rgba(56, 239, 125, 0.35);
+    }
+    .scale-sub-formula {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin-top: 4px;
+      font-family: monospace;
+    }
+    .quick-chip-scroller {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .voice-query-chip {
+      white-space: nowrap;
+      font-size: 0.73rem;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(201, 169, 110, 0.4);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s var(--spring-snappy);
+    }
+    .voice-query-chip:hover {
+      background: var(--emerald-800);
+      color: #ffffff;
+      border-color: var(--emerald-800);
+      transform: translateY(-1px);
+    }
+    .scale-input-group {
+      display: flex;
+      gap: 8px;
+    }
+    .scale-text-input {
+      flex: 1;
+      height: 38px;
+      border-radius: 12px;
+      border: 1px solid rgba(220, 215, 205, 0.7);
+      background: rgba(255, 255, 255, 0.85);
+      padding: 0 14px;
+      font-size: 0.84rem;
+      color: var(--text-primary);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .scale-text-input:focus {
+      border-color: var(--emerald-700);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(45, 106, 111, 0.12);
+    }
+
+    /* 15s Video Sweep visionOS Modal */
+    .vision-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 46, 49, 0.55);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      z-index: 120;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s var(--spring-snappy);
+    }
+    .vision-modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .vision-modal-sheet {
+      width: 90%;
+      max-width: 620px;
+      background: rgba(255, 255, 255, 0.94);
+      border: var(--glass-border-specular);
+      border-radius: 24px;
+      box-shadow: var(--glass-shadow-floating);
+      padding: 26px 28px;
+      position: relative;
+      overflow: hidden;
+      transform: scale(0.92) translateY(14px);
+      transition: transform 0.35s var(--spring-snappy);
+    }
+    .vision-modal-backdrop.open .vision-modal-sheet {
+      transform: scale(1) translateY(0);
+    }
+    .modal-step-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      background: rgba(45, 106, 111, 0.12);
+      color: var(--emerald-800);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .modal-progress-bar-wrap {
+      width: 100%;
+      height: 6px;
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin: 14px 0 18px 0;
+    }
+    .modal-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2d6a6f 0%, #38ef7d 100%);
+      border-radius: 9999px;
+      transition: width 0.4s ease;
+    }
+    .discovered-sku-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: rgba(248, 245, 238, 0.7);
+      border: 1px solid rgba(220, 215, 205, 0.6);
+      border-radius: 14px;
+      margin-bottom: 8px;
+    }
+    .discovered-sku-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      object-fit: contain;
+      background: #ffffff;
+      padding: 4px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 1200px) {
+      .quick-summary-card { grid-column: span 12; }
+      .daily-sales-card { grid-column: span 12; }
+      .stock-overview-card { grid-column: span 6; }
+      .inventory-status-card { grid-column: span 6; }
+      .top-products-card { grid-column: span 12; }
+      .product-catalog-section { grid-column: span 12; }
+      .low-stock-alerts-card { grid-column: span 6; }
+      .recent-sales-card { grid-column: span 6; }
+      .remote-yaadi-card { grid-column: span 12; }
+      .reverse-math-card { grid-column: span 12; }
+    }
+    @media (max-width: 768px) {
+      .apple-dock-rail { display: none; }
+      .dashboard-canvas { width: 100%; padding: 12px; }
+      .bento-grid { gap: 12px; }
+      .stock-overview-card, .inventory-status-card, .low-stock-alerts-card, .recent-sales-card, .remote-yaadi-card, .reverse-math-card {
+        grid-column: span 12;
+      }
+      .summary-metrics-trio { grid-template-columns: 1fr; }
+      .apple-search-wrap { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- App Main Viewport -->
+  <div class="app-viewport">
+    
+    <!-- 1. Apple macOS Dock-Style Sidebar Rail -->
+    <aside class="apple-dock-rail">
+      <div class="dock-top-cluster">
+        <div class="dock-brand-logo" title="VyaparAI Enterprise">V</div>
+        
+        <nav class="dock-items-group">
+          <!-- Dashboard (Active) -->
+          <button class="dock-btn active" title="Dashboard" onclick="window.location.href='index.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="2"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="2"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="2"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+            </svg>
+          </button>
+
+          <!-- Sales & Transactions -->
+          <button class="dock-btn" title="Sales & Ledger" onclick="window.location.href='sales.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+              <line x1="2" y1="10" x2="22" y2="10"></line>
+            </svg>
+          </button>
+
+          <!-- Customers / Khata -->
+          <button class="dock-btn" title="Customers & Khata" onclick="window.location.href='customers.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </button>
+
+          <!-- Inventory Register -->
+          <button class="dock-btn" title="Inventory Stock" onclick="window.location.href='inventory.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+          </button>
+
+          <!-- Analytics & Reports -->
+          <button class="dock-btn" title="Analytics & SIH Reports" onclick="window.location.href='analytics.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+          </button>
+
+          <!-- WhatsApp Simulation Trigger -->
+          <button class="dock-btn" title="WhatsApp AI Ingress" onclick="toggleWhatsAppDrawer()" style="color: #25d366;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+          </button>
+        </nav>
+      </div>
+
+      <div class="dock-bottom-cluster">
+        <button class="dock-btn" title="Settings" onclick="window.location.href='settings.html'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- 2. Main Dashboard Canvas -->
+    <main class="dashboard-canvas">
+
+      <!-- Floating Island Top Header -->
+      <header class="floating-island-header">
+        <div class="header-left-cluster">
+          <div class="brand-title">
+            VyaparAI
+            <span class="luxury-sub">Calacatta Studio</span>
+          </div>
+
+          <!-- Apple ⌘K Search Bar -->
+          <div class="apple-search-wrap">
+            <svg class="search-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="apple-search-input" id="globalSearchInput" placeholder="Search products, SKUs, sales..." oninput="handleGlobalSearch(this.value)" />
+            <span class="search-cmd-k">⌘K</span>
+          </div>
+        </div>
+
+        <div class="header-right-cluster">
+          <!-- 15s Video Store Onboarding Button (Specification 02) -->
+          <div class="header-pill-item" onclick="openVideoSweepModal()" style="background: rgba(45, 106, 111, 0.12); color: var(--emerald-700); font-weight: 700; border: 1px solid rgba(45, 106, 111, 0.3);" title="Zero-Touch 15-Second Shelf Video Cataloging">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="23 7 16 12 23 17 23 7"></polygon>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+            </svg>
+            🎥 15s Video Sweep
+          </div>
+
+          <!-- GST CSV Export (Trojan Horse Hook) -->
+          <div class="header-pill-item" onclick="triggerGSTExport()" title="Export Monthly GST Breakdown CSV" style="cursor: pointer;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+            GST CSV
+          </div>
+
+          <!-- Quick Add Dairy SKU (Trojan Horse Hook) -->
+          <div class="header-pill-item" onclick="triggerQuickAddDairy()" title="Add Dairy SKU with Expiry Live" style="color: var(--brass-700); cursor: pointer;">
+            + Dairy SKU
+          </div>
+
+          <!-- Store Selector (Fixed typo: All Dukaans) -->
+          <div class="store-select-pill" onclick="cycleDukaans()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span id="currentDukaanName">All Dukaans</span> ▾
+          </div>
+
+          <!-- Admin Pill -->
+          <div class="header-pill-item" onclick="showAppleToast('Admin: Ganesh Kirana Store')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            Admin
+          </div>
+
+          <!-- Profile Pill -->
+          <div class="header-pill-item" onclick="showAppleToast('Profile Settings')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Profile
+          </div>
+
+          <!-- Logout -->
+          <div class="header-pill-item" onclick="showAppleToast('Session active')" style="color: var(--apple-coral);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Logout
+          </div>
+        </div>
+      </header>
+
+      <!-- Bento Grid Content System -->
+      <div class="bento-grid">
+
+        <!-- ====================================================================
+             ROW 1: Quick Summary Cards & Daily Sales Chart
+             ==================================================================== -->
+
+        <!-- 1. Quick Summary Cards (Cols 1-8) -->
+        <div class="glass-card quick-summary-card">
+          <div class="card-header-row">
+            <h2 class="card-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+              Quick Summary
+            </h2>
+            <span class="store-select-pill" style="font-size: 0.76rem; padding: 4px 10px;" onclick="cycleDukaans()">
+              All Dukaans ▾
+            </span>
+          </div>
+
+          <div class="summary-metrics-trio">
+            <!-- Metric 1: Total Sales Today -->
+            <div class="metric-sub-card">
+              <div class="metric-top-bar">
+                <span class="metric-title">Total Sales Today</span>
+                <span class="metric-pill-badge badge-green">+15%</span>
+              </div>
+              <div class="metric-value-num tabular-nums" id="statTotalSales">₹12,450</div>
+            </div>
+
+            <!-- Metric 2: Orders Today -->
+            <div class="metric-sub-card">
+              <div class="metric-top-bar">
+                <span class="metric-title">Orders Today</span>
+                <div class="badge-icon-box">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  </svg>
+                </div>
+              </div>
+              <div class="metric-value-num tabular-nums" id="statOrdersCount">42</div>
+            </div>
+
+            <!-- Metric 3: Top Product -->
+            <div class="metric-sub-card">
+              <div class="metric-top-bar">
+                <span class="metric-title">Top Product</span>
+                <div class="badge-icon-box green-box">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="metric-prod-name" id="statTopProduct">Parle-G</div>
+            </div>
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+        <!-- 2. Daily Sales Summary Chart (Cols 9-12) -->
+        <div class="glass-card daily-sales-card">
+          <div class="card-header-row" style="margin-bottom: 8px;">
+            <h2 class="card-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+              Daily Sales Summary
+            </h2>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--apple-blue); font-weight: 600;">
+              <span style="width: 7px; height: 7px; border-radius: 50%; background: var(--apple-blue);"></span> Sales
+            </div>
+          </div>
+          
+          <div style="height: 125px; width: 100%; position: relative;">
+            <canvas id="dailySalesChart"></canvas>
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+        <!-- ====================================================================
+             ROW 2: Stock Overview, Inventory Status, Top Products
+             ==================================================================== -->
+
+        <!-- 3. Stock Overview Progress Bars (Cols 1-3) -->
+        <div class="glass-card stock-overview-card">
+          <div class="card-header-row">
+            <h2 class="card-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+              Stock Overview
+            </h2>
+            <span class="status-pill status-in" style="font-size: 0.68rem; padding: 2px 8px;">● Live</span>
+          </div>
+
+          <div class="stock-meter-list">
+            <!-- Parle-G: 18% left (Critical) -->
+            <div class="stock-meter-row">
+              <div class="meter-label-row">
+                <span class="meter-prod-title">Parle-G</span>
+                <span class="meter-percent-val val-danger tabular-nums">18% left</span>
+              </div>
+              <div class="meter-track">
+                <div class="meter-fill fill-danger" style="width: 18%;"></div>
+              </div>
+            </div>
+
+            <!-- Sugar: 55% left -->
+            <div class="stock-meter-row">
+              <div class="meter-label-row">
+                <span class="meter-prod-title">Sugar</span>
+                <span class="meter-percent-val val-normal tabular-nums">55% left</span>
+              </div>
+              <div class="meter-track">
+                <div class="meter-fill fill-blue" style="width: 55%;"></div>
+              </div>
+            </div>
+
+            <!-- Maggi Sauce: 70% left -->
+            <div class="stock-meter-row">
+              <div class="meter-label-row">
+                <span class="meter-prod-title">Maggi Sauce</span>
+                <span class="meter-percent-val val-normal tabular-nums">70% left</span>
+              </div>
+              <div class="meter-track">
+                <div class="meter-fill fill-blue" style="width: 70%;"></div>
+              </div>
+            </div>
+
+            <!-- Sunflower Oil: 12% left (Critical) -->
+            <div class="stock-meter-row">
+              <div class="meter-label-row">
+                <span class="meter-prod-title">Sunflower Oil</span>
+                <span class="meter-percent-val val-danger tabular-nums">12% left</span>
+              </div>
+              <div class="meter-track">
+                <div class="meter-fill fill-danger" style="width: 12%;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+        <!-- 4. Inventory Status Table (Cols 4-9) -->
+        <div class="glass-card inventory-status-card">
+          <div class="card-header-row">
+            <h2 class="card-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              Inventory Status
+            </h2>
+            <span style="font-size: 0.74rem; color: var(--text-tertiary);">Live Catalog Register</span>
+          </div>
+
+          <div class="apple-table-wrap">
+            <table class="apple-table">
+              <thead>
+                <tr>
+                  <th>Product Name</th>
+                  <th>SKU</th>
+                  <th>Category</th>
+                  <th style="text-align: right;">Quantity</th>
+                  <th style="text-align: center;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="inventoryTableBody">
+                <!-- Row 1: Parle-G -->
+                <tr>
+                  <td>
+                    <div class="table-prod-cell">
+                      <img src="assets/products/parle_g.png" alt="Parle-G" class="table-prod-thumb" />
+                      <span>Parle-G</span>
+                    </div>
+                  </td>
+                  <td class="tabular-nums">P01</td>
+                  <td>Biscuits</td>
+                  <td style="text-align: right;" class="tabular-nums font-bold">22</td>
+                  <td style="text-align: center;"><span class="status-pill status-low">Low Stock</span></td>
+                </tr>
+
+                <!-- Row 2: Sugar (Loose) -->
+                <tr>
+                  <td>
+                    <div class="table-prod-cell">
+                      <img src="assets/products/sugar.png" alt="Sugar" class="table-prod-thumb" />
+                      <span>Sugar (Loose)</span>
+                    </div>
+                  </td>
+                  <td class="tabular-nums">P02</td>
+                  <td>Staples</td>
+                  <td style="text-align: right;" class="tabular-nums font-bold">16</td>
+                  <td style="text-align: center;"><span class="status-pill status-low">Low Stock</span></td>
+                </tr>
+
+                <!-- Row 3: Maggi Sauce (70 Qty: In Stock) -->
+                <tr>
+                  <td>
+                    <div class="table-prod-cell">
+                      <img src="assets/products/maggi.png" alt="Maggi Sauce" class="table-prod-thumb" />
+                      <span>Maggi Sauce</span>
+                    </div>
+                  </td>
+                  <td class="tabular-nums">P03</td>
+                  <td>Sauces</td>
+                  <td style="text-align: right;" class="tabular-nums font-bold">70</td>
+                  <td style="text-align: center;"><span class="status-pill status-in">In Stock</span></td>
+                </tr>
+
+                <!-- Row 4: Sunflower Oil (12 Qty: Low Stock) -->
+                <tr>
+                  <td>
+                    <div class="table-prod-cell">
+                      <img src="assets/products/alert_sunflower_oil.png" alt="Sunflower Oil" class="table-prod-thumb" />
+                      <span>Sunflower Oil</span>
+                    </div>
+                  </td>
+                  <td class="tabular-nums">P04</td>
+                  <td>Edible Oils</td>
+                  <td style="text-align: right;" class="tabular-nums font-bold">12</td>
+                  <td style="text-align: center;"><span class="status-pill status-low">Low Stock</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+        <!-- 5. Top Products Revenue (Cols 10-12) -->
+        <div class="glass-card top-products-card">
+          <div class="card-header-row">
+            <h2 class="card-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              Top Products
+            </h2>
+            <span style="font-size: 0.72rem; color: var(--brass-600); font-weight: 600;">By Revenue</span>
+          </div>
+
+          <div class="top-products-list">
+            <!-- Top 1: Parle-G (₹12,450) -->
+            <div class="top-product-item">
+              <div class="top-prod-left">
+                <img src="assets/products/parle_g.png" alt="Parle-G" class="table-prod-thumb" />
+                <div class="top-prod-meta">
+                  <span class="top-prod-name">Parle-G</span>
+                  <span class="top-prod-sku tabular-nums">SKU: P01</span>
+                </div>
+              </div>
+              <div class="top-prod-revenue tabular-nums">₹12,450</div>
+            </div>
+
+            <!-- Top 2: Sugar (Loose) (₹2,500) -->
+            <div class="top-product-item">
+              <div class="top-prod-left">
+                <img src="assets/products/sugar.png" alt="Sugar" class="table-prod-thumb" />
+                <div class="top-prod-meta">
+                  <span class="top-prod-name">Sugar (Loose)</span>
+                  <span class="top-prod-sku tabular-nums">SKU: P02</span>
+                </div>
+              </div>
+              <div class="top-prod-revenue tabular-nums">₹2,500</div>
+            </div>
+
+            <!-- Top 3: Colgate (₹340) -->
+            <div class="top-product-item">
+              <div class="top-prod-left">
+                <img src="assets/products/alert_colgate.png" alt="Colgate" class="table-prod-thumb" />
+                <div class="top-prod-meta">
+                  <span class="top-prod-name">Colgate</span>
+                  <span class="top-prod-sku tabular-nums">SKU: P03</span>
+                </div>
+              </div>
+              <div class="top-prod-revenue tabular-nums">₹340</div>
+            </div>
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+        <!-- ====================================================================
+             ROW 3: Product Catalog Cards, Low Stock Alerts, Recent Sales Feed
+             ==================================================================== -->
+
+        <!-- 6. Product Catalog Cards Carousel (Cols 1-5) -->
+        <div class="glass-card product-catalog-section">
+          <div class="card-header-row">
+            <h2 class="card-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+              Product Catalog Cards
+            </h2>
+            <div style="display: flex; gap: 6px;">
+              <button class="dock-btn" style="width: 28px; height: 28px;" onclick="scrollCatalog(-170)" title="Scroll Left">‹</button>
+              <button class="dock-btn" style="width: 28px; height: 28px;" onclick="scrollCatalog(170)" title="Scroll Right">›</button>
+            </div>
+          </div>
+
+          <div class="catalog-carousel-container" id="catalogCarousel">
+            
+            <!-- Card 1: Parle-G 100g -->
+            <div class="product-catalog-card" data-sku="FMCG-PARLE-100G">
+              <div class="product-image-pedestal pedestal-peach">
+                <img src="assets/products/parle_g.png" alt="Parle-G Biscuits" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/parle_g.jpg'" />
+              </div>
+              <div class="product-name">Parle-G 100g</div>
+              <div class="product-category-sub">पार्ले-जी बिस्कीट</div>
+              <div class="product-card-footer">
+                <span class="product-price tabular-nums">₹10</span>
+                <button class="apple-pill-btn btn-stock" onclick="handleStockAdd('Parle-G 100g', '₹10')">+ Stock</button>
+              </div>
+            </div>
+
+            <!-- Card 2: Madhur Pure Sugar -->
+            <div class="product-catalog-card" data-sku="GROC-SUG-001">
+              <div class="product-image-pedestal pedestal-blue">
+                <img src="assets/products/sugar.png" alt="Madhur Sugar" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/sugar.jpg'" />
+              </div>
+              <div class="product-name">Madhur Sugar</div>
+              <div class="product-category-sub">मधुर साखर (१ किग्रॅ)</div>
+              <div class="product-card-footer">
+                <span class="product-price tabular-nums">₹42</span>
+                <button class="apple-pill-btn btn-stock" onclick="handleStockAdd('Madhur Sugar', '₹42')">+ Stock</button>
+              </div>
+            </div>
+
+            <!-- Card 3: Fortune Sunflower Oil 1L -->
+            <div class="product-catalog-card" data-sku="OIL-FORT-1L">
+              <div class="product-image-pedestal pedestal-green">
+                <img src="assets/products/fortune_oil.png" alt="Fortune Oil 1L" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/fortune_oil.jpg'" />
+              </div>
+              <div class="product-name">Fortune Oil 1L</div>
+              <div class="product-category-sub">फॉर्च्युन तेल (पाऊच)</div>
+              <div class="product-card-footer">
+                <span class="product-price tabular-nums">₹135</span>
+                <button class="apple-pill-btn btn-stock" onclick="handleStockAdd('Fortune Oil 1L', '₹135')">+ Stock</button>
+              </div>
+            </div>
+
+            <!-- Card 4: Bakery Ladi Pav -->
+            <div class="product-catalog-card" data-sku="BAK-PAV-LADI">
+              <div class="product-image-pedestal pedestal-rose">
+                <img src="assets/products/bakery_pav.png" alt="Fresh Ladi Pav" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/ladi_pav.jpg'" />
+              </div>
+              <div class="product-name">Fresh Ladi Pav</div>
+              <div class="product-category-sub">बेकरी लादी पाव (६ बन्स)</div>
+              <div class="product-card-footer">
+                <span class="product-price tabular-nums">₹20</span>
+                <button class="apple-pill-btn btn-stock" onclick="handleStockAdd('Fresh Ladi Pav', '₹20')">+ Stock</button>
+              </div>
+            </div>
+
+            <!-- Card 5: Tur Dal -->
+            <div class="product-catalog-card" data-sku="DAL-TUR-001">
+              <div class="product-image-pedestal pedestal-azure">
+                <img src="assets/products/tur_dal.png" alt="Tur Dal" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/tur_dal.jpg'" />
+              </div>
+              <div class="product-name">Tur Dal 1kg</div>
+              <div class="product-category-sub">गावरान तूर डाळ</div>
+              <div class="product-card-footer">
+                <span class="product-price tabular-nums">₹155</span>
+                <button class="apple-pill-btn btn-stock" onclick="handleStockAdd('Tur Dal 1kg', '₹155')">+ Stock</button>
+              </div>
+            </div>
+
+            <!-- Card 6: Tata Salt -->
+            <div class="product-catalog-card" data-sku="GROC-SALT-1K">
+              <div class="product-image-pedestal pedestal-blue">
+                <img src="assets/products/tata_salt.png" alt="Tata Salt" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/tata_salt.jpg'" />
+              </div>
+              <div class="product-name">Tata Salt 1kg</div>
+              <div class="product-category-sub">टाटा शुद्ध मीठ</div>
+              <div class="product-card-footer">
+                <span class="product-price tabular-nums">₹28</span>
+                <button class="apple-pill-btn btn-stock" onclick="handleStockAdd('Tata Salt 1kg', '₹28')">+ Stock</button>
+              </div>
+            </div>
+
+            <!-- Card 7: Aashirvaad Atta 5kg -->
+            <div class="product-catalog-card" data-sku="GROC-ATTA-5K">
+              <div class="product-image-pedestal pedestal-peach">
+                <img src="assets/products/atta.png" alt="Aashirvaad Atta" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/aashirvaad_atta.jpg'" />
+              </div>
+              <div class="product-name">Aashirvaad Atta 5kg</div>
+              <div class="product-category-sub">चक्की आटा (५ किग्रॅ)</div>
+              <div class="product-card-footer">
+                <span class="product-price tabular-nums">₹220</span>
+                <button class="apple-pill-btn btn-stock" onclick="handleStockAdd('Aashirvaad Atta 5kg', '₹220')">+ Stock</button>
+              </div>
+            </div>
+
+            <!-- Card 8: Maggi 2-Min Noodles -->
+            <div class="product-catalog-card" data-sku="FMCG-MAGGI-70G">
+              <div class="product-image-pedestal pedestal-green">
+                <img src="assets/products/maggi.png" alt="Maggi Noodles" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/maggi.jpg'" />
+              </div>
+              <div class="product-name">Maggi Noodles 70g</div>
+              <div class="product-category-sub">मॅगी मसाला नूडल्स</div>
+              <div class="product-card-footer">
+                <span class="product-price tabular-nums">₹14</span>
+                <button class="apple-pill-btn btn-stock" onclick="handleStockAdd('Maggi Noodles 70g', '₹14')">+ Stock</button>
+              </div>
+            </div>
+
+            <!-- Card 9: Fresh Red Onion -->
+            <div class="product-catalog-card" data-sku="VEG-KANDA-001">
+              <div class="product-image-pedestal pedestal-rose">
+                <img src="assets/products/onion.png" alt="Red Onion" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/red_onion.jpg'" />
+              </div>
+              <div class="product-name">Nashik Red Onion</div>
+              <div class="product-category-sub">लाल कांदा (१ किग्रॅ)</div>
+              <div class="product-card-footer">
+                <span class="product-price tabular-nums">₹35</span>
+                <button class="apple-pill-btn btn-stock" onclick="handleStockAdd('Nashik Red Onion', '₹35')">+ Stock</button>
+              </div>
+            </div>
+
+            <!-- Card 10: Fresh Potato -->
+            <div class="product-catalog-card" data-sku="VEG-BATATA-001">
+              <div class="product-image-pedestal pedestal-azure">
+                <img src="assets/products/potato.png" alt="Fresh Potato" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/potato.jpg'" />
+              </div>
+              <div class="product-name">Fresh Potato 1kg</div>
+              <div class="product-category-sub">ताजा बटाटा (१ किग्रॅ)</div>
+              <div class="product-card-footer">
+                <span class="product-price tabular-nums">₹30</span>
+                <button class="apple-pill-btn btn-stock" onclick="handleStockAdd('Fresh Potato 1kg', '₹30')">+ Stock</button>
+              </div>
+            </div>
+
+            <!-- Card 11: Amul Taaza Milk 500ml -->
+            <div class="product-catalog-card" data-sku="DAIRY-AMUL-500M">
+              <div class="product-image-pedestal pedestal-blue">
+                <img src="assets/products/amul_milk.jpg" alt="Amul Taaza Milk" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/DAIRY-AMUL-500M.jpg'" />
+              </div>
+              <div class="product-name">Amul Taaza 500ml</div>
+              <div class="product-category-sub">अमुल ताजा दूध (पाऊच)</div>
+              <div class="product-card-footer">
+                <span class="product-price tabular-nums">₹27</span>
+                <button class="apple-pill-btn btn-stock" onclick="handleStockAdd('Amul Taaza Milk', '₹27')">+ Stock</button>
+              </div>
+            </div>
+
+            <!-- Card 12: Reynolds 045 Pen -->
+            <div class="product-catalog-card" data-sku="AUTO-VID-PEN">
+              <div class="product-image-pedestal pedestal-azure">
+                <img src="assets/products/reynolds_pen.jpg" alt="Reynolds Pen" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/AUTO-VID-PEN.jpg'" />
+              </div>
+              <div class="product-name">Reynolds 045 Pen</div>
+              <div class="product-category-sub">रेनॉल्ड्स पेन (निळा)</div>
+              <div class="product-card-footer">
+                <span class="product-price tabular-nums">₹10</span>
+                <button class="apple-pill-btn btn-stock" onclick="handleStockAdd('Reynolds Pen', '₹10')">+ Stock</button>
+              </div>
+            </div>
+
+            <!-- Card 13: Classmate Notebook -->
+            <div class="product-catalog-card" data-sku="AUTO-VID-NOTEBOOK">
+              <div class="product-image-pedestal pedestal-peach">
+                <img src="assets/products/classmate_notebook.jpg" alt="Classmate Notebook" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/AUTO-VID-NOTEBOOK.jpg'" />
+              </div>
+              <div class="product-name">Classmate Notebook</div>
+              <div class="product-category-sub">क्लासमेट वही १७२ पाने</div>
+              <div class="product-card-footer">
+                <span class="product-price tabular-nums">₹45</span>
+                <button class="apple-pill-btn btn-stock" onclick="handleStockAdd('Classmate Notebook', '₹45')">+ Stock</button>
+              </div>
+            </div>
+
+            <!-- Card 14: Kinley Water 1L -->
+            <div class="product-catalog-card" data-sku="AUTO-VID-KINLEY">
+              <div class="product-image-pedestal pedestal-green">
+                <img src="assets/products/kinley_water.jpg" alt="Kinley 1L Water" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/AUTO-VID-KINLEY.jpg'" />
+              </div>
+              <div class="product-name">Kinley Water 1L</div>
+              <div class="product-category-sub">किनले पिण्याचे पाणी</div>
+              <div class="product-card-footer">
+                <span class="product-price tabular-nums">₹20</span>
+                <button class="apple-pill-btn btn-stock" onclick="handleStockAdd('Kinley Water 1L', '₹20')">+ Stock</button>
+              </div>
+            </div>
+
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+        <!-- 7. Low Stock Alerts (Cols 6-8) -->
+        <div class="glass-card low-stock-alerts-card">
+          <div class="card-header-row">
+            <h2 class="card-heading" style="color: var(--apple-coral);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              Low Stock Alerts
+            </h2>
+            <span class="status-pill status-low">2 Critical</span>
+          </div>
+
+          <div class="alerts-list-wrap">
+            <!-- Alert 1: Parle-G -->
+            <div class="alert-item-box">
+              <div class="alert-left-details">
+                <img src="assets/products/alert_parle_g.png" alt="Parle-G" class="alert-thumb" />
+                <div class="alert-text-group">
+                  <span class="alert-prod-name">Parle-G</span>
+                  <span class="alert-category-tag">Biscuits • 22 left</span>
+                </div>
+              </div>
+              <button class="restock-btn" onclick="handleStockAdd('Parle-G', 'Critical Restock')">Restock</button>
+            </div>
+
+            <!-- Alert 2: Sunflower Oil -->
+            <div class="alert-item-box">
+              <div class="alert-left-details">
+                <img src="assets/products/alert_sunflower_oil.png" alt="Sunflower Oil" class="alert-thumb" />
+                <div class="alert-text-group">
+                  <span class="alert-prod-name">Sunflower Oil</span>
+                  <span class="alert-category-tag">Edible Oil • 12 left</span>
+                </div>
+              </div>
+              <button class="restock-btn" onclick="handleStockAdd('Sunflower Oil', 'Restock Ordered')">Restock</button>
+            </div>
+
+            <!-- Alert 3: Colgate -->
+            <div class="alert-item-box">
+              <div class="alert-left-details">
+                <img src="assets/products/alert_colgate.png" alt="Colgate" class="alert-thumb" />
+                <div class="alert-text-group">
+                  <span class="alert-prod-name">Colgate</span>
+                  <span class="alert-category-tag">Toothpaste • 8 left</span>
+                </div>
+              </div>
+              <button class="restock-btn" onclick="handleStockAdd('Colgate', 'Critical Restock')">Restock</button>
+            </div>
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+        <!-- 8. Recent Sales Activity Feed (Cols 9-12) -->
+        <div class="glass-card recent-sales-card">
+          <div class="card-header-row">
+            <h2 class="card-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              Recent Sales
+            </h2>
+            <span style="font-size: 0.74rem; color: var(--emerald-600); font-weight: 600; cursor: pointer;" onclick="toggleWhatsAppDrawer()">
+              Live Ingress ↗
+            </span>
+          </div>
+
+          <div class="recent-sales-feed" id="recentSalesFeedList">
+            <!-- Item 1: Recent Sale -->
+            <div class="sale-feed-row">
+              <div class="sale-feed-left">
+                <div class="sale-icon-box">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </div>
+                <div class="sale-meta-group">
+                  <span class="sale-item-title">Recent Sale (5x Parle-G, 2kg Sugar)</span>
+                  <span class="sale-timestamp tabular-nums">1 day 10:05 AM</span>
+                </div>
+              </div>
+              <span class="sale-customer-tag">Yesterday</span>
+            </div>
+
+            <!-- Item 2: Sunflower Oil -->
+            <div class="sale-feed-row">
+              <div class="sale-feed-left">
+                <div class="sale-icon-box basket">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                  </svg>
+                </div>
+                <div class="sale-meta-group">
+                  <span class="sale-item-title">Sunflower Oil (1L Bottle)</span>
+                  <span class="sale-timestamp tabular-nums">1 day 10:03 AM</span>
+                </div>
+              </div>
+              <span class="sale-customer-tag">You</span>
+            </div>
+
+            <!-- Item 3: Recent Sale -->
+            <div class="sale-feed-row">
+              <div class="sale-feed-left">
+                <div class="sale-icon-box">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </div>
+                <div class="sale-meta-group">
+                  <span class="sale-item-title">Recent Sale (Maggi Sauce Bottle)</span>
+                  <span class="sale-timestamp tabular-nums">1 day 10:03 AM</span>
+                </div>
+              </div>
+              <span class="sale-customer-tag">Hari</span>
+            </div>
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+        <!-- ====================================================================
+             ROW 4: Remote Customer Yaadi Queue & Voice-to-Scale Loose Commodity Engine
+             ==================================================================== -->
+
+        <!-- 9. Remote Customer Yaadi Queue (Cols 1-7) -->
+        <div class="glass-card remote-yaadi-card">
+          <div class="card-header-row">
+            <h2 class="card-heading" style="color: var(--emerald-900);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              Remote Customer Yaadi (कच्ची पर्ची Queue)
+            </h2>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span class="status-pill status-in" style="background: rgba(37, 211, 102, 0.12); color: #128c7e;" title="Zero Direct Deduction Invariant Active">
+                Zero-Deduction Safe
+              </span>
+              <button class="apple-pill-btn btn-stock" onclick="renderPendingYaadiOrders()" title="Refresh Customer Queue">
+                ↻ Sync
+              </button>
+            </div>
+          </div>
+
+          <div style="font-size: 0.74rem; color: var(--text-tertiary); margin: 4px 0 10px 0; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>Customer orders via WhatsApp are staged in PENDING status. Master stock is <strong>never decremented</strong> until you click "Pack & Fulfill".</span>
+          </div>
+
+          <!-- Pending Yaadi Feed Container -->
+          <div class="yaadi-orders-feed" id="yaadiOrdersFeedList">
+            <!-- Dynamically populated by renderPendingYaadiOrders() -->
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+        <!-- 10. Voice-to-Scale Loose Commodity Calculator (Cols 8-12) -->
+        <div class="glass-card reverse-math-card">
+          <div class="card-header-row">
+            <h2 class="card-heading" style="color: var(--brass-700);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="6" x2="12" y2="12"></line>
+                <line x1="12" y1="12" x2="16" y2="14"></line>
+              </svg>
+              Voice-to-Scale Reverse Math
+            </h2>
+            <span class="status-pill status-in" style="background: rgba(45, 106, 111, 0.12); color: var(--emerald-700);">
+              0.022ms Realtime
+            </span>
+          </div>
+
+          <div class="scale-card-inner">
+            <!-- Digital Scale OLED Display -->
+            <div class="scale-digital-display">
+              <div class="scale-display-top">
+                <span>DIGITAL SCALE TARGET</span>
+                <span id="scaleUnitBadge">GRAMS</span>
+              </div>
+              <div class="scale-digits-row">
+                <div class="scale-main-digits" id="scaleDigitReadout">476 <span style="font-size: 1.2rem; color: #a8f5c4;">g</span></div>
+                <div style="text-align: right;">
+                  <span style="font-size: 0.72rem; color: var(--brass-400); display: block;">ESTIMATED PRICE</span>
+                  <span style="font-size: 1.25rem; font-weight: 700; color: #ffffff;" id="scalePriceReadout">₹20.00</span>
+                </div>
+              </div>
+              <div class="scale-sub-formula" id="scaleFormulaReadout">
+                Formula: ₹20 ÷ ₹42/kg = 0.476 kg (476 grams)
+              </div>
+            </div>
+
+            <!-- Voice Query Quick Chips -->
+            <div class="quick-chip-scroller">
+              <span class="voice-query-chip" onclick="runReverseMathChip('20 chi sakhar')">20 chi sakhar</span>
+              <span class="voice-query-chip" onclick="runReverseMathChip('350 gm tur dal')">350 gm tur dal</span>
+              <span class="voice-query-chip" onclick="runReverseMathChip('पावशेर साखर')">पावशेर साखर (250g)</span>
+              <span class="voice-query-chip" onclick="runReverseMathChip('सव्वा किलो गहू')">सव्वा किलो गहू (1.25kg)</span>
+              <span class="voice-query-chip" onclick="runReverseMathChip('50 rupayache tel')">50 rupayache tel</span>
+            </div>
+
+            <!-- Voice / Text Input Box -->
+            <div class="scale-input-group">
+              <input type="text" class="scale-text-input" id="scaleVoiceInput" placeholder="Try '20 chi sakhar' or '350 gm tur dal'..." onkeydown="if(event.key==='Enter') runReverseMathFromInput()" />
+              <button class="apple-pill-btn btn-stock" onclick="runReverseMathFromInput()" style="background: var(--emerald-800); color: #fff; padding: 0 16px;">
+                Calculate
+              </button>
+            </div>
+            
+            <button class="restock-btn" style="width: 100%; padding: 9px; justify-content: center;" onclick="addScaleResultToBill()">
+              + Print Scale Slip & Add to Bill
+            </button>
+          </div>
+          <div class="specular-sweep"></div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- 5. 15-Second Video Store Onboarding visionOS Modal (Gemini 1.5 Flash) -->
+  <div class="vision-modal-backdrop" id="videoSweepModalBackdrop" onclick="if(event.target.id==='videoSweepModalBackdrop') closeVideoSweepModal()">
+    <div class="vision-modal-sheet">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+        <div>
+          <div class="modal-step-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Gemini 1.5 Flash Vision Multimodal
+          </div>
+          <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--emerald-900); margin-top: 6px;">
+            15s Shelf Video Onboarding
+          </h2>
+          <p style="font-size: 0.78rem; color: var(--text-tertiary); margin-top: 2px;">
+            Zero-touch catalog creation: pan your store shelves for 15 seconds. AI detects SKUs, barcodes, and establishes live inventory in one pass.
+          </p>
+        </div>
+        <button class="close-drawer-btn" onclick="closeVideoSweepModal()" style="font-size: 1rem; width: 32px; height: 32px;">✕</button>
+      </div>
+
+      <!-- Live Video Sweep Progress Bar -->
+      <div class="modal-progress-bar-wrap">
+        <div class="modal-progress-fill" id="videoSweepProgressFill"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.74rem; color: var(--text-tertiary); margin-top: -12px; margin-bottom: 16px;">
+        <span id="videoSweepStatusText">Standby: Ready to analyze shelf scan</span>
+        <span id="videoSweepPercentText" class="tabular-nums font-bold">0%</span>
+      </div>
+
+      <!-- Discovered SKUs Card Container -->
+      <div id="discoveredSkusContainer" style="max-height: 240px; overflow-y: auto; margin-bottom: 18px;">
+        <div class="discovered-sku-card">
+          <img src="assets/products/reynolds_pen.jpg" alt="Reynolds Pen" class="discovered-sku-thumb" onerror="this.src='assets/products/AUTO-VID-PEN.jpg'" />
+          <div style="flex: 1;">
+            <div style="font-size: 0.84rem; font-weight: 650;">Reynolds 045 Ballpoint Pen</div>
+            <div style="font-size: 0.72rem; color: var(--text-tertiary);">Barcode: 8901234001 • Stationeries • Soundex: R543</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.9rem; font-weight: 700; color: var(--emerald-900);">₹10.00</div>
+            <span class="status-pill status-in" style="font-size: 0.68rem; padding: 2px 6px;">New SKU</span>
+          </div>
+        </div>
+
+        <div class="discovered-sku-card">
+          <img src="assets/products/classmate_notebook.jpg" alt="Classmate Notebook" class="discovered-sku-thumb" onerror="this.src='assets/products/AUTO-VID-NOTEBOOK.jpg'" />
+          <div style="flex: 1;">
+            <div style="font-size: 0.84rem; font-weight: 650;">Classmate Notebook 172 Pages</div>
+            <div style="font-size: 0.72rem; color: var(--text-tertiary);">Barcode: 8901234002 • Books • Soundex: C425</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.9rem; font-weight: 700; color: var(--emerald-900);">₹45.00</div>
+            <span class="status-pill status-in" style="font-size: 0.68rem; padding: 2px 6px;">New SKU</span>
+          </div>
+        </div>
+
+        <div class="discovered-sku-card">
+          <img src="assets/products/kinley_water.jpg" alt="Kinley 1L Water" class="discovered-sku-thumb" onerror="this.src='assets/products/AUTO-VID-KINLEY.jpg'" />
+          <div style="flex: 1;">
+            <div style="font-size: 0.84rem; font-weight: 650;">Kinley Water Bottle 1 Litre</div>
+            <div style="font-size: 0.72rem; color: var(--text-tertiary);">Barcode: 8901234003 • Beverages • Soundex: K540</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.9rem; font-weight: 700; color: var(--emerald-900);">₹20.00</div>
+            <span class="status-pill status-in" style="font-size: 0.68rem; padding: 2px 6px;">New SKU</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="apple-pill-btn btn-stock" onclick="startVideoSweepSimulation()" id="btnStartVideoSweep">
+          🎥 Run 15s Vision Sweep
+        </button>
+        <button class="restock-btn" onclick="commitDiscoveredSkus()" id="btnCommitSkus" style="background: var(--emerald-800); color: #fff; border-color: var(--emerald-800);">
+          ✓ Commit 3 SKUs to Store Catalog
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Floating WhatsApp Ingress Trigger Pill -->
+  <div class="whatsapp-floating-island" onclick="toggleWhatsAppDrawer()" title="Open iPhone WhatsApp AI Console">
+    <div class="pulse-dot"></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+    </svg>
+    <span>WhatsApp AI Ingress</span>
+  </div>
+
+  <!-- 4. iPhone 15 Pro Titanium Slide-Over Frame Drawer -->
+  <div class="iphone-drawer-backdrop" id="iphoneDrawerBackdrop" onclick="closeDrawerOnBackdrop(event)">
+    <div class="iphone-drawer-panel" id="iphoneDrawerPanel">
+      
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color: #25d366;">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+          </svg>
+          WhatsApp AI Ingress Console
+        </div>
+        <button class="close-drawer-btn" onclick="toggleWhatsAppDrawer()" title="Close Drawer">✕</button>
+      </div>
+
+      <p style="font-size: 0.78rem; color: var(--text-tertiary); margin-bottom: 14px;">
+        Interactive WhatsApp Voice & Ingress Simulation — Orders recorded here synchronize live with the VyaparAI dashboard.
+      </p>
+
+      <!-- iPhone Titanium Frame Housing -->
+      <div class="iphone-frame-bezel">
+        <!-- Dynamic Island Pill -->
+        <div class="dynamic-island">
+          <div class="dynamic-island-cam"></div>
+          <div class="dynamic-island-sensor"></div>
+        </div>
+
+        <!-- Embedded Interactive Console -->
+        <div class="iphone-screen-content">
+          <iframe src="whatsapp-console.html" class="iphone-iframe" id="whatsappConsoleIframe" title="WhatsApp Ingress Console"></iframe>
+        </div>
+      </div>
+
+      <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.74rem; color: var(--emerald-700); font-weight: 600;">VyaparAI Live Ingress Hook Active</span>
+        <a href="whatsapp-console.html" target="_blank" style="font-size: 0.74rem; color: var(--apple-blue); font-weight: 600; text-decoration: none;">
+          Open Fullscreen ↗
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Apple Global Interactive Toast -->
+  <div class="apple-toast" id="appleToastNotification">
+    <div class="toast-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+    </div>
+    <span id="appleToastMessage">Stock updated successfully</span>
+  </div>
+
+  <!-- ==========================================================================
+       7. Apple-Grade Micro-Interactions, 60 FPS Counters & Haptics Engine
+       ========================================================================== -->
+  <script>
+    // Singleton Number Formatter (Prevents V8 Heap Churn / GC Pauses)
+    const inrFormatter = new Intl.NumberFormat('en-IN');
+
+    // 1. Apple Haptic Engine with Interaction Guarding
+    class AppleHapticEngine {
+      constructor() {
+        this.ctx = null;
+        this.unlocked = false;
+        this.bindUnlock();
+      }
+
+      bindUnlock() {
+        const unlock = () => {
+          if (!this.unlocked) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+              this.ctx = new AudioContext();
+              if (this.ctx.state === 'suspended') {
+                this.ctx.resume();
+              }
+              this.unlocked = true;
+            }
+          }
+          window.removeEventListener('pointerdown', unlock);
+          window.removeEventListener('keydown', unlock);
+        };
+        window.addEventListener('pointerdown', unlock, { passive: true });
+        window.addEventListener('keydown', unlock, { passive: true });
+      }
+
+      tap() {
+        try {
+          if (!this.ctx || this.ctx.state !== 'running') return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.015);
+          gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.015);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.015);
+        } catch (e) {
+          // Silent fallback
+        }
+      }
+    }
+    const haptics = new AppleHapticEngine();
+
+    // 2. 60 FPS Ease-Out-Quart Counter Animation
+    function animateCounter(elementId, start, end, duration = 1100, prefix = '', suffix = '') {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      let startTimestamp = null;
+      const easeOutQuart = x => 1 - Math.pow(1 - x, 4);
+
+      function step(timestamp) {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const currentVal = Math.floor(easeOutQuart(progress) * (end - start) + start);
+        el.textContent = `${prefix}${inrFormatter.format(currentVal)}${suffix}`;
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        } else {
+          el.textContent = `${prefix}${inrFormatter.format(end)}${suffix}`;
+        }
+      }
+      window.requestAnimationFrame(step);
+    }
+
+    // 3. Apple Interactive Toast System
+    let toastTimeout;
+    function showAppleToast(msg) {
+      haptics.tap();
+      const toast = document.getElementById('appleToastNotification');
+      const toastMsg = document.getElementById('appleToastMessage');
+      if (!toast || !toastMsg) return;
+      toastMsg.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    // 4. Pointer-Events Unified Momentum Drag Carousel for Product Cards
+    function initMomentumScroll(containerId) {
+      const slider = document.getElementById(containerId);
+      if (!slider) return;
+
+      let isDown = false;
+      let startX = 0;
+      let scrollLeft = 0;
+      let velX = 0;
+      let momentumID = null;
+
+      slider.addEventListener('pointerdown', (e) => {
+        isDown = true;
+        slider.classList.add('grabbing');
+        slider.setPointerCapture(e.pointerId);
+        startX = e.clientX;
+        scrollLeft = slider.scrollLeft;
+        velX = 0;
+        cancelAnimationFrame(momentumID);
+      });
+
+      slider.addEventListener('pointermove', (e) => {
+        if (!isDown) return;
+        const deltaX = (e.clientX - startX) * 1.25;
+        const targetScroll = scrollLeft - deltaX;
+        velX = targetScroll - slider.scrollLeft;
+        slider.scrollLeft = targetScroll;
+      });
+
+      const endPointer = (e) => {
+        if (!isDown) return;
+        isDown = false;
+        slider.classList.remove('grabbing');
+        try { slider.releasePointerCapture(e.pointerId); } catch(err) {}
+        beginMomentum();
+      };
+
+      slider.addEventListener('pointerup', endPointer);
+      slider.addEventListener('pointercancel', endPointer);
+
+      function beginMomentum() {
+        cancelAnimationFrame(momentumID);
+        function momentumLoop() {
+          slider.scrollLeft += velX;
+          velX *= 0.94; // Apple fluid momentum friction factor
+          if (Math.abs(velX) > 0.4) {
+            momentumID = requestAnimationFrame(momentumLoop);
+          }
+        }
+        momentumLoop();
+      }
+    }
+
+    function scrollCatalog(delta) {
+      haptics.tap();
+      const carousel = document.getElementById('catalogCarousel');
+      if (carousel) {
+        carousel.scrollBy({ left: delta, behavior: 'smooth' });
+      }
+    }
+
+    // 5. WhatsApp Ingress Drawer Toggle
+    function toggleWhatsAppDrawer() {
+      haptics.tap();
+      const backdrop = document.getElementById('iphoneDrawerBackdrop');
+      if (backdrop) {
+        backdrop.classList.toggle('open');
+      }
+    }
+
+    function closeDrawerOnBackdrop(e) {
+      if (e.target.id === 'iphoneDrawerBackdrop') {
+        toggleWhatsAppDrawer();
+      }
+    }
+
+    // 6. Action Handlers: Stock Add, Store Cycle
+    function handleStockAdd(productName, price) {
+      haptics.tap();
+      showAppleToast(`+ Stock order initiated for ${productName} (${price})`);
+      
+      // Live Increment Total Sales to simulate immediate interaction
+      const currentSales = 12450;
+      const addedVal = 350;
+      animateCounter('statTotalSales', currentSales, currentSales + addedVal, 800, '₹');
+    }
+
+    const dukaans = ["All Dukaans", "Ganesh Kirana (Main)", "Om Sai Provision", "Venkateshwara Traders"];
+    let dukaanIdx = 0;
+    function cycleDukaans() {
+      haptics.tap();
+      dukaanIdx = (dukaanIdx + 1) % dukaans.length;
+      const name = dukaans[dukaanIdx];
+      document.getElementById('currentDukaanName').textContent = name;
+      showAppleToast(`Active Store Filter: ${name}`);
+    }
+
+    // 7. Global Search Filter
+    function handleGlobalSearch(query) {
+      const q = query.toLowerCase().trim();
+      const rows = document.querySelectorAll('#inventoryTableBody tr');
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(q) ? '' : 'none';
+      });
+      const cards = document.querySelectorAll('.product-catalog-card');
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(q) ? '' : 'none';
+      });
+    }
+
+    // 8. Cross-Frame Bi-Directional Message Sync with WhatsApp Console
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'NEW_SALE_RECORDED') {
+        haptics.tap();
+        const sale = event.data;
+        showAppleToast(`WhatsApp Ingress: Recorded sale ₹${sale.amount} (${sale.item})`);
+        
+        // Dynamically increment sales and order stats
+        const currentSales = parseInt(document.getElementById('statTotalSales').textContent.replace(/[₹,]/g, '')) || 12450;
+        const currentOrders = parseInt(document.getElementById('statOrdersCount').textContent) || 42;
+        animateCounter('statTotalSales', currentSales, currentSales + (sale.amount || 340), 900, '₹');
+        animateCounter('statOrdersCount', currentOrders, currentOrders + 1, 600);
+
+        // Prepend new activity item in Recent Sales feed
+        const feed = document.getElementById('recentSalesFeedList');
+        if (feed) {
+          const newRow = document.createElement('div');
+          newRow.className = 'sale-feed-row';
+          newRow.innerHTML = `
+            <div class="sale-feed-left">
+              <div class="sale-icon-box" style="background: rgba(37, 211, 102, 0.15); color: #25d366;">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                </svg>
+              </div>
+              <div class="sale-meta-group">
+                <span class="sale-item-title">WhatsApp Order (${sale.item || 'Parle-G & Sugar'})</span>
+                <span class="sale-timestamp tabular-nums">Just now</span>
+              </div>
+            </div>
+            <span class="sale-customer-tag" style="color: #25d366; font-weight: 700;">+₹${sale.amount || 340}</span>
+          `;
+          feed.insertBefore(newRow, feed.firstChild);
+        }
+      } else if (event.data && event.data.type === 'NEW_CUSTOMER_YAADI') {
+        haptics.tap();
+        showAppleToast(`Customer Yaadi Received (${event.data.order ? event.data.order.customer_name : 'Customer'})! Staged in Pending Queue.`);
+        renderPendingYaadiOrders();
+      }
+    });
+
+    // 9. Chart.js Daily Sales Line Chart (Apple Styled with Subsurface Gradient)
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize Momentum Scroll
+      initMomentumScroll('catalogCarousel');
+
+      // Initialize Number Counters
+      animateCounter('statTotalSales', 0, 12450, 1100, '₹');
+      animateCounter('statOrdersCount', 0, 42, 900);
+
+      // Render Chart
+      const ctx = document.getElementById('dailySalesChart');
+      if (ctx) {
+        const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 120);
+        gradient.addColorStop(0, 'rgba(0, 113, 227, 0.28)');
+        gradient.addColorStop(1, 'rgba(0, 113, 227, 0.00)');
+
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+              label: 'Daily Sales',
+              data: [1500, 5200, 2100, 5300, 2400, 5800, 7100],
+              borderColor: '#0071e3',
+              borderWidth: 2.2,
+              tension: 0.42,
+              fill: true,
+              backgroundColor: gradient,
+              pointBackgroundColor: '#0071e3',
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 1.5,
+              pointRadius: 0,
+              pointHoverRadius: 5
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                titleColor: '#1d1d1f',
+                bodyColor: '#0071e3',
+                titleFont: { size: 11, weight: '600' },
+                bodyFont: { size: 12, weight: '700' },
+                borderColor: 'rgba(200, 195, 185, 0.4)',
+                borderWidth: 1,
+                padding: 8,
+                displayColors: false,
+                callbacks: {
+                  label: function(context) {
+                    return `Sales: ₹${inrFormatter.format(context.parsed.y)}`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: {
+                  font: { size: 9.5, family: '-apple-system, Inter, sans-serif' },
+                  color: '#8e8e93'
+                }
+              },
+              y: {
+                min: 0,
+                max: 8000,
+                grid: {
+                  color: 'rgba(0, 0, 0, 0.04)',
+                  drawBorder: false
+                },
+                ticks: {
+                  stepSize: 2000,
+                  font: { size: 9.5, family: '-apple-system, Inter, sans-serif' },
+                  color: '#8e8e93',
+                  callback: function(val) {
+                    return val === 0 ? '0' : val;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // Initialize Remote Yaadi Orders Queue
+      renderPendingYaadiOrders();
+    });
+
+    // =========================================================================
+    // 10. Big-3 Core Features: Video Sweep, Remote Yaadi, Reverse Math
+    // =========================================================================
+
+    // A. 15-Second Video Sweep Modal Handlers
+    function openVideoSweepModal() {
+      haptics.tap();
+      const backdrop = document.getElementById('videoSweepModalBackdrop');
+      if (backdrop) backdrop.classList.add('open');
+    }
+
+    function closeVideoSweepModal() {
+      haptics.tap();
+      const backdrop = document.getElementById('videoSweepModalBackdrop');
+      if (backdrop) backdrop.classList.remove('open');
+    }
+
+    let sweepInterval = null;
+    function startVideoSweepSimulation() {
+      haptics.tap();
+      const fill = document.getElementById('videoSweepProgressFill');
+      const statusText = document.getElementById('videoSweepStatusText');
+      const pctText = document.getElementById('videoSweepPercentText');
+      const btnStart = document.getElementById('btnStartVideoSweep');
+      if (!fill || !statusText || !pctText) return;
+
+      btnStart.disabled = true;
+      let pct = 0;
+      clearInterval(sweepInterval);
+
+      sweepInterval = setInterval(() => {
+        pct += 5;
+        if (pct <= 30) {
+          fill.style.width = `${pct}%`;
+          pctText.textContent = `${pct}%`;
+          statusText.textContent = "Extracting video frames (15s sweep @ 2fps)...";
+        } else if (pct <= 70) {
+          fill.style.width = `${pct}%`;
+          pctText.textContent = `${pct}%`;
+          statusText.textContent = "Gemini 1.5 Flash Vision Multimodal analysis...";
+        } else if (pct < 100) {
+          fill.style.width = `${pct}%`;
+          pctText.textContent = `${pct}%`;
+          statusText.textContent = "Generating SKUs, Marathi Soundex & Barcodes...";
+        } else {
+          fill.style.width = '100%';
+          pctText.textContent = '100%';
+          statusText.textContent = "✓ Scan Complete: 3 New SKUs Extracted!";
+          clearInterval(sweepInterval);
+          btnStart.disabled = false;
+          showAppleToast("Gemini 1.5 Flash: Extracted 3 New SKUs from 15s video sweep!");
+          
+          if (window.VyaparCore && window.VyaparCore.backend) {
+            VyaparCore.backend.uploadShelfVideo(new Blob(["video-sweep-demo"], { type: "video/mp4" }))
+              .then(res => console.log("Backend Video Onboarding Response:", res))
+              .catch(err => console.log("Offline mode, using client simulation:", err));
+          }
+        }
+      }, 90);
+    }
+
+    function commitDiscoveredSkus() {
+      haptics.tap();
+      showAppleToast("Committed Reynolds Pen, Notebook, & Kinley Water to Master Inventory!");
+      closeVideoSweepModal();
+
+      const currentOrders = parseInt(document.getElementById('statOrdersCount').textContent) || 42;
+      animateCounter('statOrdersCount', currentOrders, currentOrders + 3, 600);
+    }
+
+    // B. Remote Customer Yaadi Queue Handlers
+    function renderPendingYaadiOrders() {
+      const container = document.getElementById('yaadiOrdersFeedList');
+      if (!container) return;
+
+      const orders = window.VyaparCore ? VyaparCore.getPendingOrders() : [];
+      if (!orders || orders.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 24px; color: var(--text-tertiary); font-size: 0.82rem;">
+            No pending customer yaadi slips right now. Orders arriving on WhatsApp (+91 98230...) will appear here live.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = orders.map(order => {
+        const isFulfilled = order.status === 'FULFILLED';
+        return `
+          <div class="yaadi-order-box ${isFulfilled ? 'fulfilled' : ''}" id="yaadi-order-${order.id}">
+            <div class="yaadi-order-header">
+              <div class="yaadi-cust-info">
+                <div class="yaadi-cust-avatar">${order.customerName ? order.customerName.charAt(0) : 'C'}</div>
+                <div>
+                  <div class="yaadi-cust-name">${order.customerName}</div>
+                  <div class="yaadi-cust-phone">${order.phone} • ${order.timestamp}</div>
+                </div>
+              </div>
+              <span class="status-pill ${isFulfilled ? 'status-in' : 'status-low'}" style="font-size: 0.72rem;">
+                ${isFulfilled ? '✓ PACKED & FULFILLED' : '⏳ PENDING FULFILLMENT'}
+              </span>
+            </div>
+            
+            <div class="yaadi-items-list">
+              <strong>Order Slip:</strong> "${order.rawText}"<br/>
+              <span style="font-size: 0.75rem; color: var(--text-tertiary);">Parsed items: ${order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</span>
+            </div>
+
+            <div class="yaadi-footer-row">
+              <div class="yaadi-est-total">Est. Total: ₹${order.totalEstimated}</div>
+              <button 
+                class="btn-pack-order" 
+                onclick="packCustomerOrder('${order.id}')"
+                ${isFulfilled ? 'disabled' : ''}>
+                ${isFulfilled ? '✓ Stock Deducted' : 'Pack & Fulfill ✓'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function packCustomerOrder(orderId) {
+      haptics.tap();
+      if (!window.VyaparCore) return;
+      const res = VyaparCore.packAndFulfillOrder(orderId);
+      if (res && res.success) {
+        showAppleToast(`Packed order for ${res.order.customerName}! Stock deducted ₹${res.order.totalEstimated}.`);
+        renderPendingYaadiOrders();
+
+        const currentSales = parseInt(document.getElementById('statTotalSales').textContent.replace(/[₹,]/g, '')) || 12450;
+        const currentOrders = parseInt(document.getElementById('statOrdersCount').textContent) || 42;
+        animateCounter('statTotalSales', currentSales, currentSales + res.order.totalEstimated, 800, '₹');
+        animateCounter('statOrdersCount', currentOrders, currentOrders + 1, 500);
+
+        const feed = document.getElementById('recentSalesFeedList');
+        if (feed) {
+          const newRow = document.createElement('div');
+          newRow.className = 'sale-feed-row';
+          newRow.innerHTML = `
+            <div class="sale-feed-left">
+              <div class="sale-icon-box basket">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                </svg>
+              </div>
+              <div class="sale-meta-group">
+                <span class="sale-item-title">Customer Yaadi (${res.order.customerName})</span>
+                <span class="sale-timestamp tabular-nums">Just now</span>
+              </div>
+            </div>
+            <span class="sale-customer-tag" style="color: var(--apple-green); font-weight: 700;">+₹${res.order.totalEstimated}</span>
+          `;
+          feed.insertBefore(newRow, feed.firstChild);
+        }
+      } else {
+        showAppleToast(res ? res.error : "Failed to pack order");
+      }
+    }
+
+    // C. Voice-to-Scale Loose Commodity Calculator
+    let currentScaleResult = { item: "Sugar (साखर)", grams: 476, amount: 20 };
+    function runReverseMathChip(query) {
+      haptics.tap();
+      document.getElementById('scaleVoiceInput').value = query;
+      runReverseMath(query);
+    }
+
+    function runReverseMathFromInput() {
+      const q = document.getElementById('scaleVoiceInput').value.trim();
+      if (!q) return;
+      haptics.tap();
+      runReverseMath(q);
+    }
+
+    function runReverseMath(query) {
+      if (!window.VyaparCore) return;
+      const res = VyaparCore.calculateReverseMath(query);
+      if (!res) return;
+
+      const digitEl = document.getElementById('scaleDigitReadout');
+      const unitBadge = document.getElementById('scaleUnitBadge');
+      const priceEl = document.getElementById('scalePriceReadout');
+      const formulaEl = document.getElementById('scaleFormulaReadout');
+
+      if (res.mode === "MONEY_TO_WEIGHT") {
+        unitBadge.textContent = "GRAMS ON SCALE";
+        const g = res.grams || res.targetGrams;
+        const m = res.money || res.requestedAmount || 0;
+        digitEl.innerHTML = `${g} <span style="font-size: 1.2rem; color: #a8f5c4;">g</span>`;
+        priceEl.textContent = `₹${m.toFixed(2)}`;
+        formulaEl.textContent = res.scale_display || `Formula: ₹${m} = ${g}g on scale (${res.item_name})`;
+        currentScaleResult = { item: res.item_name || res.item, grams: g, amount: m };
+      } else {
+        unitBadge.textContent = "TOTAL TO CHARGE";
+        const b = res.bill || res.computedPrice || 0;
+        const g = res.grams || res.weightGrams || 0;
+        digitEl.innerHTML = `₹${b.toFixed(2)}`;
+        priceEl.textContent = `${g}g Scale`;
+        formulaEl.textContent = res.scale_display || `Formula: ${g}g = ₹${b.toFixed(2)} (${res.item_name})`;
+        currentScaleResult = { item: res.item_name || res.item, grams: g, amount: b };
+      }
+    }
+
+    function addScaleResultToBill() {
+      haptics.tap();
+      showAppleToast(`Added Scale Item to Bill: ${currentScaleResult.item} - ${currentScaleResult.grams}g (₹${currentScaleResult.amount})`);
+    }
+
+    // D. Header Action Buttons
+    function triggerGSTExport() {
+      haptics.tap();
+      showAppleToast("Generating RFC 4180 GST CSV...");
+      if (window.VyaparCore && window.VyaparCore.backend) {
+        VyaparCore.backend.exportGSTCSV();
+      } else {
+        const dummyCsv = "Invoice_No,Date,Customer,GSTIN,Taxable_Value,CGST,SGST,Total\n" +
+                         "INV-1082,2026-10-18,Rohan Patil,N/A,123.81,3.09,3.09,130.00\n" +
+                         "INV-1081,2026-10-18,Sunita Deshmukh,N/A,295.24,7.38,7.38,310.00\n";
+        const blob = new Blob([dummyCsv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "VyaparAI_GST_Report_October_2026.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    function triggerQuickAddDairy() {
+      haptics.tap();
+      showAppleToast("Added Gokul Cow Milk 500ml (Pouch) to Dairy inventory with 48h expiry tracking!");
+      const currentOrders = parseInt(document.getElementById('statOrdersCount').textContent) || 42;
+      animateCounter('statOrdersCount', currentOrders, currentOrders + 1, 500);
+      if (window.VyaparCore && window.VyaparCore.backend) {
+        VyaparCore.backend.quickAddDairy("Gokul Cow Milk 500ml", 28, 50);
+      }
+    }
+  </script>
+</body>
+</html>
