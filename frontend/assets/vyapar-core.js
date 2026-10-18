@@ -300,12 +300,13 @@ const VyaparCore = (function() {
   let pendingOrders = load(KEY_ORDERS, DEFAULT_PENDING_ORDERS);
   let activeDukaan = (typeof localStorage !== 'undefined' ? localStorage.getItem(KEY_STORE) : null) || "Ganesh Kirana (Rajarampuri)";
 
-  // Backend URL configuration
+  // Backend URL configuration (Seamless for Render cloud HTTPS, localhost, or file://)
   function getBackendUrl() {
     if (typeof window !== 'undefined' && window.location) {
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return (window.location.port === '8000') ? window.location.origin : 'http://localhost:8000';
+      if (window.location.protocol === 'file:') {
+        return 'http://localhost:8000';
       }
+      return window.location.origin;
     }
     return 'http://localhost:8000';
   }
