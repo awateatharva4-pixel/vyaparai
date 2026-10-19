@@ -142,15 +142,15 @@
 
     /* Left Dock-Style Sidebar Rail */
     .apple-dock-rail {
-      width: 68px;
-      padding: 16px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
       position: sticky;
       top: 0;
       height: 100vh;
+      width: 68px;
+      padding: 16px 0;
+      display: flex !important;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
       z-index: 40;
       flex-shrink: 0;
     }
@@ -1218,8 +1218,21 @@
       .recent-sales-card { grid-column: span 6; }
     }
     @media (max-width: 768px) {
-      .apple-dock-rail { display: none; }
-      .dashboard-canvas { width: 100%; padding: 12px; }
+      .apple-dock-rail {
+        display: flex !important;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        width: 68px;
+        flex-shrink: 0;
+        z-index: 40;
+      }
+      .dashboard-canvas {
+        width: calc(100% - 68px);
+        flex: 1;
+        min-width: 0;
+        padding: 12px;
+      }
       .bento-grid { gap: 12px; }
       .stock-overview-card, .inventory-status-card, .low-stock-alerts-card, .recent-sales-card {
         grid-column: span 12;
@@ -1242,4 +1255,72 @@
         opacity: 1 !important;
       }
     }
-  
+
+    /* ==========================================================================
+       Universal Table Scrolling Engine & Page Scroll Freedom
+       ========================================================================== */
+    html, body {
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      min-height: 100vh !important;
+      scroll-behavior: smooth !important;
+    }
+
+    .app-viewport {
+      display: flex !important;
+      min-height: 100vh !important;
+      width: 100% !important;
+      position: relative !important;
+      overflow-x: hidden !important;
+    }
+
+    .dashboard-canvas {
+      flex: 1 !important;
+      min-width: 0 !important;
+      overflow-y: visible !important;
+      height: auto !important;
+    }
+
+    .table-scroll-wrap {
+      max-height: 540px !important;
+      overflow-y: auto !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      border-radius: 12px !important;
+      position: relative !important;
+      scrollbar-width: thin !important;
+      scrollbar-color: rgba(45, 106, 111, 0.45) rgba(0, 0, 0, 0.04) !important;
+      border: 1px solid rgba(220, 215, 205, 0.4) !important;
+      background: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    .table-scroll-wrap::-webkit-scrollbar {
+      width: 8px !important;
+      height: 8px !important;
+    }
+    .table-scroll-wrap::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.04) !important;
+      border-radius: 8px !important;
+    }
+    .table-scroll-wrap::-webkit-scrollbar-thumb {
+      background: rgba(45, 106, 111, 0.4) !important;
+      border-radius: 8px !important;
+    }
+    .table-scroll-wrap::-webkit-scrollbar-thumb:hover {
+      background: rgba(45, 106, 111, 0.7) !important;
+    }
+
+    .table-scroll-wrap thead th {
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 10 !important;
+      background: rgba(255, 255, 255, 0.96) !important;
+      backdrop-filter: blur(16px) !important;
+      -webkit-backdrop-filter: blur(16px) !important;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .apple-table-wrap {
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }

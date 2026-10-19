@@ -3,6 +3,34 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, DateTime, Text, Boolean
 from app.core.database import Base
 
+MAX_CAPACITY_MAP = {
+    "FMCG-PARLE-100G": 100.0,
+    "GROC-SUG-001": 100.0,
+    "DAIRY-MILK-500ML": 50.0,
+    "DAIRY-AMUL-500M": 50.0,
+    "DAIRY-AMUL-500ML": 50.0,
+    "OIL-FORT-1L": 50.0,
+    "BAK-PAV-LADI": 50.0,
+    "DAL-TUR-001": 50.0,
+    "GROC-SALT-1K": 50.0,
+    "GROC-ATTA-5K": 30.0,
+    "PROD-ONION-1K": 100.0,
+    "VEG-KANDA-001": 100.0,
+    "VEG-BATATA-001": 100.0,
+    "FMCG-MAGGI-70G": 80.0,
+    "FMCG-COLG-100G": 50.0,
+    "OIL-GEM-1L": 30.0,
+    "DAL-MOONG-1K": 40.0,
+    "GROC-BESAN-500G": 40.0,
+    "SPICE-CHILLI-100G": 50.0,
+    "SPICE-TURM-100G": 50.0,
+    "GROC-SHENG-001": 50.0,
+    "GROC-GAHU-001": 100.0,
+    "AUTO-VID-PEN": 100.0,
+    "AUTO-VID-NOTEBOOK": 50.0,
+    "AUTO-VID-KINLEY": 40.0,
+}
+
 class Product(Base):
     """
     Inventory Item Model for Kirana & Local Retailers.
@@ -114,7 +142,33 @@ class Product(Base):
         # Safe neutral SVG placeholder - NEVER fall back to parle_g for non-biscuit items
         return "/static/products/placeholder.svg"
 
+    @property
+    def max_capacity(self) -> float:
+        meta = self.extra_meta or {}
+        if "max_capacity" in meta:
+            try:
+                return float(meta["max_capacity"])
+            except Exception:
+                pass
+        if "full_stock" in meta:
+            try:
+                return float(meta["full_stock"])
+            except Exception:
+                pass
+        clean_sku = (self.sku or "").strip().upper()
+        if clean_sku in MAX_CAPACITY_MAP:
+            return MAX_CAPACITY_MAP[clean_sku]
+        for k, v in MAX_CAPACITY_MAP.items():
+            if k in clean_sku or clean_sku in k:
+                return v
+        return max(100.0, float(self.min_threshold or 5.0) * 5.0)
+
+    @property
+    def full_stock(self) -> float:
+        return self.max_capacity
+
     def to_dict(self):
+        cap = self.max_capacity
         return {
             "id": self.id,
             "vendor_id": self.vendor_id,
@@ -126,6 +180,8 @@ class Product(Base):
             "unit": self.unit,
             "unit_price": round(self.unit_price, 2),
             "min_threshold": self.min_threshold,
+            "max_capacity": cap,
+            "full_stock": cap,
             "is_low_stock": self.stock <= self.min_threshold,
             "aliases": self.aliases,
             "extra_meta": self.extra_meta,

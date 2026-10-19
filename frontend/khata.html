@@ -308,7 +308,7 @@
     /* Search Bar Input */
     .apple-search-wrap {
       position: relative;
-      width: 320px;
+      width: 260px;
     }
     .apple-search-input {
       width: 100%;
@@ -348,17 +348,19 @@
       font-weight: 600;
     }
 
-    .header-right-cluster {
+        .header-right-cluster {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      flex-wrap: nowrap;
+      flex-shrink: 0;
     }
 
     .header-pill-item {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 7px 14px;
+      padding: 7px 13px;
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.6);
       border: 1px solid rgba(220, 215, 205, 0.5);
@@ -366,6 +368,9 @@
       font-weight: 500;
       color: var(--text-secondary);
       cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      line-height: 1.2;
       transition: all 0.22s var(--spring-snappy);
     }
     .header-pill-item:hover {
@@ -375,8 +380,29 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
     .header-pill-item svg {
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+    }
+
+    .header-logout-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+      cursor: pointer;
+      color: var(--apple-coral) !important;
+      border: 1px solid rgba(255, 59, 48, 0.28) !important;
+      background: rgba(255, 59, 48, 0.06) !important;
+      font-weight: 600 !important;
+      padding: 7px 12px !important;
+      border-radius: 12px !important;
+      line-height: 1.2 !important;
+    }
+    .header-logout-btn:hover {
+      background: rgba(255, 59, 48, 0.14) !important;
+      border-color: rgba(255, 59, 48, 0.45) !important;
     }
 
     /* Store Switcher Pill */
@@ -618,18 +644,57 @@
     .fill-danger { background: var(--apple-coral); }
     .fill-blue { background: var(--apple-blue); }
 
-    /* Inventory Status Table */
+    /* Inventory Status Table & Master Scroll Wrapper */
+    .table-scroll-wrap,
     .apple-table-wrap {
-      overflow-x: auto;
+      max-height: 580px;
+      overflow-y: auto !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 12px;
+      position: relative;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
       margin-top: 4px;
     }
-    .apple-table {
+    .table-scroll-wrap::-webkit-scrollbar,
+    .apple-table-wrap::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .table-scroll-wrap::-webkit-scrollbar-track,
+    .apple-table-wrap::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.03);
+      border-radius: 8px;
+    }
+    .table-scroll-wrap::-webkit-scrollbar-thumb,
+    .apple-table-wrap::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+    }
+    .table-scroll-wrap::-webkit-scrollbar-thumb:hover,
+    .apple-table-wrap::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.35);
+    }
+    .table-scroll-wrap thead th,
+    .apple-table-wrap thead th {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+    }
+    .apple-table,
+    .data-table-custom {
       width: 100%;
       border-collapse: collapse;
       text-align: left;
       font-size: 0.83rem;
     }
-    .apple-table th {
+    .apple-table th,
+    .data-table-custom th {
       color: var(--text-tertiary);
       font-weight: 600;
       padding: 10px 12px;
@@ -637,18 +702,23 @@
       font-size: 0.74rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      white-space: nowrap;
     }
-    .apple-table td {
+    .apple-table td,
+    .data-table-custom td {
       padding: 10px 12px;
       border-bottom: 1px solid rgba(235, 230, 222, 0.6);
       color: var(--text-secondary);
       font-weight: 500;
       vertical-align: middle;
+      white-space: nowrap;
     }
-    .apple-table tr:last-child td {
+    .apple-table tr:last-child td,
+    .data-table-custom tr:last-child td {
       border-bottom: none;
     }
-    .apple-table tr:hover td {
+    .apple-table tr:hover td,
+    .data-table-custom tr:hover td {
       background: rgba(255, 255, 255, 0.5);
     }
     .table-prod-cell {
@@ -1264,8 +1334,21 @@
       .recent-sales-card { grid-column: span 6; }
     }
     @media (max-width: 768px) {
-      .apple-dock-rail { display: none; }
-      .dashboard-canvas { width: 100%; padding: 12px; }
+      .apple-dock-rail {
+        display: flex !important;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        width: 68px;
+        flex-shrink: 0;
+        z-index: 40;
+      }
+      .dashboard-canvas {
+        width: calc(100% - 68px);
+        flex: 1;
+        min-width: 0;
+        padding: 12px;
+      }
       .bento-grid { gap: 12px; }
       .stock-overview-card, .inventory-status-card, .low-stock-alerts-card, .recent-sales-card {
         grid-column: span 12;
@@ -1386,26 +1469,22 @@
         </div>
 
         <div class="header-right-cluster">
-          <!-- Store Selector -->
-          <div class="store-select-pill" onclick="cycleDukaans()">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-              <polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
-            <span id="currentDukaanName">All Dukaans</span> ▾
+          <!-- Single Store Primary Badge (Locked Atharva Kirana) -->
+          <div class="header-pill-item" style="font-weight: 600; color: var(--emerald-800); background: rgba(45, 106, 111, 0.08); border: 1px solid rgba(45, 106, 111, 0.2);" title="Single Active Store: DEMO_KIRANA_KOP">
+            <span id="currentDukaanName">🏪 अथर्व किराणा स्टोअर्स, कोल्हापूर (DEMO_KIRANA_KOP)</span>
           </div>
 
           <!-- Authenticated Merchant Session Pill -->
-          <div class="header-pill-item merchant-user-pill" id="headerMerchantPill" onclick="showAppleToast('अधिकृत व्यापारी: ' + (document.getElementById('headerMerchantName')?.textContent || 'अथर्व आवटे'))" title="Authenticated Kirana Merchant" style="font-weight: 600; cursor: pointer;">
+          <div class="header-pill-item merchant-user-pill" id="headerMerchantPill" onclick="showAppleToast('अधिकृत व्यापारी: ' + (document.getElementById('headerMerchantName')?.textContent || 'अथर्व आवटे (Admin) (DEMO_KIRANA_KOP)'))" title="Authenticated Kirana Merchant" style="font-weight: 600; cursor: pointer;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; color: var(--emerald-600);">
               <circle cx="12" cy="7" r="4"></circle>
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             </svg>
-            <span id="headerMerchantName">अथर्व आवटे (DEMO_KIRANA_KOP)</span>
+            <span id="headerMerchantName">अथर्व आवटे (Admin) (DEMO_KIRANA_KOP)</span>
           </div>
 
           <!-- Functional Header Logout Button -->
-          <button type="button" class="header-pill-item header-logout-btn" onclick="logoutMerchant()" title="Logout from VyaparAI / बाहेर पडा" style="cursor: pointer; color: var(--apple-coral); border: 1px solid rgba(255, 59, 48, 0.28); background: rgba(255, 59, 48, 0.06); font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+          <button type="button" class="header-pill-item header-logout-btn" onclick="logoutMerchant()" title="Logout from VyaparAI / बाहेर पडा" style="cursor: pointer; color: var(--apple-coral); border: 1px solid rgba(255, 59, 48, 0.28); background: rgba(255, 59, 48, 0.06); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex-shrink: 0;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
@@ -1436,8 +1515,8 @@
               </svg>
               Khata Ledger & Credit Status
             </h2>
-            <span class="store-select-pill" style="font-size: 0.76rem; padding: 4px 10px;" onclick="cycleDukaans()">
-              All Dukaans ▾
+            <span class="header-pill-item" style="font-size: 0.76rem; padding: 4px 10px; font-weight: 600; color: var(--emerald-800); background: rgba(45, 106, 111, 0.08); border: 1px solid rgba(45, 106, 111, 0.2);" title="Single Active Store: DEMO_KIRANA_KOP">
+              🏪 अथर्व किराणा स्टोअर्स, कोल्हापूर (DEMO_KIRANA_KOP)
             </span>
           </div>
 
@@ -1511,7 +1590,7 @@
             </div>
           </div>
 
-          <div class="table-scroll-wrap" style="max-height: 480px;">
+          <div class="table-scroll-wrap">
             <table class="data-table-custom">
               <thead>
                 <tr>
@@ -1803,7 +1882,10 @@
           return;
         }
         const user = JSON.parse(raw);
-        const merchantName = user.name || 'अथर्व आवटे';
+        let merchantName = user.name || 'अथर्व आवटे';
+        if (!merchantName.includes('(Admin)')) {
+          merchantName += ' (Admin)';
+        }
         const vendorId = user.vendor_id || 'DEMO_KIRANA_KOP';
         const storeName = user.store || 'अथर्व किराणा स्टोअर्स, कोल्हापूर';
         const formattedLabel = `${merchantName} (${vendorId})`;
@@ -1816,7 +1898,7 @@
           if (el.tagName === 'INPUT') {
             el.value = storeName;
           } else if (el.id === 'currentDukaanName') {
-            el.textContent = '🏪 ' + storeName;
+            el.textContent = '🏪 ' + storeName + ' (DEMO_KIRANA_KOP)';
           }
         });
       } catch (e) {
@@ -1924,416 +2006,12 @@
       }
     }
 
-    const dukaans = ['All Dukaans', 'अथर्व किराणा स्टोअर्स (DEMO_KIRANA_KOP)', 'गणेश किराणा (Shahupuri)', 'लक्ष्मी स्टोअर्स (Rajarampuri)'];
-    let dIndex = 0;
     function cycleDukaans() {
-      dIndex = (dIndex + 1) % dukaans.length;
-      const el = document.getElementById('currentDukaanName');
-      if (el) {
-        el.textContent = dukaans[dIndex];
-        showAppleToast(`Active Store: ${dukaans[dIndex]}`);
+      // Locked strictly to Atharva Kirana Stores, Kolhapur (DEMO_KIRANA_KOP)
+      if (typeof showAppleToast === 'function') {
+        showAppleToast('🏪 अथर्व किराणा स्टोअर्स, कोल्हापूर (DEMO_KIRANA_KOP)');
       }
     }
-
-    let currentLedger = [];
-    let activePayMode = 'CASH';
-
-    function selectPayMode(mode) {
-      activePayMode = mode;
-      document.querySelectorAll('.pay-mode-pill').forEach(p => p.classList.remove('active'));
-      const pill = document.getElementById(`mode${mode.charAt(0) + mode.slice(1).toLowerCase()}Pill`);
-      if (pill) pill.classList.add('active');
-      haptics.playTick();
-    }
-
-    function setQuickSettleAmount(factorOrVal, isAbsolute = false) {
-      const curBal = parseFloat(document.getElementById('settleCreditId').dataset.balance || 0);
-      const inp = document.getElementById('settleAmountInput');
-      if (!inp) return;
-      if (isAbsolute) {
-        inp.value = Math.min(curBal, factorOrVal);
-      } else {
-        inp.value = Math.max(0, Math.round(curBal * factorOrVal));
-      }
-      haptics.playTick();
-    }
-
-    function openSettleModal(creditId, custName, phone, currentAmt) {
-      const backdrop = document.getElementById('settleKhataModalBackdrop');
-      if (!backdrop) return;
-      document.getElementById('settleCreditId').value = creditId;
-      document.getElementById('settleCreditId').dataset.balance = currentAmt;
-      document.getElementById('settleCustomerName').textContent = custName;
-      document.getElementById('settleCustomerPhone').textContent = phone;
-      document.getElementById('settleCurrentBalance').textContent = `₹${inrFormatter.format(currentAmt)}`;
-      document.getElementById('settleAmountInput').value = currentAmt;
-      document.getElementById('settleNotesInput').value = '';
-      selectPayMode('CASH');
-      backdrop.classList.add('open');
-      document.body.style.overflow = 'hidden';
-      haptics.playTick();
-      setTimeout(() => {
-        const inp = document.getElementById('settleAmountInput');
-        if (inp) { inp.focus(); inp.select(); }
-      }, 100);
-    }
-
-    function closeSettleModal() {
-      const backdrop = document.getElementById('settleKhataModalBackdrop');
-      if (backdrop) backdrop.classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    async function confirmKhataSettlement() {
-      const creditId = document.getElementById('settleCreditId').value;
-      const custName = document.getElementById('settleCustomerName').textContent;
-      const amt = parseFloat(document.getElementById('settleAmountInput').value);
-      const notes = document.getElementById('settleNotesInput').value;
-      const btn = document.getElementById('confirmSettleBtn');
-
-      if (isNaN(amt) || amt <= 0) {
-        showAppleToast('कृपया वैध रक्कम टाका (Enter valid payment amount)');
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = 'जमा होत आहे...';
-
-      try {
-        const result = await VyaparCore.settleKhata(creditId, amt, activePayMode, notes);
-        closeSettleModal();
-        showAppleToast(`₹${inrFormatter.format(amt)} जमा यशस्वी (${custName})!`);
-        haptics.playSuccess();
-        await refreshKhataData();
-      } catch (err) {
-        console.error('Settlement error', err);
-        showAppleToast('पेमेंट नोंदवण्यात त्रुटी आली. कृपया पुन्हा प्रयत्न करा.');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'जमा नोंदवा (Confirm Payment) ✓';
-      }
-    }
-
-    function openNewCustomerModal() {
-      const backdrop = document.getElementById('newCustomerModalBackdrop');
-      if (!backdrop) return;
-      document.getElementById('newCustomerForm').reset();
-      backdrop.classList.add('open');
-      document.body.style.overflow = 'hidden';
-      haptics.playTick();
-      setTimeout(() => {
-        const inp = document.getElementById('newCustName');
-        if (inp) inp.focus();
-      }, 100);
-    }
-
-    function closeNewCustomerModal() {
-      const backdrop = document.getElementById('newCustomerModalBackdrop');
-      if (backdrop) backdrop.classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    async function handleNewCustomerSubmit(e) {
-      e.preventDefault();
-      const name = document.getElementById('newCustName').value.trim();
-      const phone = document.getElementById('newCustPhone').value.trim();
-      const area = document.getElementById('newCustArea').value.trim();
-      const amount = parseFloat(document.getElementById('newCustAmount').value) || 0;
-      const dueDate = document.getElementById('newCustDueDate').value.trim() || 'तात्काळ (Immediate)';
-      const notes = document.getElementById('newCustNotes').value.trim() || area || 'Counter Udhar';
-      const btn = document.getElementById('saveNewCustomerBtn');
-
-      if (!name || !phone) {
-        showAppleToast('नाव आणि मोबाईल नंबर आवश्यक आहे');
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = 'खाते तयार होत आहे...';
-
-      try {
-        await VyaparCore.createCustomerAccount({
-          customer_name: name,
-          customer_phone: phone,
-          amount_due: amount,
-          vendor_id: "DEMO_KIRANA_KOP",
-          due_date: dueDate,
-          notes: notes
-        });
-        closeNewCustomerModal();
-        showAppleToast(`नवीन खाते सुरू झाले: ${name} (₹${amount})!`);
-        haptics.playSuccess();
-        await refreshKhataData();
-      } catch (err) {
-        console.error('Account creation error', err);
-        showAppleToast('खाते उघडण्यात त्रुटी आली.');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'खाते तयार करा (Open Account) ✓';
-      }
-    }
-
-    async function handleSendReminder(creditId, custName, phone, amount) {
-      showAppleToast(`WhatsApp reminder dispatched to ${custName}...`);
-      haptics.playTick();
-
-      try {
-        await VyaparCore.sendUdharReminder(creditId, true);
-      } catch (e) {
-        console.warn('Backend reminder error', e);
-      }
-
-      const linkInfo = VyaparCore.getWhatsAppReminderLink({
-        customer_name: custName,
-        customer_phone: phone,
-        amount_due: amount
-      });
-      window.open(linkInfo.waUrl, '_blank');
-      showAppleToast(`WhatsApp reminder sent to ${custName} (₹${amount})!`);
-      haptics.playSuccess();
-      await refreshKhataData();
-    }
-
-    async function handleBulkRemind(btn) {
-      if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '⚡ Reminding All...';
-      }
-      showAppleToast('Sending bulk WhatsApp reminders to pending accounts...');
-      haptics.playTick();
-
-      try {
-        const res = await VyaparCore.bulkRemindUdhar("DEMO_KIRANA_KOP");
-        const count = res && res.reminded_count !== undefined ? res.reminded_count : currentLedger.filter(c => (c.amount_due || c.udhar) > 0).length;
-        showAppleToast(`Dispatched polite Marathi reminders to ${count} pending accounts!`);
-        haptics.playSuccess();
-        await refreshKhataData();
-      } catch (e) {
-        console.error('Bulk remind failed', e);
-        showAppleToast('Bulk reminder completed.');
-      } finally {
-        if (btn) {
-          btn.disabled = false;
-          btn.innerHTML = '⚡ 1-Click WhatsApp Reminders (All)';
-        }
-      }
-    }
-
-    function testWhatsAppTemplate() {
-      const link = VyaparCore.getWhatsAppReminderLink({
-        customer_name: "शंकरराव पाटील",
-        customer_phone: "+919579869506",
-        amount_due: 840
-      });
-      window.open(link.waUrl, '_blank');
-      showAppleToast('Opening WhatsApp with verified Kolhapur Marathi template...');
-      haptics.playSuccess();
-    }
-
-    function renderKhataTable(records) {
-      const tbody = document.getElementById('khataTableBody');
-      if (!tbody) return;
-
-      if (!records || records.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--text-tertiary);">No customer records found.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = records.map(c => {
-        const id = c.id;
-        const name = c.customer_name || c.name || 'Unnamed Customer';
-        const phone = c.customer_phone || c.phone || '—';
-        const area = c.notes || c.area || c.locality || 'Rajarampuri, Kolhapur';
-        const amt = parseFloat(c.amount_due !== undefined ? c.amount_due : (c.udhar || 0));
-        const status = c.status || (amt > 0 ? 'PENDING' : 'PAID');
-        const lastTx = c.last_reminder_sent ? `Reminded (${new Date(c.last_reminder_sent).toLocaleDateString()})` : (c.due_date ? `Due: ${c.due_date}` : (c.last_tx || 'Recent'));
-
-        let trustPill = `<span class="status-pill status-in">95% High Trust</span>`;
-        if (status === 'PAID' || amt === 0) {
-          trustPill = `<span class="status-pill status-in" style="background: rgba(40,205,65,0.15); color: var(--apple-green);">Settled / शून्य बाकी</span>`;
-        } else if (amt >= 700 || status === 'OVERDUE') {
-          trustPill = `<span class="status-pill status-low">Critical Overdue</span>`;
-        }
-
-        const amtColor = amt > 0 ? 'color: var(--apple-coral);' : 'color: var(--apple-green);';
-        const safeName = name.replace(/'/g, "\\'");
-
-        return `
-          <tr data-customer-id="${id}">
-            <td><strong>${name}</strong></td>
-            <td class="tabular-nums">${phone}</td>
-            <td style="font-size: 0.82rem; color: var(--text-secondary);">${area}</td>
-            <td style="text-align: right; ${amtColor}" class="tabular-nums font-bold">₹${inrFormatter.format(amt)}</td>
-            <td style="font-size: 0.8rem; color: var(--text-tertiary);">${lastTx}</td>
-            <td style="text-align: center;">${trustPill}</td>
-            <td style="text-align: center; white-space: nowrap;">
-              <button class="apple-pill-btn btn-stock" onclick="handleSendReminder('${id}', '${safeName}', '${phone}', ${amt})" title="Send WhatsApp reminder with Marathi template">
-                Send Reminder ↗
-              </button>
-              <button class="apple-pill-btn btn-stock" style="margin-left: 4px; background: rgba(40, 205, 65, 0.12); color: var(--apple-green); border-color: rgba(40, 205, 65, 0.3);" onclick="openSettleModal('${id}', '${safeName}', '${phone}', ${amt})" title="Settle or record partial/full payment">
-                जमा करा (₹)
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    async function refreshKhataData() {
-      try {
-        const ledger = await VyaparCore.getUdharLedger();
-        if (ledger && Array.isArray(ledger) && ledger.length > 0) {
-          currentLedger = ledger;
-          renderKhataTable(currentLedger);
-          updateMetricsUI(currentLedger);
-        }
-      } catch (e) {
-        console.warn('Refresh khata data fallback', e);
-      }
-    }
-
-    function updateMetricsUI(records) {
-      if (!records) return;
-      let totalUdhar = 0;
-      let pendingCount = 0;
-      let overdueTotal = 0;
-
-      records.forEach(c => {
-        const amt = parseFloat(c.amount_due !== undefined ? c.amount_due : (c.udhar || 0));
-        if (amt > 0) {
-          totalUdhar += amt;
-          pendingCount++;
-          if (amt >= 700 || c.status === 'OVERDUE') {
-            overdueTotal += amt;
-          }
-        }
-      });
-
-      const statTotal = document.getElementById('statKhataTotal');
-      if (statTotal) statTotal.textContent = `₹${inrFormatter.format(totalUdhar)}`;
-
-      const statBadge = document.getElementById('statKhataAccountsBadge');
-      if (statBadge) statBadge.textContent = `${pendingCount} Accounts Pending`;
-
-      const statOver = document.getElementById('statOverdue');
-      if (statOver) statOver.textContent = `₹${inrFormatter.format(overdueTotal)}`;
-    }
-
-    function handleTableSearch(val) {
-      val = (val || '').toLowerCase().trim();
-      if (!val) {
-        renderKhataTable(currentLedger);
-        return;
-      }
-      const filtered = currentLedger.filter(c => {
-        const name = (c.customer_name || c.name || '').toLowerCase();
-        const phone = (c.customer_phone || c.phone || '').toLowerCase();
-        const area = (c.notes || c.area || '').toLowerCase();
-        return name.includes(val) || phone.includes(val) || area.includes(val);
-      });
-      renderKhataTable(filtered);
-    }
-
-    function animateCounter(id, start, end, duration, prefix = '') {
-      const obj = document.getElementById(id);
-      if (!obj) return;
-      let startTimestamp = null;
-      const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        const easeProgress = 1 - Math.pow(1 - progress, 4);
-        const currentVal = Math.floor(easeProgress * (end - start) + start);
-        obj.textContent = `${prefix}${inrFormatter.format(currentVal)}`;
-        if (progress < 1) {
-          window.requestAnimationFrame(step);
-        }
-      };
-      window.requestAnimationFrame(step);
-    }
-
-    window.addEventListener('message', (event) => {
-      if (event.data && (event.data.type === 'NEW_SALE' || event.data.type === 'VYAPAR_SALE')) {
-        const sale = event.data.payload || {};
-        showAppleToast(`New WhatsApp Order: ₹${sale.amount || '340'} (${sale.item || 'Order'})!`);
-        haptics.playSuccess();
-        refreshKhataData();
-      }
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        const inp = document.getElementById('globalSearchInput');
-        if (inp) {
-          inp.focus();
-          inp.select();
-        }
-      }
-      if (e.key === 'Escape') {
-        closeSettleModal();
-        closeNewCustomerModal();
-        const backdrop = document.getElementById('iphoneDrawerBackdrop');
-        if (backdrop && backdrop.classList.contains('open')) {
-          toggleWhatsAppDrawer();
-        }
-      }
-    });
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      syncMerchantSessionUI();
-      await refreshKhataData();
-
-      const liveSyncHandler = (event, data) => {
-        if (event === 'UDHAR_LEDGER_UPDATED' && Array.isArray(data)) {
-          currentLedger = data;
-          renderKhataTable(currentLedger);
-          updateMetricsUI(currentLedger);
-        } else if (event === 'METRICS_UPDATE' && data && data.udhar_ledger) {
-          currentLedger = data.udhar_ledger;
-          renderKhataTable(currentLedger);
-          updateMetricsUI(currentLedger);
-        }
-      };
-
-      if (window.VyaparCore && typeof VyaparCore.startLiveSync === 'function') {
-        VyaparCore.startLiveSync(liveSyncHandler);
-      } else if (window.VyaparCore && VyaparCore.backend && typeof VyaparCore.backend.startLiveSync === 'function') {
-        VyaparCore.backend.startLiveSync(liveSyncHandler);
-      }
-      if (window.VyaparCore && typeof VyaparCore.registerListener === 'function') {
-        VyaparCore.registerListener(liveSyncHandler);
-      }
-
-      const ctx = document.getElementById('khataRecoveryChart');
-      if (ctx) {
-        new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-            datasets: [{
-              label: 'Recovered',
-              data: [14200, 18500, 16900, 18900],
-              backgroundColor: '#28cd41',
-              borderRadius: 6
-            }, {
-              label: 'Credit Given',
-              data: [9800, 11200, 10500, 11300],
-              backgroundColor: '#ff9500',
-              borderRadius: 6
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: { grid: { display: false } },
-              y: { grid: { color: 'rgba(0,0,0,0.04)' } }
-            }
-          }
-        });
-      }
-    });
 
   </script>
 </body>

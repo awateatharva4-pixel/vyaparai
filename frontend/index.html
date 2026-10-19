@@ -308,7 +308,7 @@
     /* Search Bar Input */
     .apple-search-wrap {
       position: relative;
-      width: 320px;
+      width: 260px;
     }
     .apple-search-input {
       width: 100%;
@@ -348,17 +348,19 @@
       font-weight: 600;
     }
 
-    .header-right-cluster {
+        .header-right-cluster {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      flex-wrap: nowrap;
+      flex-shrink: 0;
     }
 
     .header-pill-item {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 7px 14px;
+      padding: 7px 13px;
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.6);
       border: 1px solid rgba(220, 215, 205, 0.5);
@@ -366,6 +368,9 @@
       font-weight: 500;
       color: var(--text-secondary);
       cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      line-height: 1.2;
       transition: all 0.22s var(--spring-snappy);
     }
     .header-pill-item:hover {
@@ -375,8 +380,29 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
     .header-pill-item svg {
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+    }
+
+    .header-logout-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+      cursor: pointer;
+      color: var(--apple-coral) !important;
+      border: 1px solid rgba(255, 59, 48, 0.28) !important;
+      background: rgba(255, 59, 48, 0.06) !important;
+      font-weight: 600 !important;
+      padding: 7px 12px !important;
+      border-radius: 12px !important;
+      line-height: 1.2 !important;
+    }
+    .header-logout-btn:hover {
+      background: rgba(255, 59, 48, 0.14) !important;
+      border-color: rgba(255, 59, 48, 0.45) !important;
     }
 
     /* Store Switcher Pill */
@@ -1668,27 +1694,23 @@
             + Dairy SKU
           </div>
 
-          <!-- Single Store Primary Badge (Atharva Kirana) -->
-          <div class="header-pill-item" style="background: rgba(16, 185, 129, 0.12); color: var(--emerald-900); border: 1px solid rgba(16, 185, 129, 0.35); font-weight: 700;" title="Single Active Store: DEMO_KIRANA_KOP">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-              <polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
-            <span id="currentDukaanName">🏪 अथर्व किराणा स्टोअर्स, कोल्हापूर</span>
+          <!-- Single Store Primary Badge (Locked Atharva Kirana) -->
+          <div class="header-pill-item" style="font-weight: 600; color: var(--emerald-800); background: rgba(45, 106, 111, 0.08); border: 1px solid rgba(45, 106, 111, 0.2);" title="Single Active Store: DEMO_KIRANA_KOP">
+            <span id="currentDukaanName">🏪 अथर्व किराणा स्टोअर्स, कोल्हापूर (DEMO_KIRANA_KOP)</span>
           </div>
 
 
           <!-- Authenticated Merchant Session Pill -->
-          <div class="header-pill-item merchant-user-pill" id="headerMerchantPill" onclick="showAppleToast('अधिकृत व्यापारी: ' + (document.getElementById('headerMerchantName')?.textContent || 'अथर्व आवटे'))" title="Authenticated Kirana Merchant" style="font-weight: 600; cursor: pointer;">
+          <div class="header-pill-item merchant-user-pill" id="headerMerchantPill" onclick="showAppleToast('अधिकृत व्यापारी: ' + (document.getElementById('headerMerchantName')?.textContent || 'अथर्व आवटे (Admin) (DEMO_KIRANA_KOP)'))" title="Authenticated Kirana Merchant" style="font-weight: 600; cursor: pointer;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; color: var(--emerald-600);">
               <circle cx="12" cy="7" r="4"></circle>
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             </svg>
-            <span id="headerMerchantName">अथर्व आवटे (DEMO_KIRANA_KOP)</span>
+            <span id="headerMerchantName">अथर्व आवटे (Admin) (DEMO_KIRANA_KOP)</span>
           </div>
 
           <!-- Functional Header Logout Button -->
-          <button type="button" class="header-pill-item header-logout-btn" onclick="logoutMerchant()" title="Logout from VyaparAI / बाहेर पडा" style="cursor: pointer; color: var(--apple-coral); border: 1px solid rgba(255, 59, 48, 0.28); background: rgba(255, 59, 48, 0.06); font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+          <button type="button" class="header-pill-item header-logout-btn" onclick="logoutMerchant()" title="Logout from VyaparAI / बाहेर पडा" style="cursor: pointer; color: var(--apple-coral); border: 1px solid rgba(255, 59, 48, 0.28); background: rgba(255, 59, 48, 0.06); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex-shrink: 0;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
@@ -2487,7 +2509,10 @@
           return;
         }
         const user = JSON.parse(raw);
-        const merchantName = user.name || 'अथर्व आवटे';
+        let merchantName = user.name || 'अथर्व आवटे';
+        if (!merchantName.includes('(Admin)')) {
+          merchantName += ' (Admin)';
+        }
         const vendorId = user.vendor_id || 'DEMO_KIRANA_KOP';
         const storeName = user.store || 'अथर्व किराणा स्टोअर्स, कोल्हापूर';
         const formattedLabel = `${merchantName} (${vendorId})`;
@@ -2500,7 +2525,7 @@
           if (el.tagName === 'INPUT') {
             el.value = storeName;
           } else if (el.id === 'currentDukaanName') {
-            el.textContent = '🏪 ' + storeName;
+            el.textContent = '🏪 ' + storeName + ' (DEMO_KIRANA_KOP)';
           }
         });
       } catch (e) {

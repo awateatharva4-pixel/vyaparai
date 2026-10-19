@@ -48,9 +48,39 @@ def get_inventory_items(db: Session = Depends(get_db)):
     """Provides direct list of catalog products for judge API inspection."""
     return InventoryService.get_dashboard_metrics(db).get("products", [])
 
+@router.post("/inventory/restock-all")
+@router.post("/restock-all")
+def restock_all_inventory(
+    vendor_id: str = Query("DEMO_KIRANA_KOP"),
+    db: Session = Depends(get_db)
+):
+    """
+    Refills every product in the database to 100% of its full max capacity
+    (e.g. Parle-G 100, Sugar 100, Milk 50, Oil 50, Atta 30, Onion 100, Maggi 80, etc.).
+    Saves state snapshot to vyaparai_state.json and broadcasts METRICS_UPDATE over WebSocket.
+    """
+    metrics = InventoryService.restock_all_to_capacity(db, vendor_id=vendor_id)
+    ws_manager.broadcast_sync({
+        "type": "METRICS_UPDATE",
+        "vendor_id": vendor_id,
+        "metrics": metrics
+    })
+    return {
+        "status": "SUCCESS",
+        "message": "All inventory restocked to 100% full capacity",
+        "metrics": metrics
+    }
+
 @router.post("/reset-demo")
-def reset_demo(db: Session = Depends(get_db)):
+def reset_demo(
+    full: bool = Query(False),
+    db: Session = Depends(get_db)
+):
     """Restores clean demo catalog state in 1 second before judge review."""
+    if full:
+        metrics = InventoryService.restock_all_to_capacity(db)
+        ws_manager.broadcast_sync({"type": "METRICS_UPDATE", "vendor_id": "DEMO_KIRANA_KOP", "metrics": metrics})
+        return {"status": "SUCCESS", "message": "All inventory restocked to 100% full capacity", "metrics": metrics}
     InventoryService.seed_initial_catalog(db, force=True)
     metrics = InventoryService.get_dashboard_metrics(db)
     ws_manager.broadcast_sync({"type": "METRICS_UPDATE", "vendor_id": "DEMO_KIRANA_KOP", "metrics": metrics})

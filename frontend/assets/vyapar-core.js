@@ -24,6 +24,7 @@ const VyaparCore = (function() {
       cost_price: 8.20,
       min_threshold: 15.0,
       max_capacity: 100.0,
+      full_stock: 100.0,
       img: "assets/products/parle_g.jpg",
       pedestal: "pedestal-peach",
       aliases: ["parle", "parle-g", "biscuit", "पार्ले", "बिस्कीट"]
@@ -40,6 +41,7 @@ const VyaparCore = (function() {
       cost_price: 36.50,
       min_threshold: 10.0,
       max_capacity: 100.0,
+      full_stock: 100.0,
       img: "assets/products/sugar.jpg",
       pedestal: "pedestal-blue",
       aliases: ["sakhar", "sugar", "साखर", "shakkar", "मधुर साखर"]
@@ -56,6 +58,7 @@ const VyaparCore = (function() {
       cost_price: 122.00,
       min_threshold: 5.0,
       max_capacity: 50.0,
+      full_stock: 50.0,
       img: "assets/products/fortune_oil.jpg",
       pedestal: "pedestal-green",
       aliases: ["tel", "oil", "fortune", "तेल", "फॉर्च्युन"]
@@ -72,6 +75,7 @@ const VyaparCore = (function() {
       cost_price: 14.00,
       min_threshold: 8.0,
       max_capacity: 50.0,
+      full_stock: 50.0,
       img: "assets/products/ladi_pav.jpg",
       pedestal: "pedestal-rose",
       aliases: ["pav", "ladi pav", "पाव", "लादी पाव", "ब्रेड"]
@@ -88,6 +92,7 @@ const VyaparCore = (function() {
       cost_price: 136.00,
       min_threshold: 10.0,
       max_capacity: 50.0,
+      full_stock: 50.0,
       img: "assets/products/tur_dal.jpg",
       pedestal: "pedestal-azure",
       aliases: ["dal", "tur dal", "डाळ", "तूर डाळ", "तूरडाळ"]
@@ -103,7 +108,8 @@ const VyaparCore = (function() {
       unit_price: 28.0,
       cost_price: 22.50,
       min_threshold: 10.0,
-      max_capacity: 60.0,
+      max_capacity: 50.0,
+      full_stock: 50.0,
       img: "assets/products/tata_salt.jpg",
       pedestal: "pedestal-blue",
       aliases: ["mith", "meeth", "salt", "मीठ", "टाटा मीठ"]
@@ -120,6 +126,7 @@ const VyaparCore = (function() {
       cost_price: 195.00,
       min_threshold: 5.0,
       max_capacity: 30.0,
+      full_stock: 30.0,
       img: "assets/products/aashirvaad_atta.jpg",
       pedestal: "pedestal-peach",
       aliases: ["atta", "aata", "aashirvaad", "आटा", "पीठ", "आशीर्वाद"]
@@ -136,6 +143,7 @@ const VyaparCore = (function() {
       cost_price: 11.80,
       min_threshold: 12.0,
       max_capacity: 80.0,
+      full_stock: 80.0,
       img: "assets/products/maggi.jpg",
       pedestal: "pedestal-green",
       aliases: ["maggi", "noodles", "मॅगी", "मॅगी नूडल्स"]
@@ -152,9 +160,27 @@ const VyaparCore = (function() {
       cost_price: 26.00,
       min_threshold: 15.0,
       max_capacity: 100.0,
+      full_stock: 100.0,
       img: "assets/products/red_onion.jpg",
       pedestal: "pedestal-rose",
-      aliases: ["kanda", "onion", "कांदा", "कांदे"]
+      aliases: ["kanda", "onion", "कांदा", "कांदे", "PROD-ONION-1K", "prod-onion-1k"]
+    },
+    {
+      sku: "PROD-ONION-1K",
+      name_mr: "नाशिक गावठी लाल कांदा १ किलो",
+      name_en: "Nashik Red Onion 1kg",
+      short_name: "Red Onion 1kg",
+      category: "Fresh Produce",
+      stock: 70.0,
+      unit: "kg",
+      unit_price: 35.0,
+      cost_price: 26.00,
+      min_threshold: 15.0,
+      max_capacity: 100.0,
+      full_stock: 100.0,
+      img: "assets/products/red_onion.jpg",
+      pedestal: "pedestal-rose",
+      aliases: ["onion", "kanda", "कांदा", "कांदे", "VEG-KANDA-001"]
     },
     {
       sku: "VEG-BATATA-001",
@@ -168,6 +194,7 @@ const VyaparCore = (function() {
       cost_price: 22.00,
       min_threshold: 15.0,
       max_capacity: 100.0,
+      full_stock: 100.0,
       img: "assets/products/potato.jpg",
       pedestal: "pedestal-azure",
       aliases: ["batata", "potato", "बटाटा", "बटाटे", "आलू"]
@@ -184,6 +211,7 @@ const VyaparCore = (function() {
       cost_price: 24.50,
       min_threshold: 6.0,
       max_capacity: 50.0,
+      full_stock: 50.0,
       img: "assets/products/amul_milk.jpg",
       pedestal: "pedestal-blue",
       aliases: ["दूध", "अमुल दूध", "गोकुळ दूध", "milk", "taaza milk", "fresh milk", "dudh", "doodh", "पिशवी दूध", "amul", "gokul"]
@@ -200,6 +228,7 @@ const VyaparCore = (function() {
       cost_price: 24.50,
       min_threshold: 6.0,
       max_capacity: 50.0,
+      full_stock: 50.0,
       img: "assets/products/amul_milk.jpg",
       pedestal: "pedestal-blue",
       aliases: ["dudh", "milk", "amul", "दूध", "अमुल दूध"]
@@ -216,6 +245,7 @@ const VyaparCore = (function() {
       cost_price: 6.80,
       min_threshold: 10.0,
       max_capacity: 100.0,
+      full_stock: 100.0,
       img: "assets/products/reynolds_pen.jpg",
       pedestal: "pedestal-azure",
       aliases: ["pen", "reynolds", "पेन", "बॉलपेन"]
@@ -232,6 +262,7 @@ const VyaparCore = (function() {
       cost_price: 32.00,
       min_threshold: 8.0,
       max_capacity: 50.0,
+      full_stock: 50.0,
       img: "assets/products/classmate_notebook.jpg",
       pedestal: "pedestal-peach",
       aliases: ["vahi", "notebook", "classmate", "वही", "नोटबुक"]
@@ -248,6 +279,7 @@ const VyaparCore = (function() {
       cost_price: 13.00,
       min_threshold: 6.0,
       max_capacity: 40.0,
+      full_stock: 40.0,
       img: "assets/products/kinley_water.jpg",
       pedestal: "pedestal-green",
       aliases: ["pani", "water", "kinley", "पाणी", "किनले"]
@@ -263,7 +295,8 @@ const VyaparCore = (function() {
       unit_price: 140.0,
       cost_price: 118.00,
       min_threshold: 8.0,
-      max_capacity: 60.0,
+      max_capacity: 50.0,
+      full_stock: 50.0,
       img: "assets/products/sugar.jpg",
       pedestal: "pedestal-peach",
       aliases: ["shengdana", "shengadana", "peanuts", "शेंगदाणे", "शेंगदाणा", "दाणे", "मूंगफली"]
@@ -280,6 +313,7 @@ const VyaparCore = (function() {
       cost_price: 31.00,
       min_threshold: 10.0,
       max_capacity: 100.0,
+      full_stock: 100.0,
       img: "assets/products/aashirvaad_atta.jpg",
       pedestal: "pedestal-peach",
       aliases: ["gahu", "gahhu", "wheat", "गहू", "लोकवन", "लोकवन गहू"]
@@ -296,9 +330,95 @@ const VyaparCore = (function() {
       cost_price: 52.00,
       min_threshold: 15.0,
       max_capacity: 50.0,
+      full_stock: 50.0,
       img: "assets/products/colgate.jpg",
       pedestal: "pedestal-rose",
       aliases: ["colgate", "toothpaste", "कोलगेट", "दंतमंजन", "पेस्ट", "टूथपेस्ट"]
+    },
+    {
+      sku: "OIL-GEM-1L",
+      name_mr: "जेमिनी सूर्यफूल तेल १ लिटर",
+      name_en: "Gemini Sunflower Oil 1L",
+      short_name: "Gemini Oil 1L",
+      category: "Edible Oils",
+      stock: 20.0,
+      unit: "pouch",
+      unit_price: 130.0,
+      cost_price: 115.00,
+      min_threshold: 6.0,
+      max_capacity: 30.0,
+      full_stock: 30.0,
+      img: "assets/products/fortune_oil.jpg",
+      pedestal: "pedestal-green",
+      aliases: ["gemini", "gemini oil", "जेमिनी", "जेमिनी तेल"]
+    },
+    {
+      sku: "DAL-MOONG-1K",
+      name_mr: "गावरान पिवळी मूग डाळ १ किलो",
+      name_en: "Yellow Moong Dal 1kg",
+      short_name: "Moong Dal",
+      category: "Pulses & Lentils",
+      stock: 25.0,
+      unit: "kg",
+      unit_price: 130.0,
+      cost_price: 112.00,
+      min_threshold: 8.0,
+      max_capacity: 40.0,
+      full_stock: 40.0,
+      img: "assets/products/tur_dal.jpg",
+      pedestal: "pedestal-azure",
+      aliases: ["moong", "moong dal", "मूग", "मूग डाळ"]
+    },
+    {
+      sku: "GROC-BESAN-500G",
+      name_mr: "शुद्ध चणा डाळ बेसन ५०० ग्रॅम",
+      name_en: "Pure Chana Dal Besan 500g",
+      short_name: "Besan 500g",
+      category: "Grains & Sweeteners",
+      stock: 20.0,
+      unit: "packet",
+      unit_price: 55.0,
+      cost_price: 44.00,
+      min_threshold: 8.0,
+      max_capacity: 40.0,
+      full_stock: 40.0,
+      img: "assets/products/aashirvaad_atta.jpg",
+      pedestal: "pedestal-peach",
+      aliases: ["besan", "chana besan", "बेसन", "चणा बेसन"]
+    },
+    {
+      sku: "SPICE-CHILLI-100G",
+      name_mr: "कोल्हापुरी लवंगी तिखट १०० ग्रॅम",
+      name_en: "Kolhapuri Red Chilli Powder 100g",
+      short_name: "Chilli Powder 100g",
+      category: "Spices & Essentials",
+      stock: 30.0,
+      unit: "packet",
+      unit_price: 45.0,
+      cost_price: 36.00,
+      min_threshold: 10.0,
+      max_capacity: 50.0,
+      full_stock: 50.0,
+      img: "assets/products/tata_salt.jpg",
+      pedestal: "pedestal-rose",
+      aliases: ["tikhat", "mirchi", "chilli", "तिखट", "मिरची", "मिरची पावडर"]
+    },
+    {
+      sku: "SPICE-TURM-100G",
+      name_mr: "शुद्ध हळद पावडर १०० ग्रॅम",
+      name_en: "Pure Turmeric Powder 100g",
+      short_name: "Haldi Powder 100g",
+      category: "Spices & Essentials",
+      stock: 30.0,
+      unit: "packet",
+      unit_price: 35.0,
+      cost_price: 27.00,
+      min_threshold: 10.0,
+      max_capacity: 50.0,
+      full_stock: 50.0,
+      img: "assets/products/tata_salt.jpg",
+      pedestal: "pedestal-blue",
+      aliases: ["halad", "haldi", "turmeric", "हळद", "हळदी"]
     }
   ];
 
@@ -481,26 +601,28 @@ const VyaparCore = (function() {
     skus = oldV3 ? [...oldV3] : [...DEFAULT_SKUS];
   }
   if (Array.isArray(skus)) {
-    // 1. Ensure DAIRY-MILK-500ML exists
-    if (!skus.some(s => s.sku === "DAIRY-MILK-500ML")) {
-      const milkDef = DEFAULT_SKUS.find(d => d.sku === "DAIRY-MILK-500ML");
-      if (milkDef) skus.push({ ...milkDef });
-    }
-    // 2. Ensure DAIRY-AMUL-500M exists
-    if (!skus.some(s => s.sku === "DAIRY-AMUL-500M")) {
-      const amulDef = DEFAULT_SKUS.find(d => d.sku === "DAIRY-AMUL-500M");
-      if (amulDef) skus.push({ ...amulDef });
-    }
-    // 3. Sanitize packshot mappings
+    // 1. Ensure all catalog default SKUs exist in active memory
+    DEFAULT_SKUS.forEach(def => {
+      const exists = skus.some(s => s.sku === def.sku || (s.aliases && s.aliases.includes(def.sku)));
+      if (!exists) {
+        skus.push({ ...def });
+      }
+    });
+
+    // 2. Sanitize and synchronize max_capacity, full_stock & packshot mappings
     skus.forEach(s => {
+      const def = DEFAULT_SKUS.find(d => d.sku === s.sku || (d.aliases && d.aliases.includes(s.sku)));
+      if (def) {
+        s.max_capacity = Number(def.max_capacity || 100);
+        s.full_stock = Number(def.full_stock || def.max_capacity || 100);
+      } else if (!s.max_capacity) {
+        s.max_capacity = s.min_threshold ? s.min_threshold * 5 : 100.0;
+        s.full_stock = s.max_capacity;
+      }
       if (s.sku === "DAIRY-MILK-500ML" || s.sku === "DAIRY-AMUL-500M" || s.sku === "DAIRY-AMUL-500ML") {
         s.img = "assets/products/amul_milk.jpg";
       } else if (s.img && s.img.includes("parle_g") && !s.sku.includes("PARLE")) {
         s.img = resolveCatalogImg(s.sku, s.category, s.name_en || s.name_mr);
-      }
-      if (!s.max_capacity) {
-        const def = DEFAULT_SKUS.find(d => d.sku === s.sku);
-        s.max_capacity = def ? def.max_capacity : (s.min_threshold ? s.min_threshold * 5 : 100.0);
       }
     });
     save(KEY_SKUS, skus);
@@ -595,10 +717,11 @@ const VyaparCore = (function() {
             pendingOrders = load(KEY_ORDERS, DEFAULT_PENDING_ORDERS);
           } else if (ev.data.type === 'TRANSACTIONS_UPDATED') {
             transactions = load(KEY_TX, DEFAULT_TRANSACTIONS);
-          } else if (ev.data.type === 'METRICS_UPDATE') {
+          } else if (ev.data.type === 'METRICS_UPDATE' || ev.data.type === 'STOCK_UPDATED' || ev.data.type === 'VYAPAR_RESTOCK') {
             skus = load(KEY_SKUS, DEFAULT_SKUS);
           }
-          notifySyncListeners(ev.data.type, ev.data.data, false);
+          const syncData = ev.data.data || (ev.data.products ? { products: ev.data.products } : { products: skus });
+          notifySyncListeners(ev.data.type, syncData, false);
         }
       };
     }
@@ -643,7 +766,10 @@ const VyaparCore = (function() {
       try { fn(type, data); } catch (e) { console.error("Sync listener error", e); }
     });
     if (broadcast && syncChannel) {
-      try { syncChannel.postMessage({ type, data }); } catch(e) {}
+      try {
+        const prodList = (data && data.products) ? data.products : skus;
+        syncChannel.postMessage({ type, data, products: prodList });
+      } catch(e) {}
     }
   }
 
@@ -682,11 +808,18 @@ const VyaparCore = (function() {
                 local.stock = bp.stock;
                 local.unit_price = bp.unit_price;
               }
+              if (bp.max_capacity && local.max_capacity !== bp.max_capacity) {
+                local.max_capacity = Number(bp.max_capacity);
+                local.full_stock = Number(bp.full_stock || bp.max_capacity);
+                hasChanged = true;
+              }
               if (local.img && local.img.includes('parle_g') && !local.sku.includes('PARLE')) {
                 local.img = properImg;
                 hasChanged = true;
               }
             } else {
+              const def = DEFAULT_SKUS.find(d => d.sku === bp.sku);
+              const cap = Number(bp.max_capacity || (def ? def.max_capacity : (bp.min_threshold ? bp.min_threshold * 5 : 100)));
               skus.push({
                 sku: bp.sku,
                 name_mr: bp.name_mr,
@@ -698,6 +831,8 @@ const VyaparCore = (function() {
                 unit_price: bp.unit_price,
                 cost_price: Math.round(bp.unit_price * 0.82),
                 min_threshold: bp.min_threshold || 5,
+                max_capacity: cap,
+                full_stock: cap,
                 img: properImg,
                 pedestal: "pedestal-blue",
                 aliases: bp.aliases || []
@@ -1079,7 +1214,10 @@ const VyaparCore = (function() {
       return resolveCatalogImg(sku, category, '');
     },
     addStock: async function(skuCode, addQty, reason = "Manual UI Stock Add") {
-      const item = skus.find(s => s.sku === skuCode);
+      let item = skus.find(s => s.sku === skuCode);
+      if (!item && (skuCode === 'DAIRY-MILK-500ML' || skuCode === 'DAIRY-AMUL-500M' || skuCode === 'DAIRY-AMUL-500ML')) {
+        item = skus.find(s => s.sku === 'DAIRY-MILK-500ML' || s.sku === 'DAIRY-AMUL-500M' || s.sku === 'DAIRY-AMUL-500ML');
+      }
       if (item) {
         item.stock = Math.max(0, parseFloat((Number(item.stock) + Number(addQty)).toFixed(2)));
         save(KEY_SKUS, skus);
@@ -2196,13 +2334,70 @@ const VyaparCore = (function() {
     startLiveSync: startLiveSync,
     registerListener: registerSyncListener,
 
+    restockAllToCapacity: async function() {
+      if (!skus || !Array.isArray(skus) || skus.length === 0) {
+        skus = JSON.parse(JSON.stringify(DEFAULT_SKUS));
+      }
+
+      // 1. Loops over skus: sets sku.stock = Number(sku.max_capacity || 100).
+      skus.forEach(sku => {
+        const def = DEFAULT_SKUS.find(d => d.sku === sku.sku || (d.aliases && d.aliases.includes(sku.sku)));
+        const targetCap = Number(sku.max_capacity || (def ? def.max_capacity : null) || sku.full_stock || 100);
+        sku.stock = targetCap;
+        sku.max_capacity = targetCap;
+        sku.full_stock = targetCap;
+      });
+
+      // 2. Saves to KEY_SKUS.
+      save(KEY_SKUS, skus);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('vyapar_alerts_restocked', 'true');
+      }
+
+      // 3. Broadcasts via BroadcastChannel('vyapar_realtime_sync') with { type: 'METRICS_UPDATE', products: skus }.
+      try {
+        if (typeof BroadcastChannel !== 'undefined') {
+          const channel = new BroadcastChannel('vyapar_realtime_sync');
+          channel.postMessage({ type: 'METRICS_UPDATE', products: skus, data: { products: skus }, timestamp: Date.now() });
+          channel.close();
+        }
+      } catch (e) {
+        console.warn('BroadcastChannel error:', e);
+      }
+
+      // 4. Dispatches window.dispatchEvent(new CustomEvent('vyapar_state_change', ...)).
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('vyapar_state_change', {
+          detail: { key: KEY_SKUS, data: skus, type: 'METRICS_UPDATE' }
+        }));
+      }
+
+      // 5. Calls notifySyncListeners('METRICS_UPDATE', { products: skus }).
+      notifySyncListeners('METRICS_UPDATE', { products: skus });
+      notifySyncListeners('STOCK_UPDATED', { products: skus });
+
+      // 6. Sends POST /api/inventory/restock-all (or /api/reset-demo?full=true) to backend.
+      try {
+        const backend = getBackendUrl();
+        if (backend) {
+          const res = await fetch(`${backend}/api/inventory/restock-all`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          }).catch(() => null);
+          if (!res || !res.ok) {
+            await fetch(`${backend}/api/reset-demo?full=true`, { method: 'POST' }).catch(() => {});
+          }
+        }
+      } catch (e) {
+        console.log('Backend restock-all fetch note:', e);
+      }
+
+      return skus;
+    },
+
     resetAllAndRestock: async function() {
       this.resetDefaults();
-      try {
-        await fetch(`${getBackendUrl()}/api/reset-demo`, { method: 'POST' });
-      } catch(e) {}
-      await performLiveSync();
-      return skus;
+      return await this.restockAllToCapacity();
     },
 
     // Merchant Authentication & Session State

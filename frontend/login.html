@@ -602,10 +602,10 @@
               <div class="input-field-wrap">
                 <input 
                   type="text" 
-                  id="userNameInput" 
-                  class="auth-input" 
-                  placeholder="e.g. Atharva Awate / Admin" 
-                  value="अथर्व आवाटे (Admin)"
+                  id="userNameInput"
+                  class="auth-input"
+                  placeholder="e.g. Atharva Awate / Admin"
+                  value="अथर्व आवटे (Admin)"
                   required 
                   autocomplete="username"
                 />
@@ -673,13 +673,13 @@
             <div class="quick-demo-section">
               <span class="quick-demo-label">Authorized Kirana Merchant Ingress</span>
               <div class="demo-pills-row">
-                <div class="demo-store-pill" style="border-color: rgba(16, 185, 129, 0.45); background: rgba(16, 185, 129, 0.08); font-weight: 650;" onclick="fillDemoCredentials('अथर्व आवाटे (Admin)', '+91 95798 69506', '957986')" title="Atharva Kirana Stores (Default)">
+                <div class="demo-store-pill" style="border-color: rgba(16, 185, 129, 0.45); background: rgba(16, 185, 129, 0.08); font-weight: 650;" onclick="fillDemoCredentials('अथर्व आवटे (Admin)', '+91 95798 69506', '957986')" title="Atharva Kirana Stores (Default)">
                   🏪 अथर्व किराणा (PIN: 957986)
                 </div>
                 <div class="demo-store-pill" style="border-color: rgba(0, 113, 227, 0.35); background: rgba(0, 113, 227, 0.06); font-weight: 650;" onclick="fillDemoCredentials('व्यंकटेश पै (Admin)', '+91 98220 12345', '1234')" title="Venkatesh Traders (PIN: 1234)">
                   🏪 व्यंकटेश प्रोव्हिजन (PIN: 1234)
                 </div>
-                <div class="demo-store-pill" style="border-color: rgba(201, 169, 110, 0.4); background: rgba(201, 169, 110, 0.08); font-weight: 650;" onclick="fillDemoCredentials('अथर्व आवाटे', '+91 95798 69506', '9579869506')" title="Phone Number as PIN">
+                <div class="demo-store-pill" style="border-color: rgba(201, 169, 110, 0.4); background: rgba(201, 169, 110, 0.08); font-weight: 650;" onclick="fillDemoCredentials('अथर्व आवटे (Admin)', '+91 95798 69506', '9579869506')" title="Phone Number as PIN">
                   ⚡ फोन नंबर पिन (9579869506)
                 </div>
               </div>
@@ -1061,8 +1061,9 @@
 
       // Determine Merchant Store Identity
       const isVenkatesh = number.includes('9822') || name.includes('व्यंकटेश') || name.toLowerCase().includes('venkatesh');
+      let adminName = name.includes('(Admin)') ? name : `${name} (Admin)`;
       const userRecord = {
-        name: name,
+        name: adminName,
         phone: number,
         store: isVenkatesh ? 'व्यंकटेश ट्रेडर्स & प्रोव्हिजन, कोल्हापूर' : 'अथर्व किराणा स्टोअर्स, कोल्हापूर',
         vendor_id: isVenkatesh ? 'DEMO_PAI_KOP' : 'DEMO_KIRANA_KOP',

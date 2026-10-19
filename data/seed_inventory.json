@@ -8,7 +8,18 @@
     "unit": "kg",
     "unit_price": 42.0,
     "min_threshold": 15.0,
-    "aliases": ["साखर", "sakhar", "saakhar", "sugar", "shakkar", "sakhri", "madhur sugar", "shakkhar"]
+    "aliases": [
+      "साखर",
+      "sakhar",
+      "saakhar",
+      "sugar",
+      "shakkar",
+      "sakhri",
+      "madhur sugar",
+      "shakkhar"
+    ],
+    "max_capacity": 100.0,
+    "full_stock": 100.0
   },
   {
     "sku": "DAIRY-MILK-500ML",
@@ -19,7 +30,19 @@
     "unit": "pouch",
     "unit_price": 27.0,
     "min_threshold": 8.0,
-    "aliases": ["दूध", "अमुल दूध", "गोकुळ दूध", "milk", "taaza milk", "fresh milk", "dudh", "doodh", "पिशवी दूध"]
+    "aliases": [
+      "दूध",
+      "अमुल दूध",
+      "गोकुळ दूध",
+      "milk",
+      "taaza milk",
+      "fresh milk",
+      "dudh",
+      "doodh",
+      "पिशवी दूध"
+    ],
+    "max_capacity": 50.0,
+    "full_stock": 50.0
   },
   {
     "sku": "DAIRY-AMUL-500M",
@@ -30,7 +53,18 @@
     "unit": "pouch",
     "unit_price": 27.0,
     "min_threshold": 6.0,
-    "aliases": ["दूध", "अमुल दूध", "milk", "taaza milk", "amul milk", "dudh", "doodh", "पिशवी दूध"]
+    "aliases": [
+      "दूध",
+      "अमुल दूध",
+      "milk",
+      "taaza milk",
+      "amul milk",
+      "dudh",
+      "doodh",
+      "पिशवी दूध"
+    ],
+    "max_capacity": 50.0,
+    "full_stock": 50.0
   },
   {
     "sku": "FMCG-PARLE-100G",
@@ -41,7 +75,21 @@
     "unit": "packet",
     "unit_price": 10.0,
     "min_threshold": 15.0,
-    "aliases": ["पार्ले", "पार्ले-जी", "parle", "parle-g", "parle ji", "biscuit", "biscuits", "बिस्कीट", "बिस्किट", "पुडा", "पुडे"]
+    "aliases": [
+      "पार्ले",
+      "पार्ले-जी",
+      "parle",
+      "parle-g",
+      "parle ji",
+      "biscuit",
+      "biscuits",
+      "बिस्कीट",
+      "बिस्किट",
+      "पुडा",
+      "पुडे"
+    ],
+    "max_capacity": 100.0,
+    "full_stock": 100.0
   },
   {
     "sku": "OIL-FORT-1L",
@@ -52,7 +100,19 @@
     "unit": "pouch",
     "unit_price": 135.0,
     "min_threshold": 5.0,
-    "aliases": ["तेल", "फॉर्च्युन", "oil", "fortune oil", "tel", "surajmukhi tel", "sunflower oil", "पिशवी", "पॉऊच"]
+    "aliases": [
+      "तेल",
+      "फॉर्च्युन",
+      "oil",
+      "fortune oil",
+      "tel",
+      "surajmukhi tel",
+      "sunflower oil",
+      "पिशवी",
+      "पॉऊच"
+    ],
+    "max_capacity": 50.0,
+    "full_stock": 50.0
   },
   {
     "sku": "BAK-PAV-LADI",
@@ -63,7 +123,16 @@
     "unit": "ladi",
     "unit_price": 20.0,
     "min_threshold": 8.0,
-    "aliases": ["लादी पाव", "ladi pav", "bread pav", "fresh pav", "बेकरी पाव", "ब्रेड"]
+    "aliases": [
+      "लादी पाव",
+      "ladi pav",
+      "bread pav",
+      "fresh pav",
+      "बेकरी पाव",
+      "ब्रेड"
+    ],
+    "max_capacity": 50.0,
+    "full_stock": 50.0
   },
   {
     "sku": "DAL-TUR-001",
@@ -74,7 +143,17 @@
     "unit": "kg",
     "unit_price": 160.0,
     "min_threshold": 10.0,
-    "aliases": ["तूर डाळ", "डाळ", "tur dal", "toor dal", "dal", "tur daal", "daal"]
+    "aliases": [
+      "तूर डाळ",
+      "डाळ",
+      "tur dal",
+      "toor dal",
+      "dal",
+      "tur daal",
+      "daal"
+    ],
+    "max_capacity": 50.0,
+    "full_stock": 50.0
   },
   {
     "sku": "GROC-SALT-1K",
@@ -85,7 +164,16 @@
     "unit": "packet",
     "unit_price": 28.0,
     "min_threshold": 10.0,
-    "aliases": ["मीठ", "टाटा मीठ", "salt", "tata salt", "mith", "namak"]
+    "aliases": [
+      "मीठ",
+      "टाटा मीठ",
+      "salt",
+      "tata salt",
+      "mith",
+      "namak"
+    ],
+    "max_capacity": 50.0,
+    "full_stock": 50.0
   },
   {
     "sku": "GROC-ATTA-5K",
@@ -96,7 +184,18 @@
     "unit": "bag",
     "unit_price": 240.0,
     "min_threshold": 5.0,
-    "aliases": ["आटा", "पीठ", "गहू पीठ", "atta", "aashirvaad atta", "wheat flour", "pith", "aata"]
+    "aliases": [
+      "आटा",
+      "पीठ",
+      "गहू पीठ",
+      "atta",
+      "aashirvaad atta",
+      "wheat flour",
+      "pith",
+      "aata"
+    ],
+    "max_capacity": 30.0,
+    "full_stock": 30.0
   },
   {
     "sku": "FMCG-MAGGI-70G",
@@ -107,7 +206,16 @@
     "unit": "packet",
     "unit_price": 14.0,
     "min_threshold": 12.0,
-    "aliases": ["मॅगी", "नूडल्स", "maggi", "maggi noodles", "noodles", "magi"]
+    "aliases": [
+      "मॅगी",
+      "नूडल्स",
+      "maggi",
+      "maggi noodles",
+      "noodles",
+      "magi"
+    ],
+    "max_capacity": 80.0,
+    "full_stock": 80.0
   },
   {
     "sku": "VEG-KANDA-001",
@@ -118,7 +226,16 @@
     "unit": "kg",
     "unit_price": 35.0,
     "min_threshold": 15.0,
-    "aliases": ["कांदा", "kanda", "onion", "pyaz", "lal kanda", "kande"]
+    "aliases": [
+      "कांदा",
+      "kanda",
+      "onion",
+      "pyaz",
+      "lal kanda",
+      "kande"
+    ],
+    "max_capacity": 100.0,
+    "full_stock": 100.0
   },
   {
     "sku": "VEG-BATATA-001",
@@ -129,7 +246,16 @@
     "unit": "kg",
     "unit_price": 30.0,
     "min_threshold": 15.0,
-    "aliases": ["बटाटा", "batata", "potato", "aloo", "batate", "alu"]
+    "aliases": [
+      "बटाटा",
+      "batata",
+      "potato",
+      "aloo",
+      "batate",
+      "alu"
+    ],
+    "max_capacity": 100.0,
+    "full_stock": 100.0
   },
   {
     "sku": "AUTO-VID-NOTEBOOK",
@@ -140,7 +266,20 @@
     "unit": "book",
     "unit_price": 65.0,
     "min_threshold": 5.0,
-    "aliases": ["vahi", "notebook", "classmate", "वही", "क्लासमेट", "नोटबुक", "classmate book", "classment", "classment book", "classment notebook"]
+    "aliases": [
+      "vahi",
+      "notebook",
+      "classmate",
+      "वही",
+      "क्लासमेट",
+      "नोटबुक",
+      "classmate book",
+      "classment",
+      "classment book",
+      "classment notebook"
+    ],
+    "max_capacity": 50.0,
+    "full_stock": 50.0
   },
   {
     "sku": "AUTO-VID-PEN",
@@ -151,7 +290,16 @@
     "unit": "piece",
     "unit_price": 10.0,
     "min_threshold": 10.0,
-    "aliases": ["pen", "reynolds", "पेन", "बॉलपेन", "blue pen", "reynolds pen"]
+    "aliases": [
+      "pen",
+      "reynolds",
+      "पेन",
+      "बॉलपेन",
+      "blue pen",
+      "reynolds pen"
+    ],
+    "max_capacity": 100.0,
+    "full_stock": 100.0
   },
   {
     "sku": "AUTO-VID-KINLEY",
@@ -162,6 +310,169 @@
     "unit": "bottle",
     "unit_price": 20.0,
     "min_threshold": 6.0,
-    "aliases": ["pani", "water", "kinley", "पाणी", "किनले", "water bottle"]
+    "aliases": [
+      "pani",
+      "water",
+      "kinley",
+      "पाणी",
+      "किनले",
+      "water bottle"
+    ],
+    "max_capacity": 40.0,
+    "full_stock": 40.0
+  },
+  {
+    "sku": "GROC-SHENG-001",
+    "name_mr": "गावरान शेंगदाणे (बारीक/जाड)",
+    "name_en": "Raw Peanuts (Shengdana) 1kg",
+    "category": "Grains & Sweeteners / धान्य व साखर",
+    "stock": 35.0,
+    "unit": "kg",
+    "unit_price": 140.0,
+    "min_threshold": 8.0,
+    "max_capacity": 50.0,
+    "full_stock": 50.0,
+    "aliases": [
+      "shengdana",
+      "shengadana",
+      "peanuts",
+      "शेंगदाणे",
+      "शेंगदाणा",
+      "दाणे",
+      "मूंगफली"
+    ]
+  },
+  {
+    "sku": "GROC-GAHU-001",
+    "name_mr": "गावरान लोकवन गहू (Loose)",
+    "name_en": "Lokwan Whole Wheat Grains 1kg",
+    "category": "Grains & Sweeteners / धान्य व साखर",
+    "stock": 55.0,
+    "unit": "kg",
+    "unit_price": 38.0,
+    "min_threshold": 10.0,
+    "max_capacity": 100.0,
+    "full_stock": 100.0,
+    "aliases": [
+      "gahu",
+      "gahhu",
+      "wheat",
+      "गहू",
+      "लोकवन",
+      "लोकवन गहू"
+    ]
+  },
+  {
+    "sku": "FMCG-COLG-100G",
+    "name_mr": "कोलगेट स्ट्रॉंग टीथ १०० ग्रॅम",
+    "name_en": "Colgate Strong Teeth 100g",
+    "category": "Personal Care & Hygiene / वैयक्तिक काळजी",
+    "stock": 8.0,
+    "unit": "tube",
+    "unit_price": 65.0,
+    "min_threshold": 15.0,
+    "max_capacity": 50.0,
+    "full_stock": 50.0,
+    "aliases": [
+      "colgate",
+      "toothpaste",
+      "कोलगेट",
+      "दंतमंजन",
+      "पेस्ट",
+      "टूथपेस्ट"
+    ]
+  },
+  {
+    "sku": "OIL-GEM-1L",
+    "name_mr": "जेमिनी सूर्यफूल तेल १ लिटर",
+    "name_en": "Gemini Sunflower Oil 1L",
+    "category": "Edible Oils / खाद्यतेल",
+    "stock": 20.0,
+    "unit": "pouch",
+    "unit_price": 130.0,
+    "min_threshold": 6.0,
+    "max_capacity": 30.0,
+    "full_stock": 30.0,
+    "aliases": [
+      "gemini",
+      "gemini oil",
+      "जेमिनी",
+      "जेमिनी तेल"
+    ]
+  },
+  {
+    "sku": "DAL-MOONG-1K",
+    "name_mr": "गावरान पिवळी मूग डाळ १ किलो",
+    "name_en": "Yellow Moong Dal 1kg",
+    "category": "Pulses & Lentils / डाळी व कडधान्ये",
+    "stock": 25.0,
+    "unit": "kg",
+    "unit_price": 130.0,
+    "min_threshold": 8.0,
+    "max_capacity": 40.0,
+    "full_stock": 40.0,
+    "aliases": [
+      "moong",
+      "moong dal",
+      "मूग",
+      "मूग डाळ"
+    ]
+  },
+  {
+    "sku": "GROC-BESAN-500G",
+    "name_mr": "शुद्ध चणा डाळ बेसन ५०० ग्रॅम",
+    "name_en": "Pure Chana Dal Besan 500g",
+    "category": "Grains & Sweeteners / धान्य व साखर",
+    "stock": 20.0,
+    "unit": "packet",
+    "unit_price": 55.0,
+    "min_threshold": 8.0,
+    "max_capacity": 40.0,
+    "full_stock": 40.0,
+    "aliases": [
+      "besan",
+      "chana besan",
+      "बेसन",
+      "चणा बेसन"
+    ]
+  },
+  {
+    "sku": "SPICE-CHILLI-100G",
+    "name_mr": "कोल्हापुरी लवंगी तिखट १०० ग्रॅम",
+    "name_en": "Kolhapuri Red Chilli Powder 100g",
+    "category": "Spices & Essentials / मसाले व आवश्यक वस्तू",
+    "stock": 30.0,
+    "unit": "packet",
+    "unit_price": 45.0,
+    "min_threshold": 10.0,
+    "max_capacity": 50.0,
+    "full_stock": 50.0,
+    "aliases": [
+      "tikhat",
+      "mirchi",
+      "chilli",
+      "तिखट",
+      "मिरची",
+      "मिरची पावडर"
+    ]
+  },
+  {
+    "sku": "SPICE-TURM-100G",
+    "name_mr": "शुद्ध हळद पावडर १०० ग्रॅम",
+    "name_en": "Pure Turmeric Powder 100g",
+    "category": "Spices & Essentials / मसाले व आवश्यक वस्तू",
+    "stock": 30.0,
+    "unit": "packet",
+    "unit_price": 35.0,
+    "min_threshold": 10.0,
+    "max_capacity": 50.0,
+    "full_stock": 50.0,
+    "aliases": [
+      "halad",
+      "haldi",
+      "turmeric",
+      "हळद",
+      "हळदी"
+    ]
   }
 ]

@@ -462,12 +462,40 @@ class InventoryService:
                         min_threshold=float(item["min_threshold"])
                     )
                     p.aliases = item.get("aliases", [])
+                    meta = dict(item.get("extra_meta", {}))
+                    if "max_capacity" in item:
+                        meta["max_capacity"] = float(item["max_capacity"])
+                    if "full_stock" in item:
+                        meta["full_stock"] = float(item["full_stock"])
+                    p.extra_meta = meta
                     db.merge(p)
                 db.commit()
                 print(f"[CATALOG SEED] Loaded {len(items)} default products.")
 
         cls.seed_initial_udhar(db, force=force)
         cls.save_state_snapshot(db)
+
+    @classmethod
+    def restock_all_to_capacity(cls, db: Session, vendor_id: str = "DEMO_KIRANA_KOP") -> Dict[str, Any]:
+        """
+        Refills every product in the database to 100% of its full max capacity
+        (e.g. Parle-G 100, Sugar 100, Milk 50, Oil 50, Atta 30, Onion 100, Maggi 80, etc.).
+        Guarantees zero half-depleted mock values (60%, 50%, 25%, 40%) upon restocking.
+        Saves state snapshot to vyaparai_state.json and returns fresh dashboard metrics.
+        """
+        products = db.query(Product).all()
+        for p in products:
+            cap = p.max_capacity
+            p.stock = float(cap)
+            meta = dict(p.extra_meta or {})
+            meta["max_capacity"] = float(cap)
+            meta["full_stock"] = float(cap)
+            p.extra_meta = meta
+
+        db.commit()
+        cls.save_state_snapshot(db, vendor_id=vendor_id)
+        metrics = cls.get_dashboard_metrics(db, vendor_id=vendor_id)
+        return metrics
 
     @classmethod
     def process_transaction_event(
