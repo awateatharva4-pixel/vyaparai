@@ -1602,9 +1602,11 @@
       const neededQty = Math.max(0, p.safeStock - p.currentStock);
       const reorderCost = Math.round(neededQty * p.unitCost);
 
-      // Determine category based on thresholds
+      // Determine category based on thresholds and low-stock quota items (stock <= 15kg or dairy <= 5 packs)
+      const isQuotaCritical = (p.id === 'amulmilk' && p.currentStock <= 5) ||
+                              ((p.unit === 'kg' || p.unit === 'bags') && p.currentStock <= 15);
       let category = 'resolved';
-      if (pct <= criticalThreshold) {
+      if (pct <= criticalThreshold || isQuotaCritical) {
         category = 'critical';
       } else if (pct <= warningThreshold) {
         category = 'warning';
@@ -1684,8 +1686,10 @@
 
       alertProducts.forEach(prod => {
         const pct = Math.round((prod.currentStock / prod.safeStock) * 100);
+        const isQuotaCritical = (prod.id === 'amulmilk' && prod.currentStock <= 5) ||
+                                ((prod.unit === 'kg' || prod.unit === 'bags') && prod.currentStock <= 15);
         let cat = 'resolved';
-        if (pct <= criticalThreshold) {
+        if (pct <= criticalThreshold || isQuotaCritical) {
           cat = 'critical';
           critCount++;
           criticalNames.push(prod.name.split(' ')[0]);
@@ -1989,6 +1993,31 @@ Please confirm dispatch priority and generate commercial invoice.`;
       syncMerchantSessionUI();
       syncFromVyaparCore();
       updateSensitivityThresholds(false);
+
+      // Reactive live sync listeners
+      if (window.VyaparCore && typeof VyaparCore.registerListener === 'function') {
+        VyaparCore.registerListener((type, data) => {
+          if (type === 'METRICS_UPDATE' || type === 'TRANSACTIONS_UPDATED') {
+            syncFromVyaparCore();
+            updateSensitivityThresholds(false);
+          }
+        });
+      }
+      if (window.VyaparCore && typeof VyaparCore.startLiveSync === 'function') {
+        VyaparCore.startLiveSync((type, data) => {
+          if (type === 'METRICS_UPDATE' || type === 'TRANSACTIONS_UPDATED') {
+            syncFromVyaparCore();
+            updateSensitivityThresholds(false);
+          }
+        });
+      }
+
+      window.addEventListener('message', (event) => {
+        if (event.data && (event.data.type === 'NEW_SALE' || event.data.type === 'VYAPAR_SALE' || event.data.type === 'VYAPAR_RESTOCK')) {
+          syncFromVyaparCore();
+          updateSensitivityThresholds(false);
+        }
+      });
     });
   </script>
 

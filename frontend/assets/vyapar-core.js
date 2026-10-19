@@ -251,6 +251,54 @@ const VyaparCore = (function() {
       img: "assets/products/kinley_water.jpg",
       pedestal: "pedestal-green",
       aliases: ["pani", "water", "kinley", "पाणी", "किनले"]
+    },
+    {
+      sku: "GROC-SHENG-001",
+      name_mr: "गावरान शेंगदाणे (बारीक/जाड)",
+      name_en: "Raw Peanuts (Shengdana) 1kg",
+      short_name: "Shengdana",
+      category: "Grains & Sweeteners",
+      stock: 35.0,
+      unit: "kg",
+      unit_price: 140.0,
+      cost_price: 118.00,
+      min_threshold: 8.0,
+      max_capacity: 60.0,
+      img: "assets/products/sugar.jpg",
+      pedestal: "pedestal-peach",
+      aliases: ["shengdana", "shengadana", "peanuts", "शेंगदाणे", "शेंगदाणा", "दाणे", "मूंगफली"]
+    },
+    {
+      sku: "GROC-GAHU-001",
+      name_mr: "गावरान लोकवन गहू (Loose)",
+      name_en: "Lokwan Whole Wheat Grains 1kg",
+      short_name: "Lokwan Wheat (गहू)",
+      category: "Grains & Sweeteners",
+      stock: 55.0,
+      unit: "kg",
+      unit_price: 38.0,
+      cost_price: 31.00,
+      min_threshold: 10.0,
+      max_capacity: 100.0,
+      img: "assets/products/aashirvaad_atta.jpg",
+      pedestal: "pedestal-peach",
+      aliases: ["gahu", "gahhu", "wheat", "गहू", "लोकवन", "लोकवन गहू"]
+    },
+    {
+      sku: "FMCG-COLG-100G",
+      name_mr: "कोलगेट स्ट्रॉंग टीथ १०० ग्रॅम",
+      name_en: "Colgate Strong Teeth 100g",
+      short_name: "Colgate",
+      category: "Personal Care & Hygiene",
+      stock: 8.0,
+      unit: "tube",
+      unit_price: 65.0,
+      cost_price: 52.00,
+      min_threshold: 15.0,
+      max_capacity: 50.0,
+      img: "assets/products/colgate.jpg",
+      pedestal: "pedestal-rose",
+      aliases: ["colgate", "toothpaste", "कोलगेट", "दंतमंजन", "पेस्ट", "टूथपेस्ट"]
     }
   ];
 
@@ -308,6 +356,7 @@ const VyaparCore = (function() {
   const KEY_CUSTOMERS = "vyapar_customers";
   const KEY_UDHAR = "vyapar_udhar_ledger";
   const KEY_TX = "vyapar_transactions";
+  const KEY_TXNS = KEY_TX;
   const KEY_ORDERS = "vyapar_pending_orders";
   const KEY_STORE = "vyapar_active_dukaan";
 
@@ -535,15 +584,80 @@ const VyaparCore = (function() {
   let isSyncInProgress = false;
   let reconnectAttempts = 0;
 
+  // BroadcastChannel for cross-tab realtime sync (index.html <-> sales.html)
+  let syncChannel = null;
+  try {
+    if (typeof BroadcastChannel !== 'undefined') {
+      syncChannel = new BroadcastChannel('vyapar_realtime_sync');
+      syncChannel.onmessage = function(ev) {
+        if (ev.data && ev.data.type) {
+          if (ev.data.type === 'PENDING_ORDERS_UPDATED') {
+            pendingOrders = load(KEY_ORDERS, DEFAULT_PENDING_ORDERS);
+          } else if (ev.data.type === 'TRANSACTIONS_UPDATED') {
+            transactions = load(KEY_TX, DEFAULT_TRANSACTIONS);
+          } else if (ev.data.type === 'METRICS_UPDATE') {
+            skus = load(KEY_SKUS, DEFAULT_SKUS);
+          }
+          notifySyncListeners(ev.data.type, ev.data.data, false);
+        }
+      };
+    }
+  } catch(e) {}
+
+  // Storage event listener for cross-tab reactive synchronization
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('storage', (e) => {
+      if (e.key === KEY_ORDERS) {
+        try {
+          pendingOrders = JSON.parse(e.newValue || '[]');
+          if (Array.isArray(pendingOrders)) {
+            pendingOrders.forEach(o => {
+              if (!o.timer_started_at) {
+                o.timer_started_at = o.created_at ? new Date(o.created_at).getTime() : Date.now();
+              }
+              const elapsed = Math.floor((Date.now() - o.timer_started_at) / 1000);
+              o.remaining_seconds = Math.max(0, 1800 - elapsed);
+            });
+          }
+        } catch(err){}
+        notifySyncListeners("PENDING_ORDERS_UPDATED", pendingOrders);
+      } else if (e.key === KEY_SKUS) {
+        try { skus = JSON.parse(e.newValue || '[]'); } catch(err){}
+        notifySyncListeners("METRICS_UPDATE", { products: skus });
+      } else if (e.key === KEY_TXNS || e.key === KEY_TX) {
+        try { transactions = JSON.parse(e.newValue || '[]'); } catch(err){}
+        notifySyncListeners("TRANSACTIONS_UPDATED", transactions);
+      } else if (e.key === KEY_UDHAR) {
+        try { udharLedger = JSON.parse(e.newValue || '[]'); } catch(err){}
+        notifySyncListeners("UDHAR_LEDGER_UPDATED", udharLedger);
+      }
+    });
+  }
+
   function registerSyncListener(cb) {
     if (typeof cb === 'function') syncListeners.push(cb);
   }
 
-  function notifySyncListeners(type, data) {
+  function notifySyncListeners(type, data, broadcast = true) {
     syncListeners.forEach(fn => {
       try { fn(type, data); } catch (e) { console.error("Sync listener error", e); }
     });
+    if (broadcast && syncChannel) {
+      try { syncChannel.postMessage({ type, data }); } catch(e) {}
+    }
   }
+
+  registerSyncListener((type, data) => {
+    if (type === "PENDING_ORDERS_UPDATED") {
+      if (typeof document !== 'undefined' && document.getElementById('yaadiOrdersFeedList')) {
+        if (typeof VyaparCore !== 'undefined' && typeof VyaparCore.renderYaadiFeed === 'function') {
+          VyaparCore.renderYaadiFeed('yaadiOrdersFeedList');
+        } else if (typeof window !== 'undefined' && typeof window.renderPendingYaadiOrders === 'function') {
+          window.renderPendingYaadiOrders('yaadiOrdersFeedList');
+        }
+      }
+    }
+  });
 
   async function performLiveSync() {
     if (isSyncInProgress) return;
@@ -835,6 +949,67 @@ const VyaparCore = (function() {
     connectWS();
   }
 
+  let yaadiTimerTickerInterval = null;
+  function startYaadiTimerTicker() {
+    if (yaadiTimerTickerInterval || typeof window === 'undefined') return;
+    yaadiTimerTickerInterval = setInterval(() => {
+      if (!pendingOrders || pendingOrders.length === 0) return;
+      pendingOrders.forEach(ord => {
+        const orderId = ord.order_id || ord.id;
+        if (!orderId) return;
+
+        const status = (ord.status || 'PENDING').toUpperCase();
+        const isFulfilled = status === 'PACKED' || status === 'FULFILLED';
+        const isCancelled = status === 'CANCELLED' || status === 'EXPIRED_AUTO_CANCELLED' || status === 'EXPIRED';
+
+        if (!isFulfilled && !isCancelled) {
+          if (!ord.timer_started_at) {
+            ord.timer_started_at = ord.created_at ? new Date(ord.created_at).getTime() : Date.now();
+          }
+          const elapsed = Math.floor((Date.now() - ord.timer_started_at) / 1000);
+          const remSecs = Math.max(0, 1800 - elapsed);
+          ord.remaining_seconds = remSecs;
+
+          const timerEl = document.getElementById('order-timer-' + orderId);
+          if (timerEl) {
+            const m = Math.floor(remSecs / 60);
+            const s = Math.floor(remSecs % 60);
+            const formatted = (remSecs <= 0) ? "00:00 (Expired)" : `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+            timerEl.textContent = '⏳ ' + formatted;
+            if (remSecs === 0) {
+              timerEl.style.background = 'rgba(255, 69, 58, 0.25)';
+            }
+          }
+        }
+      });
+    }, 1000);
+  }
+
+  function ensureYaadiStyles() {
+    if (typeof document === 'undefined') return;
+    if (document.getElementById('vyapar-yaadi-core-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'vyapar-yaadi-core-styles';
+    style.textContent = `
+      .yaadi-order-box.cancelled {
+        opacity: 0.65;
+        background: rgba(255, 245, 245, 0.6);
+        border-color: rgba(255, 69, 58, 0.3);
+      }
+      .yaadi-order-box.fulfilled {
+        opacity: 0.65;
+        background: rgba(245, 248, 245, 0.6);
+        border-color: rgba(40, 205, 65, 0.3);
+      }
+      .yaadi-actions-btns {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   return {
     // -------------------------------------------------------------------------
     // 1. INVENTORY METHODS
@@ -879,7 +1054,8 @@ const VyaparCore = (function() {
         'VEG-BATATA-001': 'assets/products/potato.jpg',
         'AUTO-VID-NOTEBOOK': 'assets/products/classmate_notebook.jpg',
         'AUTO-VID-PEN': 'assets/products/reynolds_pen.jpg',
-        'AUTO-VID-KINLEY': 'assets/products/kinley_water.jpg'
+        'AUTO-VID-KINLEY': 'assets/products/kinley_water.jpg',
+        'FMCG-COLG-100G': 'assets/products/colgate.jpg'
       };
       if (sku && skuMap[sku]) return skuMap[sku];
 
@@ -962,12 +1138,62 @@ const VyaparCore = (function() {
       return undoneTx ? { status: "SUCCESS", undone: undoneTx } : null;
     },
     settleKhata: async function(creditId, amount, mode = "CASH", notes = "") {
+      const cidStr = String(creditId);
+      const numAmt = Number(amount) || 0;
+
+      // Ensure udharLedger is initialized
+      if (!udharLedger || udharLedger.length === 0) {
+        udharLedger = JSON.parse(JSON.stringify(customers && customers.length > 0 ? customers : DEFAULT_CUSTOMERS));
+        save(KEY_UDHAR, udharLedger);
+      }
+
+      // Find target customer in ledger or customers list
+      let targetCust = udharLedger.find(c => String(c.id) === cidStr || String(c.id).includes(cidStr)) ||
+                       customers.find(c => String(c.id) === cidStr || String(c.id).includes(cidStr));
+
+      if (targetCust) {
+        if (targetCust.amount_due !== undefined) {
+          targetCust.amount_due = Math.max(0, parseFloat((targetCust.amount_due - numAmt).toFixed(2)));
+          if (targetCust.amount_due <= 0) targetCust.status = "PAID";
+        }
+        if (targetCust.udhar !== undefined) {
+          targetCust.udhar = Math.max(0, parseFloat((targetCust.udhar - numAmt).toFixed(2)));
+          if (targetCust.udhar <= 0) targetCust.status = "SETTLED";
+        }
+        targetCust.last_tx = `Just now (Paid ₹${numAmt} via ${mode})`;
+        targetCust.last_payment_date = new Date().toISOString();
+        save(KEY_UDHAR, udharLedger);
+      }
+
+      // Also ensure customers array entry is updated
+      const localCust = customers.find(c => String(c.id) === cidStr || String(c.id).includes(cidStr));
+      if (localCust) {
+        localCust.udhar = Math.max(0, parseFloat(((localCust.udhar || 0) - numAmt).toFixed(2)));
+        if (localCust.udhar <= 0) localCust.status = "SETTLED";
+        localCust.last_tx = `Just now (Paid ₹${numAmt} via ${mode})`;
+        save(KEY_CUSTOMERS, customers);
+      }
+
+      // Log transaction
+      const custDisplayName = (targetCust && (targetCust.customer_name || targetCust.name)) || (localCust && localCust.name) || "Khata Customer";
+      const loggedTx = this.addTransaction({
+        type: "SALE",
+        mode: mode.includes("UPI") ? "UPI Soundbox" : (mode.includes("Cash") ? "Cash Counter" : "UPI Soundbox"),
+        cust: custDisplayName,
+        items: `Khata Udhar Payment (₹${numAmt})`,
+        amount: numAmt,
+        status: "Success"
+      });
+      this.playSoundboxChime(numAmt);
+      notifySyncListeners("UDHAR_LEDGER_UPDATED", udharLedger);
+
+      // Attempt live backend synchronization
       try {
         const url = `${getBackendUrl()}/api/udhar/${creditId}/pay`;
         const res = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount: Number(amount), payment_mode: mode, notes: notes })
+          body: JSON.stringify({ amount: numAmt, payment_mode: mode, notes: notes })
         });
         if (res.ok) {
           const data = await res.json();
@@ -980,31 +1206,12 @@ const VyaparCore = (function() {
             }
             notifySyncListeners("METRICS_UPDATE", data.metrics);
           }
-          // Also settle locally in customers if matched
-          const cidStr = String(creditId);
-          const localCust = customers.find(c => c.id === cidStr || String(c.id).includes(cidStr));
-          if (localCust) {
-            localCust.udhar = Math.max(0, (localCust.udhar || 0) - Number(amount));
-            if (localCust.udhar <= 0) localCust.status = "SETTLED";
-            localCust.last_tx = `Just now (Paid ₹${amount})`;
-            save(KEY_CUSTOMERS, customers);
-          }
-          // Log a transaction
-          this.addTransaction({
-            type: "SALE",
-            mode: mode.includes("UPI") ? "UPI Soundbox" : "Cash Counter",
-            cust: (data.credit && data.credit.customer_name) || (localCust && localCust.name) || "Khata Customer",
-            items: `Khata Udhar Payment (₹${amount})`,
-            amount: Number(amount),
-            status: "Success"
-          });
-          this.playSoundboxChime(Number(amount));
           return data;
         }
       } catch (e) {
-        console.warn("[VyaparCore] Settle khata failed:", e);
+        console.warn("[VyaparCore] Backend settle khata sync failed (offline optimistic state active):", e);
       }
-      return null;
+      return { status: "SUCCESS", offline: true, customer: targetCust || localCust, transaction: loggedTx };
     },
     getUdharLedger: async function(vendorId = "DEMO_KIRANA_KOP") {
       try {
@@ -1117,9 +1324,35 @@ const VyaparCore = (function() {
           return data;
         }
       } catch (e) {
-        console.warn("[VyaparCore] Create customer account failed:", e);
+        console.warn("[VyaparCore] Create customer account backend sync failed (saving locally):", e);
       }
-      return null;
+
+      // Offline fallback: save locally
+      const localId = "c" + (customers.length + 1);
+      const offlineCust = {
+        id: localId,
+        customer_name: payload.customer_name || payload.name,
+        name: payload.customer_name || payload.name,
+        area: payload.notes || payload.area || "Kolhapur Ward",
+        customer_phone: payload.customer_phone || payload.phone,
+        phone: payload.customer_phone || payload.phone,
+        amount_due: parseFloat(payload.amount_due || payload.amount || 0),
+        udhar: parseFloat(payload.amount_due || payload.amount || 0),
+        status: "DUE_SOON",
+        due_date: payload.due_date || "तात्काळ (Immediate)",
+        last_tx: "Just now (Account Opened)",
+        trust: "A",
+        orders: 1,
+        pref: "Counter Walk-in / Udhar"
+      };
+      customers.unshift(offlineCust);
+      save(KEY_CUSTOMERS, customers);
+      if (Array.isArray(udharLedger)) {
+        udharLedger.unshift(offlineCust);
+        save(KEY_UDHAR, udharLedger);
+        notifySyncListeners("UDHAR_LEDGER_UPDATED", udharLedger);
+      }
+      return { status: "SUCCESS", offline: true, credit: offlineCust };
     },
     getWhatsAppReminderLink: function(customer, shopName = "अथर्व किराणा स्टोअर्स") {
       const rawPhone = (customer.customer_phone || customer.phone || "").replace(/[^0-9]/g, "");
@@ -1365,40 +1598,344 @@ const VyaparCore = (function() {
       return { success: false, message: "Order not found or already finalized" };
     },
 
+    packCustomerOrder: function(orderId) {
+      if (typeof window !== 'undefined' && window.haptics) {
+        if (typeof window.haptics.tap === 'function') window.haptics.tap();
+        else if (typeof window.haptics.playTick === 'function') window.haptics.playTick();
+      }
+      const res = this.packAndFulfillOrder(orderId);
+      if (res && res.success) {
+        const cust = res.order.customerName || res.order.customer_name || 'व्यंकटेश पै';
+        const total = parseFloat(res.order.totalEstimated || res.order.total_amount || 0);
+        if (typeof window !== 'undefined' && typeof window.showAppleToast === 'function') {
+          window.showAppleToast(`Packed order for ${cust}! Stock finalized ₹${total}.`);
+        }
+        if (typeof document !== 'undefined') {
+          const salesEl = document.getElementById('statTotalSales') || document.getElementById('statSalesToday');
+          const ordersEl = document.getElementById('statOrdersCount') || document.getElementById('statInvoices');
+          if (salesEl) {
+            const cur = parseInt(salesEl.textContent.replace(/[₹,]/g, '')) || 0;
+            if (typeof window.animateCounter === 'function') {
+              window.animateCounter(salesEl.id, cur, cur + total, 800, '₹');
+            } else {
+              salesEl.textContent = '₹' + (cur + total).toLocaleString('en-IN');
+            }
+          }
+          if (ordersEl) {
+            const curO = parseInt(ordersEl.textContent) || 0;
+            if (typeof window.animateCounter === 'function') {
+              window.animateCounter(ordersEl.id, curO, curO + 1, 500);
+            } else {
+              ordersEl.textContent = (curO + 1);
+            }
+          }
+          const feed = document.getElementById('recentSalesFeedList');
+          if (feed) {
+            const newRow = document.createElement('div');
+            newRow.className = 'sale-feed-row';
+            newRow.innerHTML = `
+              <div class="sale-feed-left">
+                <div class="sale-icon-box basket">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                  </svg>
+                </div>
+                <div class="sale-meta-group">
+                  <span class="sale-item-title">Customer Yaadi (${cust})</span>
+                  <span class="sale-timestamp tabular-nums">Just now</span>
+                </div>
+              </div>
+              <span class="sale-customer-tag" style="color: var(--apple-green); font-weight: 700;">+₹${total}</span>
+            `;
+            feed.insertBefore(newRow, feed.firstChild);
+          }
+          if (typeof window.updateSalesHeaderMetrics === 'function') {
+            window.updateSalesHeaderMetrics();
+          }
+          if (typeof window.renderSalesTable === 'function') {
+            window.renderSalesTable();
+          }
+        }
+        this.renderYaadiFeed('yaadiOrdersFeedList');
+      } else if (res && !res.success) {
+        if (typeof window !== 'undefined' && typeof window.showAppleToast === 'function') {
+          window.showAppleToast(res.message || res.error || "Failed to pack order");
+        }
+      }
+      return res;
+    },
+
+    cancelCustomerOrder: function(orderId) {
+      if (typeof window !== 'undefined' && window.haptics) {
+        if (typeof window.haptics.tap === 'function') window.haptics.tap();
+        else if (typeof window.haptics.playTick === 'function') window.haptics.playTick();
+      }
+      const res = this.cancelAndRestoreOrder(orderId);
+      if (res && res.success) {
+        if (typeof window !== 'undefined' && typeof window.showAppleToast === 'function') {
+          window.showAppleToast(`🔄 Order ${orderId} cancelled & stock restored to active inventory!`);
+        }
+        this.renderYaadiFeed('yaadiOrdersFeedList');
+      } else if (res && !res.success) {
+        if (typeof window !== 'undefined' && typeof window.showAppleToast === 'function') {
+          window.showAppleToast(res.message || res.error || "Failed to cancel order");
+        }
+      }
+      return res;
+    },
+
+    formatTimerSeconds: function(secs) {
+      if (secs === undefined || secs === null || isNaN(secs) || secs <= 0) return "00:00 (Expired)";
+      const total = Math.floor(secs);
+      const m = Math.floor(total / 60);
+      const s = total % 60;
+      return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+    },
+
+    getOrderBoxBadgesHtml: function(order, remSecs) {
+      const orderId = order.order_id || order.id;
+      const isFulfilled = order.status === 'PACKED' || order.status === 'FULFILLED';
+      const isCancelled = order.status === 'CANCELLED' || order.status === 'EXPIRED_AUTO_CANCELLED' || order.status === 'EXPIRED';
+      const isConfirmed = (order.status === 'CONFIRMED' || order.confirmed_by_customer) && !isFulfilled && !isCancelled;
+
+      if (isFulfilled) {
+        return `
+          <span class="status-pill status-in" style="font-size: 0.70rem; background: rgba(52, 199, 89, 0.15); color: #28cd41; border: 1px solid rgba(52, 199, 89, 0.3); font-weight: 600;">
+            ✅ साठा वजा (Packed & Fulfilled)
+          </span>
+        `;
+      } else if (isCancelled) {
+        return `
+          <span class="status-pill status-out" style="font-size: 0.70rem; background: rgba(255, 69, 58, 0.12); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.28); font-weight: 600;">
+            ↩ रद्द / साठा पूर्ववत (Cancelled & Restituted)
+          </span>
+        `;
+      } else if (isConfirmed) {
+        return `
+          <span class="status-pill status-in" style="font-size: 0.70rem; background: rgba(0, 113, 227, 0.12); color: #0071e3; border: 1px solid rgba(0, 113, 227, 0.28); font-weight: 600;">
+            ✓ ग्राहक निश्चिती (Customer Confirmed)
+          </span>
+          <span class="order-timer-pill" id="order-timer-${orderId}" style="font-size: 0.70rem; padding: 2px 7px; border-radius: 999px; background: rgba(255, 149, 0, 0.12); color: #ff9500; font-weight: 700; border: 1px solid rgba(255, 149, 0, 0.28);">⏳ ${this.formatTimerSeconds(remSecs)}</span>
+        `;
+      } else {
+        return `
+          <span class="status-pill status-low" style="font-size: 0.70rem; background: rgba(255, 149, 0, 0.12); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.28); font-weight: 600;">
+            📋 मागणी प्रलंबित (Pending Approval / Staged)
+          </span>
+          <span class="order-timer-pill" id="order-timer-${orderId}" style="font-size: 0.70rem; padding: 2px 7px; border-radius: 999px; background: rgba(255, 69, 58, 0.12); color: #ff453a; font-weight: 700; border: 1px solid rgba(255, 69, 58, 0.28);">⏳ ${this.formatTimerSeconds(remSecs)}</span>
+        `;
+      }
+    },
+
+    getOrderBoxButtonsHtml: function(order) {
+      const orderId = order.order_id || order.id;
+      const safeOrderId = String(orderId).replace(/'/g, "\\'");
+      const isFulfilled = order.status === 'PACKED' || order.status === 'FULFILLED';
+      const isCancelled = order.status === 'CANCELLED' || order.status === 'EXPIRED_AUTO_CANCELLED' || order.status === 'EXPIRED';
+
+      return `
+        <button 
+          class="btn-pack-order" 
+          onclick="VyaparCore.packCustomerOrder('${safeOrderId}')"
+          ${(isFulfilled || isCancelled) ? 'disabled style="opacity: 0.6; cursor: not-allowed;"' : ''}>
+          ${isFulfilled ? '✓ Delivered' : (isCancelled ? '✕ Cancelled' : 'Pack & Fulfill ✓')}
+        </button>
+        ${(!isFulfilled && !isCancelled) ? `
+        <button 
+          class="btn-stock" 
+          style="font-size: 0.72rem; padding: 5px 10px; border-radius: 999px; background: rgba(255, 69, 58, 0.12); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.25); cursor: pointer;"
+          onclick="VyaparCore.cancelCustomerOrder('${safeOrderId}')"
+          title="30-min Auto-Undo: Cancel order and restitute reserved stock immediately">
+          Undo Stock 🔄
+        </button>` : ''}
+      `;
+    },
+
+    getOrderBoxInnerHtml: function(order, remSecs) {
+      const custName = order.customerName || order.customer_name || "व्यंकटेश पै (Venkatesh Pai)";
+      const custPhone = order.phone || order.customer_phone || "+91 98220 12345";
+      const totalEst = parseFloat(order.totalEstimated || order.total_amount || 0);
+      const orderItems = Array.isArray(order.items) ? order.items : [];
+
+      return `
+        <div class="yaadi-order-header">
+          <div class="yaadi-cust-info">
+            <div class="yaadi-cust-avatar">${custName.charAt(0)}</div>
+            <div>
+              <div class="yaadi-cust-name">${custName}</div>
+              <div class="yaadi-cust-phone">${custPhone} • ${order.timestamp || order.time || 'Just now'}</div>
+            </div>
+          </div>
+          <div class="yaadi-status-badges" style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+            ${this.getOrderBoxBadgesHtml(order, remSecs)}
+          </div>
+        </div>
+        
+        <div class="yaadi-items-list">
+          <strong>Order Slip:</strong> "${order.rawText || order.raw_message || order.items_text || 'किराणा यादी'}"<br/>
+          <span style="font-size: 0.75rem; color: var(--text-tertiary);">Parsed items: ${orderItems.map(i => `${i.qty || i.quantity || 1}x ${i.name || i.name_mr || 'सामान'}`).join(', ') || 'साखर २ किलो, तेल १ लिटर, पार्ले-जी ५ पुडे, गोकुळ दूध १ पिशवी'}</span>
+        </div>
+
+        <div class="yaadi-footer-row" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <div class="yaadi-est-total">Est. Total: ₹${totalEst}</div>
+          <div class="yaadi-actions-btns" style="display: flex; gap: 6px;">
+            ${this.getOrderBoxButtonsHtml(order)}
+          </div>
+        </div>
+      `;
+    },
+
+    renderYaadiFeed: function(containerId = 'yaadiOrdersFeedList', options = {}) {
+      if (typeof document === 'undefined') return;
+      ensureYaadiStyles();
+      let targetId = 'yaadiOrdersFeedList';
+      if (typeof containerId === 'string' && containerId.trim()) {
+        targetId = containerId.trim();
+      } else if (containerId && typeof containerId === 'object' && containerId.containerId) {
+        targetId = containerId.containerId;
+      } else if (options && options.containerId) {
+        targetId = options.containerId;
+      }
+
+      const container = typeof targetId === 'string' ? document.getElementById(targetId) : targetId;
+      if (!container) return;
+
+      const orders = this.getPendingOrders();
+      if (!orders || orders.length === 0) {
+        if (!container.querySelector('.yaadi-empty-placeholder')) {
+          container.innerHTML = `
+            <div class="yaadi-empty-placeholder" style="text-align: center; padding: 24px; color: var(--text-tertiary, #8e8e93); font-size: 0.82rem;">
+              No pending customer yaadi slips right now. Orders arriving on WhatsApp (+91 98230...) will appear here live.
+            </div>
+          `;
+        }
+        return;
+      }
+
+      const placeholder = container.querySelector('.yaadi-empty-placeholder');
+      if (placeholder) {
+        placeholder.remove();
+      }
+
+      const activeOrderIds = new Set();
+      orders.forEach((order, index) => {
+        const orderId = order.order_id || order.id;
+        if (!orderId) return;
+        activeOrderIds.add(orderId);
+
+        if (!order.timer_started_at) {
+          order.timer_started_at = order.created_at ? new Date(order.created_at).getTime() : Date.now();
+        }
+        const elapsed = Math.floor((Date.now() - order.timer_started_at) / 1000);
+        const remSecs = Math.max(0, 1800 - elapsed);
+        order.remaining_seconds = remSecs;
+
+        const isFulfilled = order.status === 'PACKED' || order.status === 'FULFILLED';
+        const isCancelled = order.status === 'CANCELLED' || order.status === 'EXPIRED_AUTO_CANCELLED' || order.status === 'EXPIRED';
+        const targetClass = `yaadi-order-box ${isFulfilled ? 'fulfilled' : (isCancelled ? 'cancelled' : '')}`;
+
+        let box = document.getElementById('yaadi-order-' + orderId);
+        if (box) {
+          const currentStatus = (box.dataset && box.dataset.orderStatus) || (box.getAttribute && box.getAttribute('data-order-status'));
+          if (currentStatus !== order.status) {
+            if (box.dataset) box.dataset.orderStatus = order.status;
+            if (box.setAttribute) box.setAttribute('data-order-status', order.status);
+            box.className = targetClass;
+            const badges = box.querySelector ? box.querySelector('.yaadi-status-badges') : null;
+            if (badges) badges.innerHTML = this.getOrderBoxBadgesHtml(order, remSecs);
+            const btns = box.querySelector ? box.querySelector('.yaadi-actions-btns') : null;
+            if (btns) btns.innerHTML = this.getOrderBoxButtonsHtml(order);
+          } else {
+            const timerEl = document.getElementById('order-timer-' + orderId);
+            if (timerEl) {
+              timerEl.textContent = '⏳ ' + this.formatTimerSeconds(remSecs);
+              if (remSecs === 0 && (order.status === 'PENDING' || order.status === 'CONFIRMED')) {
+                if (timerEl.style) timerEl.style.background = 'rgba(255, 69, 58, 0.25)';
+              }
+            }
+          }
+        } else {
+          box = document.createElement('div');
+          box.id = 'yaadi-order-' + orderId;
+          if (box.dataset) box.dataset.orderStatus = order.status;
+          if (box.setAttribute) box.setAttribute('data-order-status', order.status);
+          box.className = targetClass;
+          box.innerHTML = this.getOrderBoxInnerHtml(order, remSecs);
+          container.appendChild(box);
+        }
+
+        const currentBoxes = Array.from(container.children).filter(el => el.classList && el.classList.contains('yaadi-order-box'));
+        if (currentBoxes[index] !== box) {
+          if (index < currentBoxes.length) {
+            container.insertBefore(box, currentBoxes[index]);
+          } else {
+            container.appendChild(box);
+          }
+        }
+      });
+
+      const existingBoxes = container.querySelectorAll('.yaadi-order-box');
+      existingBoxes.forEach(b => {
+        const id = b.id.replace('yaadi-order-', '');
+        if (!activeOrderIds.has(id)) {
+          b.remove();
+        }
+      });
+
+      startYaadiTimerTicker();
+    },
+
     // -------------------------------------------------------------------------
     // 4. SUB-1ms REVERSE-MATH ENGINE (Voice-to-Scale)
     // -------------------------------------------------------------------------
     calculateReverseMath: function(query) {
-      const text = (query || "").trim().toLowerCase();
-      const t0 = performance.now();
+      const marathiDigits = ['\u0966', '\u0967', '\u0968', '\u0969', '\u096a', '\u096b', '\u096c', '\u096d', '\u096e', '\u096f'];
+      let cleanText = (query || "").trim().toLowerCase();
+      marathiDigits.forEach((d, i) => { cleanText = cleanText.replaceAll(d, i.toString()); });
+
+      const t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
 
       // Check colloquial units
-      let isPavsher = text.includes("पावशेर") || text.includes("pavsher") || text.includes("पाव किलो") || text.includes("pav kilo");
-      let isArdha = text.includes("अर्धा") || text.includes("ardha") || text.includes("half");
-      let isSavva = text.includes("सव्वा") || text.includes("savva");
+      const isPavsher = cleanText.includes("पावशेर") || cleanText.includes("pavsher") || cleanText.includes("पाव किलो") || cleanText.includes("pav kilo");
+      const isArdha = cleanText.includes("अर्धा") || cleanText.includes("ardha") || cleanText.includes("half");
+      const isSavva = cleanText.includes("सव्वा") || cleanText.includes("savva");
+      const isDidh = cleanText.includes("दीड") || cleanText.includes("didh") || cleanText.includes("deedh");
+
+      // Mask colloquial weight terms to prevent false-matching items like "पाव" in "पावशेर"
+      const textForItemMatch = cleanText
+        .replace(/पावशेर|pavsher|पाव\s*किलो|pav\s*kilo/g, " ")
+        .replace(/सव्वा\s*(?:किलो)?|savva/g, " ")
+        .replace(/अर्धा\s*(?:किलो)?|ardha|half/g, " ")
+        .replace(/दीड\s*(?:किलो)?|didh|deedh/g, " ");
 
       // Match item from catalog
       let matchedSKU = null;
       for (const item of skus) {
-        if (text.includes(item.short_name.toLowerCase())) {
+        if (textForItemMatch.includes(item.short_name.toLowerCase())) {
           matchedSKU = item;
           break;
         }
-        if (item.aliases && item.aliases.some(a => text.includes(a.toLowerCase()))) {
+        if (item.name_mr && textForItemMatch.includes(item.name_mr.toLowerCase())) {
+          matchedSKU = item;
+          break;
+        }
+        if (item.aliases && item.aliases.some(a => textForItemMatch.includes(a.toLowerCase()))) {
           matchedSKU = item;
           break;
         }
       }
 
       if (!matchedSKU) {
-        matchedSKU = skus.find(s => s.sku === "GROC-SUG-001"); // Default sugar fallback
+        matchedSKU = skus.find(s => s.sku === "GROC-SUG-001") || skus[0];
       }
 
-      const latency = (performance.now() - t0 + 0.015).toFixed(3);
+      const tNow = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+      const latency = (tNow - t0 + 0.015).toFixed(3);
 
       if (isPavsher) {
         const grams = 250;
-        const bill = (grams / 1000) * matchedSKU.unit_price;
+        const bill = parseFloat(((grams / 1000) * matchedSKU.unit_price).toFixed(2));
         return {
           mode: "COLLOQUIAL_WEIGHT",
           grams: grams,
@@ -1413,7 +1950,7 @@ const VyaparCore = (function() {
 
       if (isArdha) {
         const grams = 500;
-        const bill = (grams / 1000) * matchedSKU.unit_price;
+        const bill = parseFloat(((grams / 1000) * matchedSKU.unit_price).toFixed(2));
         return {
           mode: "COLLOQUIAL_WEIGHT",
           grams: grams,
@@ -1428,7 +1965,7 @@ const VyaparCore = (function() {
 
       if (isSavva) {
         const grams = 1250;
-        const bill = (grams / 1000) * matchedSKU.unit_price;
+        const bill = parseFloat(((grams / 1000) * matchedSKU.unit_price).toFixed(2));
         return {
           mode: "COLLOQUIAL_WEIGHT",
           grams: grams,
@@ -1441,10 +1978,25 @@ const VyaparCore = (function() {
         };
       }
 
-      // 1. Money-to-Weight (e.g. "20 chi sakhar", "100 rupyachi tur dal", "50 rs sugar")
-      const moneyMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:chi|che|chya|ची|चे|च्या|रुपयांची|रुपयांचे|rs|inr|रुपये)/i);
+      if (isDidh) {
+        const grams = 1500;
+        const bill = parseFloat(((grams / 1000) * matchedSKU.unit_price).toFixed(2));
+        return {
+          mode: "COLLOQUIAL_WEIGHT",
+          grams: grams,
+          bill: bill,
+          sku: matchedSKU.sku,
+          item_name: matchedSKU.name_mr,
+          latency_ms: latency,
+          scale_display: `⚖️ काट्यावर ठेवा: १५०० ग्रॅम (१.५ किग्रॅ) ${matchedSKU.name_mr}`,
+          reply_text: `⚖️ काट्यावर ठेवा: १५०० ग्रॅम ${matchedSKU.name_mr} (दर: ₹${matchedSKU.unit_price}/किग्रॅ, बिल: ₹${bill.toFixed(2)})`
+        };
+      }
+
+      // 1. Money-to-Weight (e.g. "20 chi sakhar", "साखर २० रु", "50 rupayache tel", "100 rupyachi tur dal", "50 rs sugar")
+      const moneyMatch = cleanText.match(/(?:(?:rs\.?|inr|₹|रु\.?|रुपये|रुपयांची|रुपयांचे|rupees)\s*(\d+(?:\.\d+)?)|(\d+(?:\.\d+)?)\s*(?:chi|che|chya|ची|चे|च्या|rupayache|rupayachi|rupayanche|rupaye|rupees|rs\.?|inr|₹|रु\.?|रुपये|रुपयांची|रुपयांचे))/i);
       if (moneyMatch) {
-        const money = parseFloat(moneyMatch[1]);
+        const money = parseFloat(moneyMatch[1] || moneyMatch[2]);
         const grams = Math.round((money / matchedSKU.unit_price) * 1000);
         return {
           mode: "MONEY_TO_WEIGHT",
@@ -1459,10 +2011,10 @@ const VyaparCore = (function() {
       }
 
       // 2. Weight-to-Money (e.g. "350 gm shengdana", "500g tur dal", "2 kg atta")
-      const weightMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:gm|g|gram|grams|ग्रॅम|किलो|kg|kilo)/i);
+      const weightMatch = cleanText.match(/(\d+(?:\.\d+)?)\s*(?:gm|g|gram|grams|ग्रॅम|किलो|kg|kilo|kilos)/i);
       if (weightMatch) {
         const rawWeight = parseFloat(weightMatch[1]);
-        const isKg = text.includes("kg") || text.includes("किलो") || text.includes("kilo");
+        const isKg = cleanText.includes("kg") || cleanText.includes("किलो") || cleanText.includes("kilo");
         const grams = isKg ? rawWeight * 1000 : rawWeight;
         const bill = parseFloat(((grams / 1000) * matchedSKU.unit_price).toFixed(2));
         return {
@@ -1641,6 +2193,8 @@ const VyaparCore = (function() {
     },
 
     performLiveSync: performLiveSync,
+    startLiveSync: startLiveSync,
+    registerListener: registerSyncListener,
 
     resetAllAndRestock: async function() {
       this.resetDefaults();
@@ -1711,6 +2265,36 @@ if (typeof window !== "undefined") {
   window.syncMerchantSessionUI = function() {
     VyaparCore.syncAuthUI();
   };
+  window.renderPendingYaadiOrders = function(containerId = 'yaadiOrdersFeedList') {
+    return VyaparCore.renderYaadiFeed(containerId);
+  };
+  window.packCustomerOrder = function(orderId) {
+    return VyaparCore.packCustomerOrder(orderId);
+  };
+  window.cancelAndRestoreOrderStock = function(orderId) {
+    return VyaparCore.cancelCustomerOrder(orderId);
+  };
+  window.cancelCustomerOrder = function(orderId) {
+    return VyaparCore.cancelCustomerOrder(orderId);
+  };
+
+  if (typeof VyaparCore.startTimerTicker === 'function') {
+    VyaparCore.startTimerTicker();
+  }
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        if (typeof VyaparCore.startTimerTicker === 'function') VyaparCore.startTimerTicker();
+        if (document.getElementById('yaadiOrdersFeedList')) {
+          VyaparCore.renderYaadiFeed('yaadiOrdersFeedList');
+        }
+      });
+    } else {
+      if (document.getElementById('yaadiOrdersFeedList')) {
+        VyaparCore.renderYaadiFeed('yaadiOrdersFeedList');
+      }
+    }
+  }
 }
 if (typeof module !== "undefined" && module.exports) {
   module.exports = VyaparCore;

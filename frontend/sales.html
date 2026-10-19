@@ -489,7 +489,7 @@
 
     .summary-metrics-trio {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 16px;
       margin-top: 8px;
     }
@@ -1239,6 +1239,11 @@
       background: rgba(245, 248, 245, 0.6);
       border-color: rgba(40, 205, 65, 0.3);
     }
+    .yaadi-order-box.cancelled {
+      opacity: 0.65;
+      background: rgba(254, 242, 242, 0.6);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
     .yaadi-order-header {
       display: flex;
       justify-content: space-between;
@@ -1644,6 +1649,20 @@
               </div>
               <div class="metric-value-num tabular-nums" id="statInvoices">64</div>
             </div>
+
+            <div class="metric-sub-card">
+              <div class="metric-top-bar">
+                <span class="metric-title">Weight Dispensed</span>
+                <div class="badge-icon-box" style="background: rgba(212, 160, 23, 0.12); color: var(--brass-600);">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="6" x2="12" y2="12"></line>
+                    <line x1="12" y1="12" x2="16" y2="14"></line>
+                  </svg>
+                </div>
+              </div>
+              <div class="metric-value-num tabular-nums" id="statWeightDispensed">48.5 kg</div>
+            </div>
           </div>
           <div class="specular-sweep"></div>
         </div>
@@ -1831,6 +1850,8 @@
             <div class="quick-chip-scroller">
               <span class="voice-query-chip" onclick="runReverseMathChip('20 chi sakhar')">20 chi sakhar</span>
               <span class="voice-query-chip" onclick="runReverseMathChip('350 gm tur dal')">350 gm tur dal</span>
+              <span class="voice-query-chip" onclick="runReverseMathChip('साखर २० रु')">साखर २० रु</span>
+              <span class="voice-query-chip" onclick="runReverseMathChip('पावशेर शेंगदाणे')">पावशेर शेंगदाणे</span>
               <span class="voice-query-chip" onclick="runReverseMathChip('पावशेर साखर')">पावशेर साखर (250g)</span>
               <span class="voice-query-chip" onclick="runReverseMathChip('सव्वा किलो गहू')">सव्वा किलो गहू (1.25kg)</span>
               <span class="voice-query-chip" onclick="runReverseMathChip('50 rupayache tel')">50 rupayache tel</span>
@@ -2076,19 +2097,19 @@
     // =========================================================================
     function getLiveTransactions() {
       if (window.VyaparCore) {
-        if (VyaparCore.transactions && Array.isArray(VyaparCore.transactions) && VyaparCore.transactions.length > 0) {
-          return VyaparCore.transactions;
-        }
         if (typeof VyaparCore.getTransactions === 'function') {
           const txs = VyaparCore.getTransactions();
-          if (txs && txs.length > 0) return txs;
+          if (txs && Array.isArray(txs)) return txs;
+        }
+        if (VyaparCore.transactions && Array.isArray(VyaparCore.transactions)) {
+          return VyaparCore.transactions;
         }
       }
       return [];
     }
 
     function renderSalesTable(txs) {
-      const tbody = document.getElementById('salesTableBody');
+      const tbody = document.getElementById('salesTableBody') || document.getElementById('recentSalesTableBody');
       if (!tbody) return;
       const list = (txs && txs.length > 0) ? txs : getLiveTransactions();
       if (!list || list.length === 0) {
@@ -2114,6 +2135,8 @@
           modeBadge = `<span class="status-pill status-low">Khata (Udhar)</span>`;
         } else if (m.includes('voice')) {
           modeBadge = `<span class="status-pill status-in" style="background: rgba(37, 211, 102, 0.12); color: #128c7e;">WhatsApp Voice</span>`;
+        } else if (m.includes('yaadi')) {
+          modeBadge = `<span class="status-pill status-in" style="background: rgba(37, 211, 102, 0.12); color: #128c7e;">WhatsApp Yaadi</span>`;
         } else {
           modeBadge = `<span class="status-pill status-in">${tx.mode || 'Sale'}</span>`;
         }
@@ -2195,11 +2218,12 @@
       }
     }
 
-    function updateSalesMetrics(txs) {
+    function updateSalesHeaderMetrics(txs) {
       const list = txs || getLiveTransactions();
       let totalRev = 0;
       let upiTotal = 0;
       let billCount = 0;
+      let totalWeightKg = 0;
 
       list.forEach(t => {
         if (t.status !== "Reversed") {
@@ -2210,8 +2234,26 @@
           if (mode.includes('upi') || mode.includes('soundbox')) {
             upiTotal += amt;
           }
+          // Compute weight dispensed from items text
+          const itemsStr = (t.items || '').toLowerCase();
+          const kgMatches = itemsStr.match(/(\d+(?:\.\d+)?)\s*(?:kg|किग्रॅ|किलो)/g);
+          if (kgMatches) {
+            kgMatches.forEach(m => {
+              const val = parseFloat(m);
+              if (!isNaN(val)) totalWeightKg += val;
+            });
+          }
+          const gmMatches = itemsStr.match(/(\d+(?:\.\d+)?)\s*(?:g|gm|ग्रॅम)/g);
+          if (gmMatches) {
+            gmMatches.forEach(m => {
+              const val = parseFloat(m);
+              if (!isNaN(val)) totalWeightKg += (val / 1000);
+            });
+          }
         }
       });
+
+      if (totalWeightKg === 0) totalWeightKg = 48.5;
 
       const salesEl = document.getElementById('statSalesToday');
       if (salesEl) salesEl.textContent = `₹${inrFormatter.format(Math.round(totalRev || 18450))}`;
@@ -2221,12 +2263,17 @@
 
       const invEl = document.getElementById('statInvoices');
       if (invEl) invEl.textContent = inrFormatter.format(billCount || 64);
+
+      const weightEl = document.getElementById('statWeightDispensed');
+      if (weightEl) weightEl.textContent = `${totalWeightKg.toFixed(1)} kg`;
     }
+
+    const updateSalesMetrics = updateSalesHeaderMetrics;
 
     function refreshSalesUI(txs) {
       const list = txs || getLiveTransactions();
       renderSalesTable(list);
-      updateSalesMetrics(list);
+      updateSalesHeaderMetrics(list);
     }
 
     function handleTableSearch(val) {
@@ -2327,22 +2374,20 @@
       // Live sync listeners
       if (window.VyaparCore && VyaparCore.registerListener) {
         VyaparCore.registerListener((type, data) => {
-          if (type === 'TRANSACTIONS_UPDATED' || type === 'METRICS_UPDATE') {
-            refreshSalesUI();
-            if (typeof renderPendingYaadiOrders === 'function') {
-              renderPendingYaadiOrders();
-            }
+          if (type === 'TRANSACTIONS_UPDATED' || type === 'METRICS_UPDATE' || type === 'PENDING_ORDERS_UPDATED') {
+            renderSalesTable();
+            updateSalesHeaderMetrics();
+            renderPendingYaadiOrders();
           }
         });
       }
 
       if (window.VyaparCore && VyaparCore.startLiveSync) {
         VyaparCore.startLiveSync((type, data) => {
-          if (type === 'TRANSACTIONS_UPDATED' || type === 'METRICS_UPDATE') {
-            refreshSalesUI();
-            if (typeof renderPendingYaadiOrders === 'function') {
-              renderPendingYaadiOrders();
-            }
+          if (type === 'TRANSACTIONS_UPDATED' || type === 'METRICS_UPDATE' || type === 'PENDING_ORDERS_UPDATED') {
+            renderSalesTable();
+            updateSalesHeaderMetrics();
+            renderPendingYaadiOrders();
           }
         });
       }
@@ -2352,69 +2397,20 @@
     // Core Handlers: Remote Yaadi Queue, Reverse Math Scale, GST CSV
     // =========================================================================
     function renderPendingYaadiOrders() {
-      const container = document.getElementById('yaadiOrdersFeedList');
-      if (!container) return;
-
-      const orders = window.VyaparCore ? VyaparCore.getPendingOrders() : [];
-      if (!orders || orders.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; padding: 24px; color: var(--text-tertiary); font-size: 0.82rem;">
-            No pending customer yaadi slips right now. Orders arriving on WhatsApp (+91 98230...) will appear here live.
-          </div>
-        `;
-        return;
+      if (window.VyaparCore && typeof VyaparCore.renderYaadiFeed === 'function') {
+        VyaparCore.renderYaadiFeed('yaadiOrdersFeedList');
       }
-
-      container.innerHTML = orders.map(order => {
-        const isFulfilled = order.status === 'FULFILLED';
-        return `
-          <div class="yaadi-order-box ${isFulfilled ? 'fulfilled' : ''}" id="yaadi-order-${order.id}">
-            <div class="yaadi-order-header">
-              <div class="yaadi-cust-info">
-                <div class="yaadi-cust-avatar">${order.customerName ? order.customerName.charAt(0) : 'C'}</div>
-                <div>
-                  <div class="yaadi-cust-name">${order.customerName}</div>
-                  <div class="yaadi-cust-phone">${order.phone} • ${order.timestamp}</div>
-                </div>
-              </div>
-              <span class="status-pill ${isFulfilled ? 'status-in' : 'status-low'}" style="font-size: 0.72rem;">
-                ${isFulfilled ? '✓ PACKED & FULFILLED' : '⏳ PENDING FULFILLMENT'}
-              </span>
-            </div>
-            
-            <div class="yaadi-items-list">
-              <strong>Order Slip:</strong> "${order.rawText}"<br/>
-              <span style="font-size: 0.75rem; color: var(--text-tertiary);">Parsed items: ${order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</span>
-            </div>
-
-            <div class="yaadi-footer-row">
-              <div class="yaadi-est-total">Est. Total: ₹${order.totalEstimated}</div>
-              <button 
-                class="btn-pack-order" 
-                onclick="packCustomerOrder('${order.id}')"
-                ${isFulfilled ? 'disabled' : ''}>
-                ${isFulfilled ? '✓ Stock Deducted' : 'Pack & Fulfill ✓'}
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
     }
 
     function packCustomerOrder(orderId) {
-      haptics.playTick();
-      if (!window.VyaparCore) return;
-      const res = VyaparCore.packAndFulfillOrder(orderId);
-      if (res && res.success) {
-        showAppleToast(`Packed order for ${res.order.customerName}! Stock deducted ₹${res.order.totalEstimated}.`);
-        renderPendingYaadiOrders();
+      if (window.VyaparCore && typeof VyaparCore.packCustomerOrder === 'function') {
+        return VyaparCore.packCustomerOrder(orderId);
+      }
+    }
 
-        const currentSales = parseInt(document.getElementById('statSalesToday').textContent.replace(/[₹,]/g, '')) || 18450;
-        const currentInvoices = parseInt(document.getElementById('statInvoices').textContent) || 64;
-        animateCounter('statSalesToday', currentSales, currentSales + res.order.totalEstimated, 800, '₹');
-        animateCounter('statInvoices', currentInvoices, currentInvoices + 1, 500);
-      } else {
-        showAppleToast(res ? res.error : "Failed to pack order");
+    function cancelAndRestoreOrderStock(orderId) {
+      if (window.VyaparCore && typeof VyaparCore.cancelCustomerOrder === 'function') {
+        return VyaparCore.cancelCustomerOrder(orderId);
       }
     }
 
@@ -2489,6 +2485,18 @@
         URL.revokeObjectURL(url);
       }
     }
+
+    // Explicit global bindings for inline onclick handlers & cross-script access
+    window.runReverseMathChip = runReverseMathChip;
+    window.runReverseMathFromInput = runReverseMathFromInput;
+    window.runReverseMath = runReverseMath;
+    window.addScaleResultToBill = addScaleResultToBill;
+    window.renderPendingYaadiOrders = renderPendingYaadiOrders;
+    window.packCustomerOrder = packCustomerOrder;
+    window.cancelAndRestoreOrderStock = cancelAndRestoreOrderStock;
+    window.renderSalesTable = renderSalesTable;
+    window.updateSalesHeaderMetrics = updateSalesHeaderMetrics;
+    window.triggerGSTExport = triggerGSTExport;
   </script>
 </body>
 </html>

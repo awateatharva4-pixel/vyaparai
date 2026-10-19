@@ -1,0 +1,1523 @@
+{
+  "index.html": {
+    "static_elements": [
+      {
+        "line": 1520,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn",
+            "active"
+          ],
+          "title": "Dashboard",
+          "onclick": "window.location.href='index.html'"
+        },
+        "snippet": "<button class=\"dock-btn active\" title=\"Dashboard\" onclick=\"window.location.href='index.html'\">"
+      },
+      {
+        "line": 1530,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "title": "Sales & Ledger",
+          "onclick": "window.location.href='sales.html'"
+        },
+        "snippet": "<button class=\"dock-btn\" title=\"Sales & Ledger\" onclick=\"window.location.href='sales.html'\">"
+      },
+      {
+        "line": 1538,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "title": "Customers & Khata",
+          "onclick": "window.location.href='customers.html'"
+        },
+        "snippet": "<button class=\"dock-btn\" title=\"Customers & Khata\" onclick=\"window.location.href='customers.html'\">"
+      },
+      {
+        "line": 1548,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "title": "Inventory Stock",
+          "onclick": "window.location.href='inventory.html'"
+        },
+        "snippet": "<button class=\"dock-btn\" title=\"Inventory Stock\" onclick=\"window.location.href='inventory.html'\">"
+      },
+      {
+        "line": 1557,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "title": "Analytics & SIH Reports",
+          "onclick": "window.location.href='analytics.html'"
+        },
+        "snippet": "<button class=\"dock-btn\" title=\"Analytics & SIH Reports\" onclick=\"window.location.href='analytics.html'\">"
+      },
+      {
+        "line": 1566,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "title": "WhatsApp AI Ingress",
+          "onclick": "toggleWhatsAppDrawer()",
+          "style": "color: #25d366;"
+        },
+        "snippet": "<button class=\"dock-btn\" title=\"WhatsApp AI Ingress\" onclick=\"toggleWhatsAppDrawer()\" style=\"color: #25d366;\">"
+      },
+      {
+        "line": 1575,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "title": "Settings",
+          "onclick": "window.location.href='settings.html'"
+        },
+        "snippet": "<button class=\"dock-btn\" title=\"Settings\" onclick=\"window.location.href='settings.html'\">"
+      },
+      {
+        "line": 1601,
+        "tag": "input",
+        "attrs": {
+          "type": "text",
+          "class": [
+            "apple-search-input"
+          ],
+          "id": "globalSearchInput",
+          "placeholder": "Search products, SKUs, sales...",
+          "oninput": "handleGlobalSearch(this.value)"
+        },
+        "snippet": "<input type=\"text\" class=\"apple-search-input\" id=\"globalSearchInput\" placeholder=\"Search products, SKUs, sales...\" oninp"
+      },
+      {
+        "line": 1608,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "header-pill-item"
+          ],
+          "onclick": "openVideoSweepModal()",
+          "style": "background: rgba(45, 106, 111, 0.12); color: var(--emerald-700); font-weight: 700; border: 1px solid rgba(45, 106, 111, 0.3);",
+          "title": "Zero-Touch 15-Second Shelf Video Cataloging"
+        },
+        "snippet": "<div class=\"header-pill-item\" onclick=\"openVideoSweepModal()\" style=\"background: rgba(45, 106, 111, 0.12); color: var(--"
+      },
+      {
+        "line": 1617,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "header-pill-item"
+          ],
+          "onclick": "triggerGSTExport()",
+          "title": "Export Monthly GST Breakdown CSV",
+          "style": "cursor: pointer;"
+        },
+        "snippet": "<div class=\"header-pill-item\" onclick=\"triggerGSTExport()\" title=\"Export Monthly GST Breakdown CSV\" style=\"cursor: point"
+      },
+      {
+        "line": 1628,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "header-pill-item"
+          ],
+          "onclick": "triggerQuickAddDairy()",
+          "title": "Add Dairy SKU with Expiry Live",
+          "style": "color: var(--brass-700); cursor: pointer;"
+        },
+        "snippet": "<div class=\"header-pill-item\" onclick=\"triggerQuickAddDairy()\" title=\"Add Dairy SKU with Expiry Live\" style=\"color: var("
+      },
+      {
+        "line": 1633,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "header-pill-item"
+          ],
+          "style": "background: rgba(16, 185, 129, 0.12); color: var(--emerald-900); border: 1px solid rgba(16, 185, 129, 0.35); font-weight: 700;",
+          "title": "Single Active Store: DEMO_KIRANA_KOP"
+        },
+        "snippet": "<div class=\"header-pill-item\" style=\"background: rgba(16, 185, 129, 0.12); color: var(--emerald-900); border: 1px solid "
+      },
+      {
+        "line": 1642,
+        "tag": "a",
+        "attrs": {
+          "href": "alerts.html",
+          "class": [
+            "header-pill-item"
+          ],
+          "style": "text-decoration: none; color: #ff3b30; border: 1px solid rgba(255,59,48,0.28); font-weight: 600;",
+          "title": "Stockout Risk & Vendor Alerts"
+        },
+        "snippet": "<a href=\"alerts.html\" class=\"header-pill-item\" style=\"text-decoration: none; color: #ff3b30; border: 1px solid rgba(255,"
+      },
+      {
+        "line": 1651,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "header-pill-item"
+          ],
+          "onclick": "showAppleToast('Admin: \u0905\u0925\u0930\u094d\u0935 \u0906\u0935\u093e\u091f\u0947 (+91 95798 69506)')"
+        },
+        "snippet": "<div class=\"header-pill-item\" onclick=\"showAppleToast('Admin: \u0905\u0925\u0930\u094d\u0935 \u0906\u0935\u093e\u091f\u0947 (+91 95798 69506)')\">"
+      },
+      {
+        "line": 1660,
+        "tag": "a",
+        "attrs": {
+          "href": "login.html",
+          "class": [
+            "header-pill-item"
+          ],
+          "style": "text-decoration: none; color: var(--text-secondary);",
+          "title": "Merchant Login Ingress"
+        },
+        "snippet": "<a href=\"login.html\" class=\"header-pill-item\" style=\"text-decoration: none; color: var(--text-secondary);\" title=\"Mercha"
+      },
+      {
+        "line": 1838,
+        "tag": "button",
+        "attrs": {
+          "onclick": "handleManualSyncNow()",
+          "id": "btnManualSync",
+          "title": "Force Sync with Backend",
+          "style": "display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; background: rgba(0, 113, 227, 0.1); color: #0071e3; border: 1px solid rgba(0, 113, 227, 0.25); cursor: pointer;"
+        },
+        "snippet": "<button onclick=\"handleManualSyncNow()\" id=\"btnManualSync\" title=\"Force Sync with Backend\" style=\"display: inline-flex; "
+      },
+      {
+        "line": 1841,
+        "tag": "button",
+        "attrs": {
+          "onclick": "handleRestockAllDemo()",
+          "id": "btnRestockAll",
+          "title": "Restock All SKUs to Full Demo Values",
+          "style": "display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; background: rgba(37, 211, 102, 0.1); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.25); cursor: pointer;"
+        },
+        "snippet": "<button onclick=\"handleRestockAllDemo()\" id=\"btnRestockAll\" title=\"Restock All SKUs to Full Demo Values\" style=\"display:"
+      },
+      {
+        "line": 1991,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "style": "width: 28px; height: 28px;",
+          "onclick": "scrollCatalog(-170)",
+          "title": "Scroll Left"
+        },
+        "snippet": "<button class=\"dock-btn\" style=\"width: 28px; height: 28px;\" onclick=\"scrollCatalog(-170)\" title=\"Scroll Left\">"
+      },
+      {
+        "line": 1992,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "style": "width: 28px; height: 28px;",
+          "onclick": "scrollCatalog(170)",
+          "title": "Scroll Right"
+        },
+        "snippet": "<button class=\"dock-btn\" style=\"width: 28px; height: 28px;\" onclick=\"scrollCatalog(170)\" title=\"Scroll Right\">"
+      },
+      {
+        "line": 2007,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "handleStockAdd('Parle-G 100g', '\u20b910')"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"handleStockAdd('Parle-G 100g', '\u20b910')\">"
+      },
+      {
+        "line": 2020,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "handleStockAdd('Madhur Sugar', '\u20b942')"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"handleStockAdd('Madhur Sugar', '\u20b942')\">"
+      },
+      {
+        "line": 2033,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "handleStockAdd('Fortune Oil 1L', '\u20b9135')"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"handleStockAdd('Fortune Oil 1L', '\u20b9135')\">"
+      },
+      {
+        "line": 2046,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "handleStockAdd('Fresh Ladi Pav', '\u20b920')"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"handleStockAdd('Fresh Ladi Pav', '\u20b920')\">"
+      },
+      {
+        "line": 2059,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "handleStockAdd('Tur Dal 1kg', '\u20b9155')"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"handleStockAdd('Tur Dal 1kg', '\u20b9155')\">"
+      },
+      {
+        "line": 2072,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "handleStockAdd('Tata Salt 1kg', '\u20b928')"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"handleStockAdd('Tata Salt 1kg', '\u20b928')\">"
+      },
+      {
+        "line": 2085,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "handleStockAdd('Aashirvaad Atta 5kg', '\u20b9220')"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"handleStockAdd('Aashirvaad Atta 5kg', '\u20b9220')\">"
+      },
+      {
+        "line": 2098,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "handleStockAdd('Maggi Noodles 70g', '\u20b914')"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"handleStockAdd('Maggi Noodles 70g', '\u20b914')\">"
+      },
+      {
+        "line": 2111,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "handleStockAdd('Nashik Red Onion', '\u20b935')"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"handleStockAdd('Nashik Red Onion', '\u20b935')\">"
+      },
+      {
+        "line": 2124,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "handleStockAdd('Fresh Potato 1kg', '\u20b930')"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"handleStockAdd('Fresh Potato 1kg', '\u20b930')\">"
+      },
+      {
+        "line": 2137,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "handleStockAdd('Amul Taaza Milk', '\u20b927')"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"handleStockAdd('Amul Taaza Milk', '\u20b927')\">"
+      },
+      {
+        "line": 2151,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "handleStockAdd('Reynolds Pen', '\u20b910')"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"handleStockAdd('Reynolds Pen', '\u20b910')\">"
+      },
+      {
+        "line": 2165,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "handleStockAdd('Classmate Notebook', '\u20b945')"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"handleStockAdd('Classmate Notebook', '\u20b945')\">"
+      },
+      {
+        "line": 2179,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "handleStockAdd('Kinley Water 1L', '\u20b920')"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"handleStockAdd('Kinley Water 1L', '\u20b920')\">"
+      },
+      {
+        "line": 2211,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "restock-btn"
+          ],
+          "onclick": "handleStockAdd('Parle-G', 'Critical Restock')"
+        },
+        "snippet": "<button class=\"restock-btn\" onclick=\"handleStockAdd('Parle-G', 'Critical Restock')\">"
+      },
+      {
+        "line": 2223,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "restock-btn"
+          ],
+          "onclick": "handleStockAdd('Sunflower Oil', 'Restock Ordered')"
+        },
+        "snippet": "<button class=\"restock-btn\" onclick=\"handleStockAdd('Sunflower Oil', 'Restock Ordered')\">"
+      },
+      {
+        "line": 2235,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "restock-btn"
+          ],
+          "onclick": "handleStockAdd('Colgate', 'Critical Restock')"
+        },
+        "snippet": "<button class=\"restock-btn\" onclick=\"handleStockAdd('Colgate', 'Critical Restock')\">"
+      },
+      {
+        "line": 2251,
+        "tag": "span",
+        "attrs": {
+          "style": "font-size: 0.74rem; color: var(--emerald-600); font-weight: 600; cursor: pointer;",
+          "onclick": "toggleWhatsAppDrawer()"
+        },
+        "snippet": "<span style=\"font-size: 0.74rem; color: var(--emerald-600); font-weight: 600; cursor: pointer;\" onclick=\"toggleWhatsAppD"
+      },
+      {
+        "line": 2333,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "renderPendingYaadiOrders()",
+          "title": "Refresh Customer Queue"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"renderPendingYaadiOrders()\" title=\"Refresh Customer Queue\">"
+      },
+      {
+        "line": 2392,
+        "tag": "span",
+        "attrs": {
+          "class": [
+            "voice-query-chip"
+          ],
+          "onclick": "runReverseMathChip('20 chi sakhar')"
+        },
+        "snippet": "<span class=\"voice-query-chip\" onclick=\"runReverseMathChip('20 chi sakhar')\">"
+      },
+      {
+        "line": 2393,
+        "tag": "span",
+        "attrs": {
+          "class": [
+            "voice-query-chip"
+          ],
+          "onclick": "runReverseMathChip('350 gm tur dal')"
+        },
+        "snippet": "<span class=\"voice-query-chip\" onclick=\"runReverseMathChip('350 gm tur dal')\">"
+      },
+      {
+        "line": 2394,
+        "tag": "span",
+        "attrs": {
+          "class": [
+            "voice-query-chip"
+          ],
+          "onclick": "runReverseMathChip('\u092a\u093e\u0935\u0936\u0947\u0930 \u0938\u093e\u0916\u0930')"
+        },
+        "snippet": "<span class=\"voice-query-chip\" onclick=\"runReverseMathChip('\u092a\u093e\u0935\u0936\u0947\u0930 \u0938\u093e\u0916\u0930')\">"
+      },
+      {
+        "line": 2395,
+        "tag": "span",
+        "attrs": {
+          "class": [
+            "voice-query-chip"
+          ],
+          "onclick": "runReverseMathChip('\u0938\u0935\u094d\u0935\u093e \u0915\u093f\u0932\u094b \u0917\u0939\u0942')"
+        },
+        "snippet": "<span class=\"voice-query-chip\" onclick=\"runReverseMathChip('\u0938\u0935\u094d\u0935\u093e \u0915\u093f\u0932\u094b \u0917\u0939\u0942')\">"
+      },
+      {
+        "line": 2396,
+        "tag": "span",
+        "attrs": {
+          "class": [
+            "voice-query-chip"
+          ],
+          "onclick": "runReverseMathChip('50 rupayache tel')"
+        },
+        "snippet": "<span class=\"voice-query-chip\" onclick=\"runReverseMathChip('50 rupayache tel')\">"
+      },
+      {
+        "line": 2401,
+        "tag": "input",
+        "attrs": {
+          "type": "text",
+          "class": [
+            "scale-text-input"
+          ],
+          "id": "scaleVoiceInput",
+          "placeholder": "Try '20 chi sakhar' or '350 gm tur dal'...",
+          "onkeydown": "if(event.key==='Enter') runReverseMathFromInput()"
+        },
+        "snippet": "<input type=\"text\" class=\"scale-text-input\" id=\"scaleVoiceInput\" placeholder=\"Try '20 chi sakhar' or '350 gm tur dal'..."
+      },
+      {
+        "line": 2402,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "runReverseMathFromInput()",
+          "style": "background: var(--emerald-800); color: #fff; padding: 0 16px;"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"runReverseMathFromInput()\" style=\"background: var(--emerald-800); colo"
+      },
+      {
+        "line": 2407,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "restock-btn"
+          ],
+          "style": "width: 100%; padding: 9px; justify-content: center;",
+          "onclick": "addScaleResultToBill()"
+        },
+        "snippet": "<button class=\"restock-btn\" style=\"width: 100%; padding: 9px; justify-content: center;\" onclick=\"addScaleResultToBill()\""
+      },
+      {
+        "line": 2419,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "vision-modal-backdrop"
+          ],
+          "id": "videoSweepModalBackdrop",
+          "onclick": "if(event.target.id==='videoSweepModalBackdrop') closeVideoSweepModal()"
+        },
+        "snippet": "<div class=\"vision-modal-backdrop\" id=\"videoSweepModalBackdrop\" onclick=\"if(event.target.id==='videoSweepModalBackdrop')"
+      },
+      {
+        "line": 2436,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "close-drawer-btn"
+          ],
+          "onclick": "closeVideoSweepModal()",
+          "style": "font-size: 1rem; width: 32px; height: 32px;"
+        },
+        "snippet": "<button class=\"close-drawer-btn\" onclick=\"closeVideoSweepModal()\" style=\"font-size: 1rem; width: 32px; height: 32px;\">"
+      },
+      {
+        "line": 2489,
+        "tag": "input",
+        "attrs": {
+          "type": "file",
+          "id": "videoFileInput",
+          "accept": "video/*",
+          "style": "display: none;",
+          "onchange": "handleRealVideoUpload(event)"
+        },
+        "snippet": "<input type=\"file\" id=\"videoFileInput\" accept=\"video/*\" style=\"display: none;\" onchange=\"handleRealVideoUpload(event)\">"
+      },
+      {
+        "line": 2490,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn"
+          ],
+          "onclick": "document.getElementById('videoFileInput').click()",
+          "style": "background: rgba(255,255,255,0.08); color: var(--text-primary); border: 1px solid var(--border-glass);",
+          "title": "Upload video file (.mp4, .mov)"
+        },
+        "snippet": "<button class=\"apple-pill-btn\" onclick=\"document.getElementById('videoFileInput').click()\" style=\"background: rgba(255,2"
+      },
+      {
+        "line": 2493,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "apple-pill-btn",
+            "btn-stock"
+          ],
+          "onclick": "startVideoSweepSimulation()",
+          "id": "btnStartVideoSweep"
+        },
+        "snippet": "<button class=\"apple-pill-btn btn-stock\" onclick=\"startVideoSweepSimulation()\" id=\"btnStartVideoSweep\">"
+      },
+      {
+        "line": 2496,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "restock-btn"
+          ],
+          "onclick": "commitDiscoveredSkus()",
+          "id": "btnCommitSkus",
+          "style": "background: var(--emerald-800); color: #fff; border-color: var(--emerald-800);"
+        },
+        "snippet": "<button class=\"restock-btn\" onclick=\"commitDiscoveredSkus()\" id=\"btnCommitSkus\" style=\"background: var(--emerald-800); c"
+      },
+      {
+        "line": 2504,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "whatsapp-floating-island"
+          ],
+          "onclick": "toggleWhatsAppDrawer()",
+          "title": "Open iPhone WhatsApp AI Console"
+        },
+        "snippet": "<div class=\"whatsapp-floating-island\" onclick=\"toggleWhatsAppDrawer()\" title=\"Open iPhone WhatsApp AI Console\">"
+      },
+      {
+        "line": 2513,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "iphone-drawer-backdrop"
+          ],
+          "id": "iphoneDrawerBackdrop",
+          "onclick": "closeDrawerOnBackdrop(event)"
+        },
+        "snippet": "<div class=\"iphone-drawer-backdrop\" id=\"iphoneDrawerBackdrop\" onclick=\"closeDrawerOnBackdrop(event)\">"
+      },
+      {
+        "line": 2523,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "close-drawer-btn"
+          ],
+          "onclick": "toggleWhatsAppDrawer()",
+          "title": "Close Drawer"
+        },
+        "snippet": "<button class=\"close-drawer-btn\" onclick=\"toggleWhatsAppDrawer()\" title=\"Close Drawer\">"
+      },
+      {
+        "line": 2546,
+        "tag": "a",
+        "attrs": {
+          "href": "whatsapp-console.html",
+          "target": "_blank",
+          "style": "font-size: 0.74rem; color: var(--apple-blue); font-weight: 600; text-decoration: none;"
+        },
+        "snippet": "<a href=\"whatsapp-console.html\" target=\"_blank\" style=\"font-size: 0.74rem; color: var(--apple-blue); font-weight: 600; t"
+      },
+      {
+        "line": 3316,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-pack-order"
+          ],
+          "onclick": "packCustomerOrder('${orderId}')",
+          "${isfulfilled": "",
+          "?": "",
+          "'disabled'": "",
+          ":": "",
+          "''}": ""
+        },
+        "snippet": "<button                    class=\"btn-pack-order\"                    onclick=\"packCustomerOrder('${orderId}')\"          "
+      },
+      {
+        "line": 3323,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-stock"
+          ],
+          "style": "font-size: 0.72rem; padding: 5px 10px; border-radius: 999px; background: rgba(255, 69, 58, 0.12); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.25); cursor: pointer;",
+          "onclick": "cancelAndRestoreOrderStock('${orderId}')",
+          "title": "30-min Auto-Undo: Cancel order and restitute reserved stock immediately"
+        },
+        "snippet": "<button                    class=\"btn-stock\"                    style=\"font-size: 0.72rem; padding: 5px 10px; border-rad"
+      }
+    ],
+    "listeners": [
+      {
+        "line": 2595,
+        "target": "window",
+        "event": "pointerdown",
+        "handler": "unlock"
+      },
+      {
+        "line": 2596,
+        "target": "window",
+        "event": "keydown",
+        "handler": "unlock"
+      },
+      {
+        "line": 2667,
+        "target": "slider",
+        "event": "pointerdown",
+        "handler": "(e"
+      },
+      {
+        "line": 2677,
+        "target": "slider",
+        "event": "pointermove",
+        "handler": "(e"
+      },
+      {
+        "line": 2693,
+        "target": "slider",
+        "event": "pointerup",
+        "handler": "endPointer"
+      },
+      {
+        "line": 2694,
+        "target": "slider",
+        "event": "pointercancel",
+        "handler": "endPointer"
+      },
+      {
+        "line": 2939,
+        "target": "window",
+        "event": "message",
+        "handler": "(event"
+      },
+      {
+        "line": 2980,
+        "target": "document",
+        "event": "DOMContentLoaded",
+        "handler": "("
+      }
+    ],
+    "dynamic_renderers": []
+  },
+  "alerts.html": {
+    "static_elements": [
+      {
+        "line": 564,
+        "tag": "img",
+        "attrs": {
+          "src": "assets/logo.png",
+          "alt": "VyaparAI Logo",
+          "class": [
+            "dock-brand-logo"
+          ],
+          "style": "object-fit: cover; border-radius: 10px;",
+          "title": "VyaparAI Enterprise",
+          "onclick": "window.location.href='index.html'"
+        },
+        "snippet": "<img src=\"assets/logo.png\" alt=\"VyaparAI Logo\" class=\"dock-brand-logo\" style=\"object-fit: cover; border-radius: 10px;\" t"
+      },
+      {
+        "line": 568,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "title": "Dashboard",
+          "onclick": "window.location.href='index.html'"
+        },
+        "snippet": "<button class=\"dock-btn\" title=\"Dashboard\" onclick=\"window.location.href='index.html'\">"
+      },
+      {
+        "line": 578,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "title": "Sales & Ledger",
+          "onclick": "window.location.href='sales.html'"
+        },
+        "snippet": "<button class=\"dock-btn\" title=\"Sales & Ledger\" onclick=\"window.location.href='sales.html'\">"
+      },
+      {
+        "line": 586,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "title": "Customers & Khata",
+          "onclick": "window.location.href='customers.html'"
+        },
+        "snippet": "<button class=\"dock-btn\" title=\"Customers & Khata\" onclick=\"window.location.href='customers.html'\">"
+      },
+      {
+        "line": 596,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "title": "Inventory Stock",
+          "onclick": "window.location.href='inventory.html'"
+        },
+        "snippet": "<button class=\"dock-btn\" title=\"Inventory Stock\" onclick=\"window.location.href='inventory.html'\">"
+      },
+      {
+        "line": 605,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "title": "Analytics & SIH Reports",
+          "onclick": "window.location.href='analytics.html'"
+        },
+        "snippet": "<button class=\"dock-btn\" title=\"Analytics & SIH Reports\" onclick=\"window.location.href='analytics.html'\">"
+      },
+      {
+        "line": 614,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn",
+            "active"
+          ],
+          "title": "Low Stock Alerts",
+          "onclick": "window.location.href='alerts.html'",
+          "style": "color: var(--apple-coral);"
+        },
+        "snippet": "<button class=\"dock-btn active\" title=\"Low Stock Alerts\" onclick=\"window.location.href='alerts.html'\" style=\"color: var("
+      },
+      {
+        "line": 622,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "title": "WhatsApp AI Ingress",
+          "onclick": "toggleWhatsAppDrawer()",
+          "style": "color: #25d366;"
+        },
+        "snippet": "<button class=\"dock-btn\" title=\"WhatsApp AI Ingress\" onclick=\"toggleWhatsAppDrawer()\" style=\"color: #25d366;\">"
+      },
+      {
+        "line": 631,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "dock-btn"
+          ],
+          "title": "Settings",
+          "onclick": "window.location.href='settings.html'"
+        },
+        "snippet": "<button class=\"dock-btn\" title=\"Settings\" onclick=\"window.location.href='settings.html'\">"
+      },
+      {
+        "line": 657,
+        "tag": "input",
+        "attrs": {
+          "type": "text",
+          "class": [
+            "apple-search-input"
+          ],
+          "id": "alertSearchInput",
+          "placeholder": "Filter low stock items, SKUs...",
+          "oninput": "handleAlertSearch(this.value)"
+        },
+        "snippet": "<input type=\"text\" class=\"apple-search-input\" id=\"alertSearchInput\" placeholder=\"Filter low stock items, SKUs...\" oninpu"
+      },
+      {
+        "line": 664,
+        "tag": "a",
+        "attrs": {
+          "href": "index.html",
+          "class": [
+            "header-pill-item"
+          ],
+          "style": "text-decoration: none; color: var(--emerald-900); font-weight: 650;",
+          "title": "Return to Store Dashboard"
+        },
+        "snippet": "<a href=\"index.html\" class=\"header-pill-item\" style=\"text-decoration: none; color: var(--emerald-900); font-weight: 650;"
+      },
+      {
+        "line": 673,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "header-pill-item"
+          ],
+          "style": "background: rgba(16, 185, 129, 0.12); color: var(--emerald-900); border: 1px solid rgba(16, 185, 129, 0.35); font-weight: 700;",
+          "title": "Single Active Store: DEMO_KIRANA_KOP"
+        },
+        "snippet": "<div class=\"header-pill-item\" style=\"background: rgba(16, 185, 129, 0.12); color: var(--emerald-900); border: 1px solid "
+      },
+      {
+        "line": 682,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "header-pill-item"
+          ],
+          "onclick": "showAppleToast('Admin: \u0905\u0925\u0930\u094d\u0935 \u0906\u0935\u093e\u091f\u0947 (+91 95798 69506)')"
+        },
+        "snippet": "<div class=\"header-pill-item\" onclick=\"showAppleToast('Admin: \u0905\u0925\u0930\u094d\u0935 \u0906\u0935\u093e\u091f\u0947 (+91 95798 69506)')\">"
+      },
+      {
+        "line": 691,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "header-pill-item"
+          ],
+          "onclick": "triggerGodlyWaveLoader()",
+          "style": "background: rgba(0, 113, 227, 0.08); color: var(--apple-blue); font-weight: 600;",
+          "title": "Experience the Godly Wave Loading Screen (Shortcut: \u2318L / Ctrl+L)"
+        },
+        "snippet": "<div class=\"header-pill-item\" onclick=\"triggerGodlyWaveLoader()\" style=\"background: rgba(0, 113, 227, 0.08); color: var("
+      },
+      {
+        "line": 699,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "header-pill-item"
+          ],
+          "onclick": "window.location.href='login.html'",
+          "style": "color: var(--apple-coral);"
+        },
+        "snippet": "<div class=\"header-pill-item\" onclick=\"window.location.href='login.html'\" style=\"color: var(--apple-coral);\">"
+      },
+      {
+        "line": 728,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-bulk-restock"
+          ],
+          "onclick": "handleBulkRestock()"
+        },
+        "snippet": "<button class=\"btn-bulk-restock\" onclick=\"handleBulkRestock()\">"
+      },
+      {
+        "line": 772,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "alert-tab-btn",
+            "active"
+          ],
+          "onclick": "filterAlerts('all', this)"
+        },
+        "snippet": "<button class=\"alert-tab-btn active\" onclick=\"filterAlerts('all', this)\">"
+      },
+      {
+        "line": 775,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "alert-tab-btn"
+          ],
+          "onclick": "filterAlerts('critical', this)"
+        },
+        "snippet": "<button class=\"alert-tab-btn\" onclick=\"filterAlerts('critical', this)\">"
+      },
+      {
+        "line": 778,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "alert-tab-btn"
+          ],
+          "onclick": "filterAlerts('warning', this)"
+        },
+        "snippet": "<button class=\"alert-tab-btn\" onclick=\"filterAlerts('warning', this)\">"
+      },
+      {
+        "line": 781,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "alert-tab-btn"
+          ],
+          "onclick": "filterAlerts('resolved', this)"
+        },
+        "snippet": "<button class=\"alert-tab-btn\" onclick=\"filterAlerts('resolved', this)\">"
+      },
+      {
+        "line": 787,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "nav-pill-btn"
+          ],
+          "onclick": "showAppleToast('Refreshed real-time inventory feed')"
+        },
+        "snippet": "<button class=\"nav-pill-btn\" onclick=\"showAppleToast('Refreshed real-time inventory feed')\">"
+      },
+      {
+        "line": 847,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-quick-add"
+          ],
+          "onclick": "handleQuickAdd('parleg', 25)",
+          "title": "Add 25 packets to inventory"
+        },
+        "snippet": "<button class=\"btn-quick-add\" onclick=\"handleQuickAdd('parleg', 25)\" title=\"Add 25 packets to inventory\">"
+      },
+      {
+        "line": 848,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-quick-add"
+          ],
+          "onclick": "handleQuickAdd('parleg', 50)",
+          "title": "Add 50 packets to inventory"
+        },
+        "snippet": "<button class=\"btn-quick-add\" onclick=\"handleQuickAdd('parleg', 50)\" title=\"Add 50 packets to inventory\">"
+      },
+      {
+        "line": 849,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-order-wa"
+          ],
+          "onclick": "triggerWhatsAppPO('parleg')",
+          "title": "Generate WhatsApp Purchase Order"
+        },
+        "snippet": "<button class=\"btn-order-wa\" onclick=\"triggerWhatsAppPO('parleg')\" title=\"Generate WhatsApp Purchase Order\">"
+      },
+      {
+        "line": 906,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-quick-add"
+          ],
+          "onclick": "handleQuickAdd('sunfloweroil', 25)",
+          "title": "Add 25 bottles to inventory"
+        },
+        "snippet": "<button class=\"btn-quick-add\" onclick=\"handleQuickAdd('sunfloweroil', 25)\" title=\"Add 25 bottles to inventory\">"
+      },
+      {
+        "line": 907,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-quick-add"
+          ],
+          "onclick": "handleQuickAdd('sunfloweroil', 50)",
+          "title": "Add 50 bottles to inventory"
+        },
+        "snippet": "<button class=\"btn-quick-add\" onclick=\"handleQuickAdd('sunfloweroil', 50)\" title=\"Add 50 bottles to inventory\">"
+      },
+      {
+        "line": 908,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-order-wa"
+          ],
+          "onclick": "triggerWhatsAppPO('sunfloweroil')",
+          "title": "Generate WhatsApp Purchase Order"
+        },
+        "snippet": "<button class=\"btn-order-wa\" onclick=\"triggerWhatsAppPO('sunfloweroil')\" title=\"Generate WhatsApp Purchase Order\">"
+      },
+      {
+        "line": 965,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-quick-add"
+          ],
+          "onclick": "handleQuickAdd('colgate', 25)",
+          "title": "Add 25 tubes to inventory"
+        },
+        "snippet": "<button class=\"btn-quick-add\" onclick=\"handleQuickAdd('colgate', 25)\" title=\"Add 25 tubes to inventory\">"
+      },
+      {
+        "line": 966,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-quick-add"
+          ],
+          "onclick": "handleQuickAdd('colgate', 50)",
+          "title": "Add 50 tubes to inventory"
+        },
+        "snippet": "<button class=\"btn-quick-add\" onclick=\"handleQuickAdd('colgate', 50)\" title=\"Add 50 tubes to inventory\">"
+      },
+      {
+        "line": 967,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-order-wa"
+          ],
+          "onclick": "triggerWhatsAppPO('colgate')",
+          "title": "Generate WhatsApp Purchase Order"
+        },
+        "snippet": "<button class=\"btn-order-wa\" onclick=\"triggerWhatsAppPO('colgate')\" title=\"Generate WhatsApp Purchase Order\">"
+      },
+      {
+        "line": 1024,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-quick-add"
+          ],
+          "onclick": "handleQuickAdd('sugar', 25)",
+          "title": "Add 25kg to inventory"
+        },
+        "snippet": "<button class=\"btn-quick-add\" onclick=\"handleQuickAdd('sugar', 25)\" title=\"Add 25kg to inventory\">"
+      },
+      {
+        "line": 1025,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-quick-add"
+          ],
+          "onclick": "handleQuickAdd('sugar', 50)",
+          "title": "Add 50kg to inventory"
+        },
+        "snippet": "<button class=\"btn-quick-add\" onclick=\"handleQuickAdd('sugar', 50)\" title=\"Add 50kg to inventory\">"
+      },
+      {
+        "line": 1026,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-order-wa"
+          ],
+          "onclick": "triggerWhatsAppPO('sugar')",
+          "title": "Generate WhatsApp Purchase Order"
+        },
+        "snippet": "<button class=\"btn-order-wa\" onclick=\"triggerWhatsAppPO('sugar')\" title=\"Generate WhatsApp Purchase Order\">"
+      },
+      {
+        "line": 1083,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-quick-add"
+          ],
+          "onclick": "handleQuickAdd('amulmilk', 25)",
+          "title": "Add 25 packets to inventory"
+        },
+        "snippet": "<button class=\"btn-quick-add\" onclick=\"handleQuickAdd('amulmilk', 25)\" title=\"Add 25 packets to inventory\">"
+      },
+      {
+        "line": 1084,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-quick-add"
+          ],
+          "onclick": "handleQuickAdd('amulmilk', 50)",
+          "title": "Add 50 packets to inventory"
+        },
+        "snippet": "<button class=\"btn-quick-add\" onclick=\"handleQuickAdd('amulmilk', 50)\" title=\"Add 50 packets to inventory\">"
+      },
+      {
+        "line": 1085,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-order-wa"
+          ],
+          "onclick": "triggerWhatsAppPO('amulmilk')",
+          "title": "Generate WhatsApp Purchase Order"
+        },
+        "snippet": "<button class=\"btn-order-wa\" onclick=\"triggerWhatsAppPO('amulmilk')\" title=\"Generate WhatsApp Purchase Order\">"
+      },
+      {
+        "line": 1142,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-quick-add"
+          ],
+          "onclick": "handleQuickAdd('atta', 25)",
+          "title": "Add 25 bags to inventory"
+        },
+        "snippet": "<button class=\"btn-quick-add\" onclick=\"handleQuickAdd('atta', 25)\" title=\"Add 25 bags to inventory\">"
+      },
+      {
+        "line": 1143,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-quick-add"
+          ],
+          "onclick": "handleQuickAdd('atta', 50)",
+          "title": "Add 50 bags to inventory"
+        },
+        "snippet": "<button class=\"btn-quick-add\" onclick=\"handleQuickAdd('atta', 50)\" title=\"Add 50 bags to inventory\">"
+      },
+      {
+        "line": 1144,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "btn-order-wa"
+          ],
+          "onclick": "triggerWhatsAppPO('atta')",
+          "title": "Generate WhatsApp Purchase Order"
+        },
+        "snippet": "<button class=\"btn-order-wa\" onclick=\"triggerWhatsAppPO('atta')\" title=\"Generate WhatsApp Purchase Order\">"
+      },
+      {
+        "line": 1168,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "nav-pill-btn"
+          ],
+          "onclick": "saveThresholdSettings()"
+        },
+        "snippet": "<button class=\"nav-pill-btn\" onclick=\"saveThresholdSettings()\">"
+      },
+      {
+        "line": 1177,
+        "tag": "input",
+        "attrs": {
+          "type": "range",
+          "min": "5",
+          "max": "35",
+          "value": "15",
+          "class": [
+            "apple-range-input"
+          ],
+          "id": "criticalSlider",
+          "oninput": "updateSensitivityThresholds()"
+        },
+        "snippet": "<input type=\"range\" min=\"5\" max=\"35\" value=\"15\" class=\"apple-range-input\" id=\"criticalSlider\" oninput=\"updateSensitivity"
+      },
+      {
+        "line": 1188,
+        "tag": "input",
+        "attrs": {
+          "type": "range",
+          "min": "15",
+          "max": "60",
+          "value": "30",
+          "class": [
+            "apple-range-input"
+          ],
+          "id": "warningSlider",
+          "oninput": "updateSensitivityThresholds()"
+        },
+        "snippet": "<input type=\"range\" min=\"15\" max=\"60\" value=\"30\" class=\"apple-range-input\" id=\"warningSlider\" oninput=\"updateSensitivity"
+      },
+      {
+        "line": 1198,
+        "tag": "input",
+        "attrs": {
+          "type": "checkbox",
+          "checked": "",
+          "style": "width: 18px; height: 18px; accent-color: var(--whatsapp-teal); cursor: pointer;"
+        },
+        "snippet": "<input type=\"checkbox\" checked style=\"width: 18px; height: 18px; accent-color: var(--whatsapp-teal); cursor: pointer;\" /"
+      },
+      {
+        "line": 1247,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "whatsapp-floating-island"
+          ],
+          "onclick": "toggleWhatsAppDrawer()",
+          "title": "Open iPhone WhatsApp AI Console"
+        },
+        "snippet": "<div class=\"whatsapp-floating-island\" onclick=\"toggleWhatsAppDrawer()\" title=\"Open iPhone WhatsApp AI Console\">"
+      },
+      {
+        "line": 1256,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "iphone-drawer-backdrop"
+          ],
+          "id": "iphoneDrawerBackdrop",
+          "onclick": "closeDrawerOnBackdrop(event)"
+        },
+        "snippet": "<div class=\"iphone-drawer-backdrop\" id=\"iphoneDrawerBackdrop\" onclick=\"closeDrawerOnBackdrop(event)\">"
+      },
+      {
+        "line": 1266,
+        "tag": "button",
+        "attrs": {
+          "class": [
+            "close-drawer-btn"
+          ],
+          "onclick": "toggleWhatsAppDrawer()",
+          "title": "Close Drawer"
+        },
+        "snippet": "<button class=\"close-drawer-btn\" onclick=\"toggleWhatsAppDrawer()\" title=\"Close Drawer\">"
+      },
+      {
+        "line": 1286,
+        "tag": "a",
+        "attrs": {
+          "href": "whatsapp-console.html",
+          "target": "_blank",
+          "style": "font-size: 0.74rem; color: var(--apple-blue); font-weight: 600; text-decoration: none;"
+        },
+        "snippet": "<a href=\"whatsapp-console.html\" target=\"_blank\" style=\"font-size: 0.74rem; color: var(--apple-blue); font-weight: 600; t"
+      }
+    ],
+    "listeners": [
+      {
+        "line": 1800,
+        "target": "document",
+        "event": "DOMContentLoaded",
+        "handler": "("
+      }
+    ],
+    "dynamic_renderers": []
+  },
+  "login.html": {
+    "static_elements": [
+      {
+        "line": 652,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "auth-brand-lockup"
+          ],
+          "onclick": "window.location.href='index.html'"
+        },
+        "snippet": "<div class=\"auth-brand-lockup\" onclick=\"window.location.href='index.html'\">"
+      },
+      {
+        "line": 661,
+        "tag": "button",
+        "attrs": {
+          "type": "button",
+          "class": [
+            "nav-pill-btn"
+          ],
+          "onclick": "window.previewGodlyLoader()",
+          "style": "border-color: rgba(201, 169, 110, 0.45); color: var(--brass-600); font-weight: 600;",
+          "title": "Preview Godly Concentric Wave Loader"
+        },
+        "snippet": "<button type=\"button\" class=\"nav-pill-btn\" onclick=\"window.previewGodlyLoader()\" style=\"border-color: rgba(201, 169, 110"
+      },
+      {
+        "line": 668,
+        "tag": "a",
+        "attrs": {
+          "href": "index.html",
+          "class": [
+            "nav-pill-btn"
+          ]
+        },
+        "snippet": "<a href=\"index.html\" class=\"nav-pill-btn\">"
+      },
+      {
+        "line": 677,
+        "tag": "a",
+        "attrs": {
+          "href": "alerts.html",
+          "class": [
+            "nav-pill-btn"
+          ],
+          "style": "color: var(--apple-coral);"
+        },
+        "snippet": "<a href=\"alerts.html\" class=\"nav-pill-btn\" style=\"color: var(--apple-coral);\">"
+      },
+      {
+        "line": 770,
+        "tag": "form",
+        "attrs": {
+          "class": [
+            "auth-form"
+          ],
+          "id": "vendorAuthForm",
+          "onsubmit": "handleAuthSubmit(event)"
+        },
+        "snippet": "<form class=\"auth-form\" id=\"vendorAuthForm\" onsubmit=\"handleAuthSubmit(event)\">"
+      },
+      {
+        "line": 779,
+        "tag": "input",
+        "attrs": {
+          "type": "text",
+          "id": "userNameInput",
+          "class": [
+            "auth-input"
+          ],
+          "placeholder": "e.g. Atharva Awate / Admin",
+          "value": "\u0905\u0925\u0930\u094d\u0935 \u0906\u0935\u093e\u091f\u0947 (Admin)",
+          "required": "",
+          "autocomplete": "username"
+        },
+        "snippet": "<input                    type=\"text\"                    id=\"userNameInput\"                    class=\"auth-input\"       "
+      },
+      {
+        "line": 802,
+        "tag": "input",
+        "attrs": {
+          "type": "tel",
+          "id": "userNumberInput",
+          "class": [
+            "auth-input"
+          ],
+          "placeholder": "+91 95798 69506",
+          "value": "+91 95798 69506",
+          "pattern": "[0-9+\\s-]{10,15}",
+          "required": "",
+          "autocomplete": "tel"
+        },
+        "snippet": "<input                    type=\"tel\"                    id=\"userNumberInput\"                    class=\"auth-input\"      "
+      },
+      {
+        "line": 825,
+        "tag": "input",
+        "attrs": {
+          "type": "password",
+          "id": "secretCodeInput",
+          "class": [
+            "auth-input"
+          ],
+          "placeholder": "\u2022\u2022\u2022\u2022\u2022\u2022",
+          "value": "957986",
+          "maxlength": "8",
+          "required": "",
+          "autocomplete": "current-password"
+        },
+        "snippet": "<input                    type=\"password\"                    id=\"secretCodeInput\"                    class=\"auth-input\" "
+      },
+      {
+        "line": 839,
+        "tag": "button",
+        "attrs": {
+          "type": "button",
+          "class": [
+            "toggle-secret-btn"
+          ],
+          "onclick": "toggleSecretVisibility()",
+          "title": "Show/Hide Secret Code"
+        },
+        "snippet": "<button type=\"button\" class=\"toggle-secret-btn\" onclick=\"toggleSecretVisibility()\" title=\"Show/Hide Secret Code\">"
+      },
+      {
+        "line": 852,
+        "tag": "div",
+        "attrs": {
+          "class": [
+            "demo-store-pill"
+          ],
+          "style": "border-color: rgba(16, 185, 129, 0.45); background: rgba(16, 185, 129, 0.08); font-weight: 650;",
+          "onclick": "fillDemoCredentials('\u0905\u0925\u0930\u094d\u0935 \u0906\u0935\u093e\u091f\u0947 (Admin)', '+91 95798 69506', '957986')"
+        },
+        "snippet": "<div class=\"demo-store-pill\" style=\"border-color: rgba(16, 185, 129, 0.45); background: rgba(16, 185, 129, 0.08); font-w"
+      },
+      {
+        "line": 859,
+        "tag": "button",
+        "attrs": {
+          "type": "submit",
+          "class": [
+            "auth-submit-btn"
+          ],
+          "id": "authSubmitBtn"
+        },
+        "snippet": "<button type=\"submit\" class=\"auth-submit-btn\" id=\"authSubmitBtn\">"
+      },
+      {
+        "line": 886,
+        "tag": "button",
+        "attrs": {
+          "type": "button",
+          "class": [
+            "godly-preview-pill-btn"
+          ],
+          "onclick": "window.replayGodlyLoaderPreview()",
+          "title": "Replay Wave Animation"
+        },
+        "snippet": "<button type=\"button\" class=\"godly-preview-pill-btn\" onclick=\"window.replayGodlyLoaderPreview()\" title=\"Replay Wave Anim"
+      },
+      {
+        "line": 892,
+        "tag": "button",
+        "attrs": {
+          "type": "button",
+          "class": [
+            "godly-preview-pill-btn"
+          ],
+          "onclick": "window.dismissGodlyLoaderPreview()",
+          "title": "Dismiss Preview (Esc)"
+        },
+        "snippet": "<button type=\"button\" class=\"godly-preview-pill-btn\" onclick=\"window.dismissGodlyLoaderPreview()\" title=\"Dismiss Preview"
+      }
+    ],
+    "listeners": [],
+    "dynamic_renderers": []
+  }
+}

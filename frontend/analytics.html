@@ -1790,11 +1790,25 @@
       window.requestAnimationFrame(step);
     }
 
+    function syncStoreMetrics() {
+      if (!window.VyaparCore) return;
+      const metrics = (typeof VyaparCore.getDailyMetrics === 'function') ? VyaparCore.getDailyMetrics() : null;
+      const todayRev = metrics ? metrics.totalRevenue : 18450;
+      const baseMonthly = 384200;
+      const totalRev = baseMonthly + todayRev;
+      
+      const revEl = document.getElementById('statMonthlyRev');
+      if (revEl) {
+        revEl.textContent = `₹${inrFormatter.format(Math.round(totalRev))}`;
+      }
+    }
+
     window.addEventListener('message', (event) => {
-      if (event.data && event.data.type === 'NEW_SALE') {
+      if (event.data && (event.data.type === 'NEW_SALE' || event.data.type === 'VYAPAR_SALE')) {
         const sale = event.data.payload || {};
         showAppleToast(`New WhatsApp Order: ₹${sale.amount || '340'} (${sale.item || 'Order'})!`);
         haptics.playSuccess();
+        syncStoreMetrics();
       }
     });
 
@@ -1818,8 +1832,23 @@
     
     document.addEventListener('DOMContentLoaded', () => {
       syncMerchantSessionUI();
-      animateCounter('statMonthlyRev', 0, 384200, 1100, '₹');
+      syncStoreMetrics();
       animateCounter('statRepeat', 0, 88.4, 900, '%');
+
+      if (window.VyaparCore && typeof VyaparCore.registerListener === 'function') {
+        VyaparCore.registerListener((type, data) => {
+          if (type === 'TRANSACTIONS_UPDATED' || type === 'METRICS_UPDATE') {
+            syncStoreMetrics();
+          }
+        });
+      }
+      if (window.VyaparCore && typeof VyaparCore.startLiveSync === 'function') {
+        VyaparCore.startLiveSync((type, data) => {
+          if (type === 'TRANSACTIONS_UPDATED' || type === 'METRICS_UPDATE') {
+            syncStoreMetrics();
+          }
+        });
+      }
 
       const ctxGrowth = document.getElementById('quarterlyGrowthChart');
       if (ctxGrowth) {

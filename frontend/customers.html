@@ -2252,10 +2252,11 @@
     }
 
     window.addEventListener('message', (event) => {
-      if (event.data && event.data.type === 'NEW_SALE') {
+      if (event.data && (event.data.type === 'NEW_SALE' || event.data.type === 'VYAPAR_SALE')) {
         const sale = event.data.payload || {};
         showAppleToast(`New WhatsApp Order: ₹${sale.amount || '340'} (${sale.item || 'Order'})!`);
         haptics.playSuccess();
+        refreshKhataData();
       }
     });
 
@@ -2282,7 +2283,7 @@
       syncMerchantSessionUI();
       await refreshKhataData();
 
-      VyaparCore.startLiveSync((event, data) => {
+      const liveSyncHandler = (event, data) => {
         if (event === 'UDHAR_LEDGER_UPDATED' && Array.isArray(data)) {
           currentLedger = data;
           renderKhataTable(currentLedger);
@@ -2292,7 +2293,16 @@
           renderKhataTable(currentLedger);
           updateMetricsUI(currentLedger);
         }
-      });
+      };
+
+      if (window.VyaparCore && typeof VyaparCore.startLiveSync === 'function') {
+        VyaparCore.startLiveSync(liveSyncHandler);
+      } else if (window.VyaparCore && VyaparCore.backend && typeof VyaparCore.backend.startLiveSync === 'function') {
+        VyaparCore.backend.startLiveSync(liveSyncHandler);
+      }
+      if (window.VyaparCore && typeof VyaparCore.registerListener === 'function') {
+        VyaparCore.registerListener(liveSyncHandler);
+      }
 
       const ctx = document.getElementById('khataRecoveryChart');
       if (ctx) {

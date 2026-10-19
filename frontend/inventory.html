@@ -2466,9 +2466,14 @@
 
     function commitDiscoveredSkus() {
       haptics.playSuccess();
+      if (window.VyaparCore && typeof VyaparCore.addStock === 'function') {
+        VyaparCore.addStock('AUTO-VID-PEN', 20, 'Vision Onboarding Initial Stock');
+        VyaparCore.addStock('AUTO-VID-NOTEBOOK', 15, 'Vision Onboarding Initial Stock');
+        VyaparCore.addStock('AUTO-VID-KINLEY', 24, 'Vision Onboarding Initial Stock');
+      }
       showAppleToast("Committed Reynolds Pen, Notebook, & Kinley Water to Master Inventory!");
       closeVideoSweepModal();
-      animateCounter('statUnitsCount', 1840, 1955, 600);
+      refreshInventoryUI();
     }
 
     function triggerGSTExport() {
