@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-19T17:41:47.037653+00:00",
+  "timestamp": "2026-10-19T18:02:42.207998+00:00",
   "vendor_id": "DEMO_KIRANA_KOP",
   "metrics": {
     "total_skus": 23,
-    "total_valuation": 44733.0,
-    "low_stock_count": 1,
+    "total_valuation": 74270.0,
+    "low_stock_count": 0,
     "today_sales_count": 0,
     "today_revenue": 0,
     "udhar_count": 4,
@@ -20,10 +20,12 @@
       "name_mr": "साखर (Madhur Sugar)",
       "name_en": "Sugar",
       "category": "Grains & Sweeteners / धान्य व साखर",
-      "stock": 50.0,
+      "stock": 100.0,
       "unit": "kg",
       "unit_price": 42.0,
       "min_threshold": 15.0,
+      "max_capacity": 100.0,
+      "full_stock": 100.0,
       "is_low_stock": false,
       "aliases": [
         "साखर",
@@ -35,9 +37,12 @@
         "madhur sugar",
         "shakkhar"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 100.0,
+        "full_stock": 100.0
+      },
       "image_url": "/static/products/GROC-SUG-001.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1354,
@@ -46,10 +51,12 @@
       "name_mr": "गोकुळ / अमूल ताझा दूध (Fresh Milk 500ml)",
       "name_en": "Fresh Cow Milk 500ml",
       "category": "Dairy & Perishables / डेअरी व दुग्धजन्य",
-      "stock": 20.0,
+      "stock": 50.0,
       "unit": "pouch",
       "unit_price": 27.0,
       "min_threshold": 8.0,
+      "max_capacity": 50.0,
+      "full_stock": 50.0,
       "is_low_stock": false,
       "aliases": [
         "दूध",
@@ -62,9 +69,12 @@
         "doodh",
         "पिशवी दूध"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 50.0,
+        "full_stock": 50.0
+      },
       "image_url": "/static/products/DAIRY-MILK-500ML.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1355,
@@ -73,10 +83,12 @@
       "name_mr": "अमुल ताजा दूध ५०० मिली (Amul Taaza Milk 500ml)",
       "name_en": "Amul Taaza Milk 500ml",
       "category": "Dairy & Perishables / डेअरी व दुग्धजन्य",
-      "stock": 24.0,
+      "stock": 50.0,
       "unit": "pouch",
       "unit_price": 27.0,
       "min_threshold": 6.0,
+      "max_capacity": 50.0,
+      "full_stock": 50.0,
       "is_low_stock": false,
       "aliases": [
         "दूध",
@@ -88,9 +100,12 @@
         "doodh",
         "पिशवी दूध"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 50.0,
+        "full_stock": 50.0
+      },
       "image_url": "/static/products/DAIRY-AMUL-500M.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1356,
@@ -99,10 +114,12 @@
       "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
       "name_en": "Parle-G 100g",
       "category": "Packaged Snacks / पॅकेज्ड स्नॅक्स",
-      "stock": 60.0,
+      "stock": 100.0,
       "unit": "packet",
       "unit_price": 10.0,
       "min_threshold": 15.0,
+      "max_capacity": 100.0,
+      "full_stock": 100.0,
       "is_low_stock": false,
       "aliases": [
         "पार्ले",
@@ -117,9 +134,12 @@
         "पुडा",
         "पुडे"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 100.0,
+        "full_stock": 100.0
+      },
       "image_url": "/static/products/FMCG-PARLE-100G.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1357,
@@ -128,10 +148,12 @@
       "name_mr": "फॉर्च्युन सूर्यफूल तेल (Fortune Oil 1L)",
       "name_en": "Fortune Sunflower Oil 1L",
       "category": "Edible Oils / खाद्यतेल",
-      "stock": 25.0,
+      "stock": 50.0,
       "unit": "pouch",
       "unit_price": 135.0,
       "min_threshold": 5.0,
+      "max_capacity": 50.0,
+      "full_stock": 50.0,
       "is_low_stock": false,
       "aliases": [
         "तेल",
@@ -144,9 +166,12 @@
         "पिशवी",
         "पॉऊच"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 50.0,
+        "full_stock": 50.0
+      },
       "image_url": "/static/products/OIL-FORT-1L.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1358,
@@ -155,10 +180,12 @@
       "name_mr": "लादी पाव (Fresh Bakery Pav)",
       "name_en": "Bakery Pav (Ladi)",
       "category": "Bakery & Fresh / बेकरी व ताजे पदार्थ",
-      "stock": 30.0,
+      "stock": 50.0,
       "unit": "ladi",
       "unit_price": 20.0,
       "min_threshold": 8.0,
+      "max_capacity": 50.0,
+      "full_stock": 50.0,
       "is_low_stock": false,
       "aliases": [
         "लादी पाव",
@@ -168,9 +195,12 @@
         "बेकरी पाव",
         "ब्रेड"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 50.0,
+        "full_stock": 50.0
+      },
       "image_url": "/static/products/BAK-PAV-LADI.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1359,
@@ -179,10 +209,12 @@
       "name_mr": "गावरान तूर डाळ (Polished Tur Dal)",
       "name_en": "Tur Dal",
       "category": "Pulses & Lentils / डाळी व कडधान्ये",
-      "stock": 40.0,
+      "stock": 50.0,
       "unit": "kg",
       "unit_price": 160.0,
       "min_threshold": 10.0,
+      "max_capacity": 50.0,
+      "full_stock": 50.0,
       "is_low_stock": false,
       "aliases": [
         "तूर डाळ",
@@ -193,9 +225,12 @@
         "tur daal",
         "daal"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 50.0,
+        "full_stock": 50.0
+      },
       "image_url": "/static/products/DAL-TUR-001.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1360,
@@ -204,10 +239,12 @@
       "name_mr": "टाटा मीठ (Tata Salt 1kg)",
       "name_en": "Tata Salt 1kg",
       "category": "Spices & Essentials / मसाले व आवश्यक वस्तू",
-      "stock": 45.0,
+      "stock": 50.0,
       "unit": "packet",
       "unit_price": 28.0,
       "min_threshold": 10.0,
+      "max_capacity": 50.0,
+      "full_stock": 50.0,
       "is_low_stock": false,
       "aliases": [
         "मीठ",
@@ -217,9 +254,12 @@
         "mith",
         "namak"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 50.0,
+        "full_stock": 50.0
+      },
       "image_url": "/static/products/GROC-SALT-1K.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1361,
@@ -228,10 +268,12 @@
       "name_mr": "आशीर्वाद चक्की आटा (Aashirvaad Atta 5kg)",
       "name_en": "Aashirvaad Atta 5kg",
       "category": "Grains & Sweeteners / धान्य व साखर",
-      "stock": 18.0,
+      "stock": 30.0,
       "unit": "bag",
       "unit_price": 240.0,
       "min_threshold": 5.0,
+      "max_capacity": 30.0,
+      "full_stock": 30.0,
       "is_low_stock": false,
       "aliases": [
         "आटा",
@@ -243,9 +285,12 @@
         "pith",
         "aata"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 30.0,
+        "full_stock": 30.0
+      },
       "image_url": "/static/products/GROC-ATTA-5K.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1362,
@@ -254,10 +299,12 @@
       "name_mr": "मॅगी २-मिनिट नूडल्स (Maggi 70g)",
       "name_en": "Maggi Noodles 70g",
       "category": "Packaged Snacks / पॅकेज्ड स्नॅक्स",
-      "stock": 50.0,
+      "stock": 80.0,
       "unit": "packet",
       "unit_price": 14.0,
       "min_threshold": 12.0,
+      "max_capacity": 80.0,
+      "full_stock": 80.0,
       "is_low_stock": false,
       "aliases": [
         "मॅगी",
@@ -267,9 +314,12 @@
         "noodles",
         "magi"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 80.0,
+        "full_stock": 80.0
+      },
       "image_url": "/static/products/FMCG-MAGGI-70G.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1363,
@@ -278,10 +328,12 @@
       "name_mr": "गावठी लाल कांदा (Fresh Onion)",
       "name_en": "Red Onion",
       "category": "Fresh Vegetables / ताजी भाजी",
-      "stock": 70.0,
+      "stock": 100.0,
       "unit": "kg",
       "unit_price": 35.0,
       "min_threshold": 15.0,
+      "max_capacity": 100.0,
+      "full_stock": 100.0,
       "is_low_stock": false,
       "aliases": [
         "कांदा",
@@ -291,9 +343,12 @@
         "lal kanda",
         "kande"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 100.0,
+        "full_stock": 100.0
+      },
       "image_url": "/static/products/VEG-KANDA-001.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1364,
@@ -302,10 +357,12 @@
       "name_mr": "इंदूर बटाटा (Fresh Potato)",
       "name_en": "Potato",
       "category": "Fresh Vegetables / ताजी भाजी",
-      "stock": 65.0,
+      "stock": 100.0,
       "unit": "kg",
       "unit_price": 30.0,
       "min_threshold": 15.0,
+      "max_capacity": 100.0,
+      "full_stock": 100.0,
       "is_low_stock": false,
       "aliases": [
         "बटाटा",
@@ -315,9 +372,12 @@
         "batate",
         "alu"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 100.0,
+        "full_stock": 100.0
+      },
       "image_url": "/static/products/VEG-BATATA-001.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1365,
@@ -326,10 +386,12 @@
       "name_mr": "क्लासमेट वही १७२ पाने (Classmate Notebook)",
       "name_en": "Classmate Notebook 172 Pages",
       "category": "Stationery & Office / स्टेशनरी व वही",
-      "stock": 30.0,
+      "stock": 50.0,
       "unit": "book",
       "unit_price": 65.0,
       "min_threshold": 5.0,
+      "max_capacity": 50.0,
+      "full_stock": 50.0,
       "is_low_stock": false,
       "aliases": [
         "vahi",
@@ -343,9 +405,12 @@
         "classment book",
         "classment notebook"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 50.0,
+        "full_stock": 50.0
+      },
       "image_url": "/static/products/AUTO-VID-NOTEBOOK.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1366,
@@ -354,10 +419,12 @@
       "name_mr": "रेनॉल्ड्स ०४५ बॉल पेन (Reynolds Blue Pen)",
       "name_en": "Reynolds 045 Ballpoint Pen Blue",
       "category": "Stationery & Office / स्टेशनरी व पेन",
-      "stock": 50.0,
+      "stock": 100.0,
       "unit": "piece",
       "unit_price": 10.0,
       "min_threshold": 10.0,
+      "max_capacity": 100.0,
+      "full_stock": 100.0,
       "is_low_stock": false,
       "aliases": [
         "pen",
@@ -367,9 +434,12 @@
         "blue pen",
         "reynolds pen"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 100.0,
+        "full_stock": 100.0
+      },
       "image_url": "/static/products/AUTO-VID-PEN.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1367,
@@ -378,10 +448,12 @@
       "name_mr": "किनले पिण्याचे पाणी १L (Kinley Water 1L)",
       "name_en": "Kinley Packaged Water 1L",
       "category": "Beverages & Drinks / पेये व पाणी",
-      "stock": 24.0,
+      "stock": 40.0,
       "unit": "bottle",
       "unit_price": 20.0,
       "min_threshold": 6.0,
+      "max_capacity": 40.0,
+      "full_stock": 40.0,
       "is_low_stock": false,
       "aliases": [
         "pani",
@@ -391,9 +463,12 @@
         "किनले",
         "water bottle"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 40.0,
+        "full_stock": 40.0
+      },
       "image_url": "/static/products/AUTO-VID-KINLEY.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1368,
@@ -402,10 +477,12 @@
       "name_mr": "गावरान शेंगदाणे (बारीक/जाड)",
       "name_en": "Raw Peanuts (Shengdana) 1kg",
       "category": "Grains & Sweeteners / धान्य व साखर",
-      "stock": 35.0,
+      "stock": 50.0,
       "unit": "kg",
       "unit_price": 140.0,
       "min_threshold": 8.0,
+      "max_capacity": 50.0,
+      "full_stock": 50.0,
       "is_low_stock": false,
       "aliases": [
         "shengdana",
@@ -416,9 +493,12 @@
         "दाणे",
         "मूंगफली"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 50.0,
+        "full_stock": 50.0
+      },
       "image_url": "/static/products/sugar.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1369,
@@ -427,10 +507,12 @@
       "name_mr": "गावरान लोकवन गहू (Loose)",
       "name_en": "Lokwan Whole Wheat Grains 1kg",
       "category": "Grains & Sweeteners / धान्य व साखर",
-      "stock": 55.0,
+      "stock": 100.0,
       "unit": "kg",
       "unit_price": 38.0,
       "min_threshold": 10.0,
+      "max_capacity": 100.0,
+      "full_stock": 100.0,
       "is_low_stock": false,
       "aliases": [
         "gahu",
@@ -440,9 +522,12 @@
         "लोकवन",
         "लोकवन गहू"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 100.0,
+        "full_stock": 100.0
+      },
       "image_url": "/static/products/sugar.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1370,
@@ -451,11 +536,13 @@
       "name_mr": "कोलगेट स्ट्रॉंग टीथ १०० ग्रॅम",
       "name_en": "Colgate Strong Teeth 100g",
       "category": "Personal Care & Hygiene / वैयक्तिक काळजी",
-      "stock": 8.0,
+      "stock": 50.0,
       "unit": "tube",
       "unit_price": 65.0,
       "min_threshold": 15.0,
-      "is_low_stock": true,
+      "max_capacity": 50.0,
+      "full_stock": 50.0,
+      "is_low_stock": false,
       "aliases": [
         "colgate",
         "toothpaste",
@@ -464,9 +551,12 @@
         "पेस्ट",
         "टूथपेस्ट"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 50.0,
+        "full_stock": 50.0
+      },
       "image_url": "/static/products/placeholder.svg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1371,
@@ -475,10 +565,12 @@
       "name_mr": "जेमिनी सूर्यफूल तेल १ लिटर",
       "name_en": "Gemini Sunflower Oil 1L",
       "category": "Edible Oils / खाद्यतेल",
-      "stock": 20.0,
+      "stock": 30.0,
       "unit": "pouch",
       "unit_price": 130.0,
       "min_threshold": 6.0,
+      "max_capacity": 30.0,
+      "full_stock": 30.0,
       "is_low_stock": false,
       "aliases": [
         "gemini",
@@ -486,9 +578,12 @@
         "जेमिनी",
         "जेमिनी तेल"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 30.0,
+        "full_stock": 30.0
+      },
       "image_url": "/static/products/fortune_oil.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1372,
@@ -497,10 +592,12 @@
       "name_mr": "गावरान पिवळी मूग डाळ १ किलो",
       "name_en": "Yellow Moong Dal 1kg",
       "category": "Pulses & Lentils / डाळी व कडधान्ये",
-      "stock": 25.0,
+      "stock": 40.0,
       "unit": "kg",
       "unit_price": 130.0,
       "min_threshold": 8.0,
+      "max_capacity": 40.0,
+      "full_stock": 40.0,
       "is_low_stock": false,
       "aliases": [
         "moong",
@@ -508,9 +605,12 @@
         "मूग",
         "मूग डाळ"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 40.0,
+        "full_stock": 40.0
+      },
       "image_url": "/static/products/placeholder.svg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1373,
@@ -519,10 +619,12 @@
       "name_mr": "शुद्ध चणा डाळ बेसन ५०० ग्रॅम",
       "name_en": "Pure Chana Dal Besan 500g",
       "category": "Grains & Sweeteners / धान्य व साखर",
-      "stock": 20.0,
+      "stock": 40.0,
       "unit": "packet",
       "unit_price": 55.0,
       "min_threshold": 8.0,
+      "max_capacity": 40.0,
+      "full_stock": 40.0,
       "is_low_stock": false,
       "aliases": [
         "besan",
@@ -530,9 +632,12 @@
         "बेसन",
         "चणा बेसन"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 40.0,
+        "full_stock": 40.0
+      },
       "image_url": "/static/products/sugar.jpg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1374,
@@ -541,10 +646,12 @@
       "name_mr": "कोल्हापुरी लवंगी तिखट १०० ग्रॅम",
       "name_en": "Kolhapuri Red Chilli Powder 100g",
       "category": "Spices & Essentials / मसाले व आवश्यक वस्तू",
-      "stock": 30.0,
+      "stock": 50.0,
       "unit": "packet",
       "unit_price": 45.0,
       "min_threshold": 10.0,
+      "max_capacity": 50.0,
+      "full_stock": 50.0,
       "is_low_stock": false,
       "aliases": [
         "tikhat",
@@ -554,9 +661,12 @@
         "मिरची",
         "मिरची पावडर"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 50.0,
+        "full_stock": 50.0
+      },
       "image_url": "/static/products/placeholder.svg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     },
     {
       "id": 1375,
@@ -565,10 +675,12 @@
       "name_mr": "शुद्ध हळद पावडर १०० ग्रॅम",
       "name_en": "Pure Turmeric Powder 100g",
       "category": "Spices & Essentials / मसाले व आवश्यक वस्तू",
-      "stock": 30.0,
+      "stock": 50.0,
       "unit": "packet",
       "unit_price": 35.0,
       "min_threshold": 10.0,
+      "max_capacity": 50.0,
+      "full_stock": 50.0,
       "is_low_stock": false,
       "aliases": [
         "halad",
@@ -577,9 +689,12 @@
         "हळद",
         "हळदी"
       ],
-      "extra_meta": {},
+      "extra_meta": {
+        "max_capacity": 50.0,
+        "full_stock": 50.0
+      },
       "image_url": "/static/products/placeholder.svg",
-      "updated_at": "2026-10-19 17:41:46"
+      "updated_at": "2026-10-19 18:02:40"
     }
   ],
   "transactions": [],

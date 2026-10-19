@@ -159,21 +159,21 @@
     .app-viewport {
       display: flex;
       min-height: 100vh;
-      width: 100vw;
+      width: 100%;
       position: relative;
     }
 
     /* Left Dock-Style Sidebar Rail */
     .apple-dock-rail {
-      width: 68px;
-      padding: 16px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
       position: sticky;
       top: 0;
       height: 100vh;
+      width: 68px;
+      padding: 16px 0;
+      display: flex !important;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
       z-index: 40;
       flex-shrink: 0;
     }
@@ -648,18 +648,57 @@
     .fill-danger { background: var(--apple-coral); }
     .fill-blue { background: var(--apple-blue); }
 
-    /* Inventory Status Table */
+    /* Master Inventory Table Scrolling System */
+    .table-scroll-wrap,
     .apple-table-wrap {
-      overflow-x: auto;
+      max-height: 580px;
+      overflow-y: auto !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 12px;
+      position: relative;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
       margin-top: 4px;
     }
-    .apple-table {
+    .table-scroll-wrap::-webkit-scrollbar,
+    .apple-table-wrap::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .table-scroll-wrap::-webkit-scrollbar-track,
+    .apple-table-wrap::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.03);
+      border-radius: 8px;
+    }
+    .table-scroll-wrap::-webkit-scrollbar-thumb,
+    .apple-table-wrap::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+    }
+    .table-scroll-wrap::-webkit-scrollbar-thumb:hover,
+    .apple-table-wrap::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.35);
+    }
+    .table-scroll-wrap thead th,
+    .apple-table-wrap thead th {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+    }
+    .apple-table,
+    .data-table-custom {
       width: 100%;
       border-collapse: collapse;
       text-align: left;
       font-size: 0.83rem;
     }
-    .apple-table th {
+    .apple-table th,
+    .data-table-custom th {
       color: var(--text-tertiary);
       font-weight: 600;
       padding: 10px 12px;
@@ -667,18 +706,23 @@
       font-size: 0.74rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      white-space: nowrap;
     }
-    .apple-table td {
+    .apple-table td,
+    .data-table-custom td {
       padding: 10px 12px;
       border-bottom: 1px solid rgba(235, 230, 222, 0.6);
       color: var(--text-secondary);
       font-weight: 500;
       vertical-align: middle;
+      white-space: nowrap;
     }
-    .apple-table tr:last-child td {
+    .apple-table tr:last-child td,
+    .data-table-custom tr:last-child td {
       border-bottom: none;
     }
-    .apple-table tr:hover td {
+    .apple-table tr:hover td,
+    .data-table-custom tr:hover td {
       background: rgba(255, 255, 255, 0.5);
     }
     .table-prod-cell {
@@ -1451,8 +1495,21 @@
       .reverse-math-card { grid-column: span 12; }
     }
     @media (max-width: 768px) {
-      .apple-dock-rail { display: none; }
-      .dashboard-canvas { width: 100%; padding: 12px; }
+      .apple-dock-rail {
+        display: flex !important;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        width: 68px;
+        flex-shrink: 0;
+        z-index: 40;
+      }
+      .dashboard-canvas {
+        width: calc(100% - 68px);
+        flex: 1;
+        min-width: 0;
+        padding: 12px;
+      }
       .bento-grid { gap: 12px; }
       .stock-overview-card, .inventory-status-card, .low-stock-alerts-card, .recent-sales-card, .remote-yaadi-card, .reverse-math-card {
         grid-column: span 12;
@@ -1729,7 +1786,7 @@
             </div>
           </div>
 
-          <div class="table-scroll-wrap" style="max-height: 420px;">
+          <div class="table-scroll-wrap">
             <table class="data-table-custom">
               <thead>
                 <tr>
