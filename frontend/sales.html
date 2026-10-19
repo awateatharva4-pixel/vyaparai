@@ -1642,7 +1642,12 @@
               </svg>
               Sales Ledger & Tax Invoices
             </h2>
-            <span style="font-size: 0.72rem; color: var(--emerald-600); font-weight: 600;">Live Feed Active</span>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span style="font-size: 0.72rem; color: var(--emerald-600); font-weight: 600;">Live Feed Active</span>
+              <button class="apple-pill-btn" id="btnUndoSale" onclick="triggerUndoSale()" style="background: rgba(255, 59, 48, 0.12); color: #d70015; border: 1px solid rgba(255, 59, 48, 0.32); font-weight: 650; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Undo the most recent sale and rollback physical stock">
+                ↩ Undo Sale
+              </button>
+            </div>
           </div>
 
           <div class="table-scroll-wrap" style="max-height: 420px;">
@@ -1655,69 +1660,11 @@
                   <th>Items Purchased</th>
                   <th style="text-align: right;">Total</th>
                   <th style="text-align: center;">Payment Mode</th>
-                  <th style="text-align: center;">Receipt</th>
+                  <th style="text-align: center;">Receipt / Action</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td class="tabular-nums font-bold">#INV-1082</td>
-                  <td class="tabular-nums">2 mins ago</td>
-                  <td>Rohan Patil</td>
-                  <td>5x Parle-G, 1kg Sugar</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">₹130</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">UPI QR</span></td>
-                  <td style="text-align: center;"><button class="apple-pill-btn btn-stock" onclick="showAppleToast('WhatsApp receipt sent to Rohan (+91 98220...)!')">Share ↗</button></td>
-                </tr>
-
-                <tr>
-                  <td class="tabular-nums font-bold">#INV-1081</td>
-                  <td class="tabular-nums">14 mins ago</td>
-                  <td>Sunita Deshmukh</td>
-                  <td>2x Fortune Sunflower 1L</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">₹310</td>
-                  <td style="text-align: center;"><span class="status-pill status-in" style="background: rgba(0, 113, 227, 0.12); color: #0071e3;">Cash</span></td>
-                  <td style="text-align: center;"><button class="apple-pill-btn btn-stock" onclick="showAppleToast('Receipt printed on 58mm printer')">Print</button></td>
-                </tr>
-
-                <tr>
-                  <td class="tabular-nums font-bold">#INV-1080</td>
-                  <td class="tabular-nums">32 mins ago</td>
-                  <td>Anand Traders</td>
-                  <td>1x Aashirvaad 5kg, Tata Salt</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">₹285</td>
-                  <td style="text-align: center;"><span class="status-pill status-low">Khata (Udhar)</span></td>
-                  <td style="text-align: center;"><button class="apple-pill-btn btn-stock" onclick="showAppleToast('Logged to Anand Traders Khata passbook')">Khata</button></td>
-                </tr>
-
-                <tr>
-                  <td class="tabular-nums font-bold">#INV-1079</td>
-                  <td class="tabular-nums">48 mins ago</td>
-                  <td>Prakash Rao</td>
-                  <td>4x Maggi Noodles, Dove Soap</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">₹160</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">UPI QR</span></td>
-                  <td style="text-align: center;"><button class="apple-pill-btn btn-stock" onclick="showAppleToast('Receipt sent on WhatsApp!')">Share ↗</button></td>
-                </tr>
-
-                <tr>
-                  <td class="tabular-nums font-bold">#INV-1078</td>
-                  <td class="tabular-nums">1 hr ago</td>
-                  <td>Mahesh Kadam</td>
-                  <td>3x Bakery Pav, Amul Butter</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">₹90</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">UPI QR</span></td>
-                  <td style="text-align: center;"><button class="apple-pill-btn btn-stock" onclick="showAppleToast('Receipt sent on WhatsApp!')">Share ↗</button></td>
-                </tr>
-
-                <tr>
-                  <td class="tabular-nums font-bold">#INV-1077</td>
-                  <td class="tabular-nums">1.5 hrs ago</td>
-                  <td>Shrikant Joshi</td>
-                  <td>10x Parle-G, 1kg Tur Dal</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">₹265</td>
-                  <td style="text-align: center;"><span class="status-pill status-in" style="background: rgba(0, 113, 227, 0.12); color: #0071e3;">Cash</span></td>
-                  <td style="text-align: center;"><button class="apple-pill-btn btn-stock" onclick="showAppleToast('Printed receipt')">Print</button></td>
-                </tr>
+              <tbody id="salesTableBody">
+                <!-- Dynamically populated from VyaparCore.transactions -->
               </tbody>
             </table>
           </div>
@@ -1756,12 +1703,12 @@
             </div>
 
             <div style="display: flex; gap: 6px;">
-              <button class="apple-pill-btn btn-stock" style="flex: 1;" onclick="showAppleToast('Cash ₹78 received. Invoice saved!')">Cash</button>
-              <button class="apple-pill-btn btn-stock" style="flex: 1; background: #0071e3; color: #fff;" onclick="showAppleToast('UPI QR displayed on customer screen')">UPI QR</button>
-              <button class="apple-pill-btn btn-stock" style="flex: 1; color: var(--apple-amber);" onclick="showAppleToast('Added to Udhar Khata')">Khata</button>
+              <button class="apple-pill-btn btn-stock" style="flex: 1;" onclick="completeQuickSale('Cash Counter')">Cash</button>
+              <button class="apple-pill-btn btn-stock" style="flex: 1; background: #0071e3; color: #fff;" onclick="completeQuickSale('UPI Soundbox')">UPI QR</button>
+              <button class="apple-pill-btn btn-stock" style="flex: 1; color: var(--apple-amber);" onclick="completeQuickSale('WhatsApp Yaadi')">Khata</button>
             </div>
 
-            <button class="restock-btn" style="width: 100%; padding: 10px; justify-content: center;" onclick="showAppleToast('Invoice #INV-1083 generated & synced!')">
+            <button class="restock-btn" style="width: 100%; padding: 10px; justify-content: center;" onclick="completeQuickSale('UPI Soundbox')">
               Complete Sale & Print Bill
             </button>
           </div>
@@ -2049,9 +1996,167 @@
       }
     }
 
+    // =========================================================================
+    // Dynamic Reactive Sales Ledger & Undo Engine
+    // =========================================================================
+    function getLiveTransactions() {
+      if (window.VyaparCore) {
+        if (VyaparCore.transactions && Array.isArray(VyaparCore.transactions) && VyaparCore.transactions.length > 0) {
+          return VyaparCore.transactions;
+        }
+        if (typeof VyaparCore.getTransactions === 'function') {
+          const txs = VyaparCore.getTransactions();
+          if (txs && txs.length > 0) return txs;
+        }
+      }
+      return [];
+    }
+
+    function renderSalesTable(txs) {
+      const tbody = document.getElementById('salesTableBody');
+      if (!tbody) return;
+      const list = (txs && txs.length > 0) ? txs : getLiveTransactions();
+      if (!list || list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 28px; color: var(--text-tertiary);">
+              No sales transactions recorded yet.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = list.map(tx => {
+        let modeBadge = '';
+        const m = (tx.mode || '').toLowerCase();
+        const t = (tx.type || '').toLowerCase();
+        if (m.includes('upi') || m.includes('soundbox')) {
+          modeBadge = `<span class="status-pill status-in">UPI QR</span>`;
+        } else if (m.includes('cash')) {
+          modeBadge = `<span class="status-pill status-in" style="background: rgba(0, 113, 227, 0.12); color: #0071e3;">Cash</span>`;
+        } else if (m.includes('udhar') || t === 'udhar' || m.includes('khata')) {
+          modeBadge = `<span class="status-pill status-low">Khata (Udhar)</span>`;
+        } else if (m.includes('voice')) {
+          modeBadge = `<span class="status-pill status-in" style="background: rgba(37, 211, 102, 0.12); color: #128c7e;">WhatsApp Voice</span>`;
+        } else {
+          modeBadge = `<span class="status-pill status-in">${tx.mode || 'Sale'}</span>`;
+        }
+
+        const isReversed = tx.status === "Reversed";
+        const strikeStyle = isReversed ? "text-decoration: line-through; opacity: 0.6;" : "";
+
+        return `
+          <tr data-tx-id="${tx.id}" style="${strikeStyle}">
+            <td class="tabular-nums font-bold">#${tx.id}</td>
+            <td class="tabular-nums" style="font-size: 0.76rem; color: var(--text-tertiary);">${tx.time || 'Just now'}</td>
+            <td style="font-weight: 600;">${tx.cust || 'Counter Customer'}</td>
+            <td style="font-size: 0.78rem;">${tx.items || 'Kirana Essentials'}</td>
+            <td style="text-align: right;" class="tabular-nums font-bold">₹${Number(tx.amount || 0).toLocaleString('en-IN')}</td>
+            <td style="text-align: center;">${modeBadge}</td>
+            <td style="text-align: center;">
+              <div style="display: flex; gap: 4px; justify-content: center; align-items: center;">
+                <button class="apple-pill-btn btn-stock" onclick="showAppleToast('WhatsApp receipt sent for ${tx.id}!')">Share ↗</button>
+                <button class="apple-pill-btn" onclick="triggerUndoSale('${tx.id}')" style="background: rgba(255, 59, 48, 0.1); color: #d70015; border: 1px solid rgba(255, 59, 48, 0.25);" title="Undo transaction ${tx.id}">↩</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function triggerUndoSale(txId) {
+      haptics.playTick();
+      const txs = getLiveTransactions();
+      if (!txs || txs.length === 0) {
+        showAppleToast("No recent transactions to undo.");
+        return;
+      }
+      const targetTx = txId ? txs.find(t => t.id === txId) : txs[0];
+      if (!targetTx) {
+        showAppleToast("Transaction not found to undo.");
+        return;
+      }
+
+      const confirmMsg = `Undo sale #${targetTx.id} (₹${targetTx.amount}) for ${targetTx.cust}? This will restore stock in PostgreSQL.`;
+      if (!confirm(confirmMsg)) return;
+
+      showAppleToast(`↩ Undoing transaction #${targetTx.id}...`);
+      if (window.VyaparCore && VyaparCore.undoLastTransaction) {
+        try {
+          const res = await VyaparCore.undoLastTransaction();
+          haptics.playSuccess();
+          if (VyaparCore.playSoundboxChime) VyaparCore.playSoundboxChime(50);
+          showAppleToast(`✓ Transaction #${targetTx.id} undone! Stock restored and broadcast.`);
+          refreshSalesUI();
+        } catch(err) {
+          console.error("Undo sale error:", err);
+          showAppleToast("Failed to undo sale");
+        }
+      } else {
+        showAppleToast("VyaparCore not available");
+      }
+    }
+
+    function completeQuickSale(mode) {
+      haptics.playSuccess();
+      const amt = 78;
+      const itemsStr = "3x Parle-G, 1x Madhur Sugar";
+      if (window.VyaparCore && VyaparCore.addTransaction) {
+        const isUdhar = mode && (mode.includes("Khata") || mode.includes("Udhar"));
+        const newTx = VyaparCore.addTransaction({
+          type: isUdhar ? "UDHAR" : "SALE",
+          mode: mode || "Cash Counter",
+          cust: isUdhar ? "शंकरराव पाटील" : "Counter Customer",
+          items: itemsStr,
+          amount: amt,
+          status: "Success"
+        });
+        if (VyaparCore.playSoundboxChime) VyaparCore.playSoundboxChime(amt);
+        showAppleToast(`✓ Invoice #${newTx.id} (₹${amt}) recorded via ${mode}!`);
+        refreshSalesUI();
+      } else {
+        showAppleToast(`Invoice generated for ₹${amt} via ${mode}`);
+      }
+    }
+
+    function updateSalesMetrics(txs) {
+      const list = txs || getLiveTransactions();
+      let totalRev = 0;
+      let upiTotal = 0;
+      let billCount = 0;
+
+      list.forEach(t => {
+        if (t.status !== "Reversed") {
+          const amt = Number(t.amount || 0);
+          totalRev += amt;
+          billCount++;
+          const mode = (t.mode || '').toLowerCase();
+          if (mode.includes('upi') || mode.includes('soundbox')) {
+            upiTotal += amt;
+          }
+        }
+      });
+
+      const salesEl = document.getElementById('statSalesToday');
+      if (salesEl) salesEl.textContent = `₹${inrFormatter.format(Math.round(totalRev || 18450))}`;
+
+      const upiEl = document.getElementById('statUPI');
+      if (upiEl) upiEl.textContent = `₹${inrFormatter.format(Math.round(upiTotal || 12200))}`;
+
+      const invEl = document.getElementById('statInvoices');
+      if (invEl) invEl.textContent = inrFormatter.format(billCount || 64);
+    }
+
+    function refreshSalesUI(txs) {
+      const list = txs || getLiveTransactions();
+      renderSalesTable(list);
+      updateSalesMetrics(list);
+    }
+
     function handleTableSearch(val) {
-      val = val.toLowerCase().trim();
-      const rows = document.querySelectorAll('table tbody tr');
+      val = (val || '').toLowerCase().trim();
+      const rows = document.querySelectorAll('#salesTableBody tr');
       rows.forEach(r => {
         const txt = r.textContent.toLowerCase();
         r.style.display = txt.includes(val) ? '' : 'none';
@@ -2076,14 +2181,11 @@
     }
 
     window.addEventListener('message', (event) => {
-      if (event.data && (event.data.type === 'NEW_SALE' || event.data.type === 'NEW_SALE_RECORDED')) {
+      if (event.data && (event.data.type === 'NEW_SALE' || event.data.type === 'NEW_SALE_RECORDED' || event.data.type === 'VYAPAR_SALE')) {
         const sale = event.data.payload || event.data || {};
         showAppleToast(`New WhatsApp Order: ₹${sale.amount || '140'} (${sale.item || 'Order'})!`);
         haptics.playSuccess();
-        const currentSales = parseInt(document.getElementById('statSalesToday').textContent.replace(/[₹,]/g, '')) || 18450;
-        const currentInvoices = parseInt(document.getElementById('statInvoices').textContent) || 64;
-        animateCounter('statSalesToday', currentSales, currentSales + (sale.amount || 140), 800, '₹');
-        animateCounter('statInvoices', currentInvoices, currentInvoices + 1, 500);
+        refreshSalesUI();
       } else if (event.data && event.data.type === 'NEW_CUSTOMER_YAADI') {
         haptics.playSuccess();
         showAppleToast(`Customer Yaadi Received (${event.data.order ? event.data.order.customer_name : 'Customer'})! Staged in Pending Queue.`);
@@ -2108,12 +2210,7 @@
       }
     });
 
-    
     document.addEventListener('DOMContentLoaded', () => {
-      animateCounter('statSalesToday', 0, 18450, 1100, '₹');
-      animateCounter('statUPI', 0, 12200, 1000, '₹');
-      animateCounter('statInvoices', 0, 64, 800);
-
       const ctx = document.getElementById('hourlySalesChart');
       if (ctx) {
         const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 120);
@@ -2147,8 +2244,32 @@
         });
       }
 
-      // Initialize Yaadi Orders Queue
+      // Initialize live sales table and metrics
+      refreshSalesUI();
       renderPendingYaadiOrders();
+
+      // Live sync listeners
+      if (window.VyaparCore && VyaparCore.registerListener) {
+        VyaparCore.registerListener((type, data) => {
+          if (type === 'TRANSACTIONS_UPDATED' || type === 'METRICS_UPDATE') {
+            refreshSalesUI();
+            if (typeof renderPendingYaadiOrders === 'function') {
+              renderPendingYaadiOrders();
+            }
+          }
+        });
+      }
+
+      if (window.VyaparCore && VyaparCore.startLiveSync) {
+        VyaparCore.startLiveSync((type, data) => {
+          if (type === 'TRANSACTIONS_UPDATED' || type === 'METRICS_UPDATE') {
+            refreshSalesUI();
+            if (typeof renderPendingYaadiOrders === 'function') {
+              renderPendingYaadiOrders();
+            }
+          }
+        });
+      }
     });
 
     // =========================================================================

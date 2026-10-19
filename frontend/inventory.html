@@ -859,6 +859,47 @@
       box-shadow: 0 3px 10px rgba(40, 205, 65, 0.35);
     }
 
+    /* Category Filter Tabs (Apple HIG Glass Chips) */
+    .category-tabs-wrap {
+      display: flex;
+      gap: 8px;
+      margin: 10px 0 14px 0;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      align-items: center;
+      scrollbar-width: none;
+    }
+    .category-tabs-wrap::-webkit-scrollbar {
+      display: none;
+    }
+    .cat-filter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 980px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      cursor: pointer;
+      transition: all 0.2s var(--spring-snappy);
+      white-space: nowrap;
+    }
+    .cat-filter-btn:hover {
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--text-primary);
+      border-color: rgba(0, 0, 0, 0.18);
+      transform: translateY(-1px);
+    }
+    .cat-filter-btn.active {
+      background: var(--emerald-800, #1b4332);
+      color: #ffffff;
+      border-color: var(--emerald-800, #1b4332);
+      box-shadow: 0 2px 8px rgba(27, 67, 50, 0.28);
+    }
+
     /* Low Stock Alerts Box */
     .alerts-list-wrap {
       display: flex;
@@ -1463,7 +1504,7 @@
             <div class="metric-sub-card">
               <div class="metric-top-bar">
                 <span class="metric-title">Stock Valuation</span>
-                <span class="metric-pill-badge badge-green">48 SKUs</span>
+                <span class="metric-pill-badge badge-green" id="statSkuCountBadge">48 SKUs</span>
               </div>
               <div class="metric-value-num tabular-nums" id="statStockVal">₹3,42,850</div>
             </div>
@@ -1486,9 +1527,9 @@
             <div class="metric-sub-card">
               <div class="metric-top-bar">
                 <span class="metric-title">Critical Low Stock</span>
-                <span class="status-pill status-low">3 Urgent</span>
+                <span class="status-pill status-low" id="statLowStockPill">3 Urgent</span>
               </div>
-              <div class="metric-prod-name" style="color: var(--apple-coral);">Parle-G, Oil, Colgate</div>
+              <div class="metric-prod-name" id="statLowStockNames" style="color: var(--apple-coral);">Parle-G, Oil, Colgate</div>
             </div>
           </div>
           <div class="specular-sweep"></div>
@@ -1504,7 +1545,7 @@
               </svg>
               Stock Health Status
             </h2>
-            <span style="font-size: 0.72rem; color: var(--apple-green); font-weight: 600;">82% Healthy</span>
+            <span id="stockHealthPctLabel" style="font-size: 0.72rem; color: var(--apple-green); font-weight: 600;">82% Healthy</span>
           </div>
           
           <div style="height: 125px; width: 100%; position: relative;">
@@ -1525,9 +1566,20 @@
               Master Stock Register & Reorder Points
             </h2>
             <div style="display: flex; gap: 8px; align-items: center;">
+              <button class="apple-pill-btn btn-stock" onclick="triggerLiveCSVExport()" title="Export Live Inventory to CSV">📥 Export CSV</button>
               <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Opening CSV Import Modal...')">+ Import CSV</button>
               <button class="restock-btn" onclick="showAppleToast('Opening Add Product Form...')">+ New SKU</button>
             </div>
+          </div>
+
+          <!-- Category Filter Tabs (All, किराणा, धान्य, डेअरी, FMCG, भाजीपाला) -->
+          <div class="category-tabs-wrap">
+            <button class="cat-filter-btn active" data-cat="all" onclick="filterByCategory('all', this)">All (सर्व)</button>
+            <button class="cat-filter-btn" data-cat="kirana" onclick="filterByCategory('kirana', this)">किराणा</button>
+            <button class="cat-filter-btn" data-cat="grains" onclick="filterByCategory('grains', this)">धान्य</button>
+            <button class="cat-filter-btn" data-cat="dairy" onclick="filterByCategory('dairy', this)">डेअरी</button>
+            <button class="cat-filter-btn" data-cat="fmcg" onclick="filterByCategory('fmcg', this)">FMCG</button>
+            <button class="cat-filter-btn" data-cat="produce" onclick="filterByCategory('produce', this)">भाजीपाला</button>
           </div>
 
           <div class="table-scroll-wrap" style="max-height: 480px;">
@@ -1542,323 +1594,11 @@
                   <th style="text-align: right;">Cost Price</th>
                   <th style="text-align: right;">Margin %</th>
                   <th style="text-align: center;">Status</th>
-                  <th style="text-align: center;">Action</th>
+                  <th style="text-align: center;">Action (+Stock)</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <div class="table-prod-cell">
-                      <img src="assets/products/parle_g.png" alt="Parle-G" class="table-prod-thumb" />
-                      <div>
-                        <strong>Parle-G Gluco Biscuits</strong>
-                        <div style="font-size: 0.68rem; color: var(--text-tertiary);">Pack 100g • Fast Mover</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="tabular-nums">P01</td>
-                  <td>Biscuits</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold" style="color: var(--apple-coral);">22 left</td>
-                  <td style="text-align: right;" class="tabular-nums">₹10</td>
-                  <td style="text-align: right;" class="tabular-nums">₹8.20</td>
-                  <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">18%</td>
-                  <td style="text-align: center;"><span class="status-pill status-low">Critical Low</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Reorder Parle-G: 50 units ordered via Parle Depot!')">+ Reorder</button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="table-prod-cell">
-                      <img src="assets/products/sugar.png" alt="Sugar" class="table-prod-thumb" />
-                      <div>
-                        <strong>Madhur Pure Crystal Sugar</strong>
-                        <div style="font-size: 0.68rem; color: var(--text-tertiary);">1kg Pouch • Refined</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="tabular-nums">P02</td>
-                  <td>Staples</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">16 left</td>
-                  <td style="text-align: right;" class="tabular-nums">₹48</td>
-                  <td style="text-align: right;" class="tabular-nums">₹41.50</td>
-                  <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">13.5%</td>
-                  <td style="text-align: center;"><span class="status-pill status-low">Low Stock</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Reorder Sugar: 50kg bag added!')">+ Reorder</button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="table-prod-cell">
-                      <img src="assets/products/maggi.png" alt="Maggi" class="table-prod-thumb" />
-                      <div>
-                        <strong>Nestle Maggi 2-Min Noodles</strong>
-                        <div style="font-size: 0.68rem; color: var(--text-tertiary);">70g Masala Pack</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="tabular-nums">P03</td>
-                  <td>Instant Foods</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">70 left</td>
-                  <td style="text-align: right;" class="tabular-nums">₹14</td>
-                  <td style="text-align: right;" class="tabular-nums">₹11.80</td>
-                  <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">15.7%</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">In Stock</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Stock adjusted: +24 units')">+ Stock</button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="table-prod-cell">
-                      <img src="assets/products/alert_sunflower_oil.png" alt="Fortune Oil" class="table-prod-thumb" />
-                      <div>
-                        <strong>Fortune Sunlite Refined Oil</strong>
-                        <div style="font-size: 0.68rem; color: var(--text-tertiary);">1 Litre Pouch</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="tabular-nums">P04</td>
-                  <td>Edible Oils</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold" style="color: var(--apple-coral);">12 left</td>
-                  <td style="text-align: right;" class="tabular-nums">₹155</td>
-                  <td style="text-align: right;" class="tabular-nums">₹142.00</td>
-                  <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">8.4%</td>
-                  <td style="text-align: center;"><span class="status-pill status-low">Critical Low</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Reorder 20 Pouches via Adani Wilmar Depot')">+ Reorder</button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="table-prod-cell">
-                      <img src="assets/products/alert_colgate.png" alt="Colgate" class="table-prod-thumb" />
-                      <div>
-                        <strong>Colgate Strong Teeth</strong>
-                        <div style="font-size: 0.68rem; color: var(--text-tertiary);">100g Dental Cream</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="tabular-nums">P05</td>
-                  <td>Personal Care</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold" style="color: var(--apple-coral);">8 left</td>
-                  <td style="text-align: right;" class="tabular-nums">₹62</td>
-                  <td style="text-align: right;" class="tabular-nums">₹51.00</td>
-                  <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">17.7%</td>
-                  <td style="text-align: center;"><span class="status-pill status-low">Critical Low</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Reorder Colgate: 36 units PO sent!')">+ Reorder</button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="table-prod-cell">
-                      <img src="assets/products/dove.png" alt="Dove" class="table-prod-thumb" />
-                      <div>
-                        <strong>Dove White Beauty Bar</strong>
-                        <div style="font-size: 0.68rem; color: var(--text-tertiary);">100g Bathing Bar</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="tabular-nums">P06</td>
-                  <td>Personal Care</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">45 left</td>
-                  <td style="text-align: right;" class="tabular-nums">₹68</td>
-                  <td style="text-align: right;" class="tabular-nums">₹56.00</td>
-                  <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">17.6%</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">In Stock</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Stock adjusted: +12 units')">+ Stock</button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="table-prod-cell">
-                      <img src="assets/products/tata_salt.png" alt="Tata Salt" class="table-prod-thumb" />
-                      <div>
-                        <strong>Tata Salt (Desh Ka Namak)</strong>
-                        <div style="font-size: 0.68rem; color: var(--text-tertiary);">1kg Vacuum Evaporated</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="tabular-nums">P07</td>
-                  <td>Staples</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">85 left</td>
-                  <td style="text-align: right;" class="tabular-nums">₹28</td>
-                  <td style="text-align: right;" class="tabular-nums">₹23.50</td>
-                  <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">16.1%</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">In Stock</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Stock adjusted: +50 units')">+ Stock</button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="table-prod-cell">
-                      <img src="assets/products/bakery_pav.png" alt="Bakery Pav" class="table-prod-thumb" />
-                      <div>
-                        <strong>Fresh Kolhapur Bakery Pav</strong>
-                        <div style="font-size: 0.68rem; color: var(--text-tertiary);">Ladi of 6 buns • Daily Fresh</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="tabular-nums">P08</td>
-                  <td>Bakery</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">40 left</td>
-                  <td style="text-align: right;" class="tabular-nums">₹25</td>
-                  <td style="text-align: right;" class="tabular-nums">₹18.00</td>
-                  <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">28%</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">In Stock</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Bakery Pav: Morning order logged')">+ Stock</button>
-                  </td>
-                </tr>
-
-                <!-- Row 9: Aashirvaad Sharbati Atta 5kg -->
-                <tr>
-                  <td>
-                    <div class="table-prod-cell">
-                      <img src="assets/products/wheat_flour.png" alt="Aashirvaad Atta" class="table-prod-thumb" onerror="this.src='assets/products/STAPLE-ATTA-5KG.png'" />
-                      <div>
-                        <strong>Aashirvaad Sharbati Atta</strong>
-                        <div style="font-size: 0.68rem; color: var(--text-tertiary);">5kg Bag • 100% MP Sharbati Whole Wheat</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="tabular-nums">P09</td>
-                  <td>Staples</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">18 left</td>
-                  <td style="text-align: right;" class="tabular-nums">₹210</td>
-                  <td style="text-align: right;" class="tabular-nums">₹182.00</td>
-                  <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">13.3%</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">In Stock</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Stock adjusted: +10 bags')">+ Stock</button>
-                  </td>
-                </tr>
-
-                <!-- Row 10: Fresh Local Potato 1kg -->
-                <tr>
-                  <td>
-                    <div class="table-prod-cell">
-                      <img src="assets/products/potato.png" alt="Fresh Potato" class="table-prod-thumb" onerror="this.src='assets/products/VEG-POTATO-1KG.png'" />
-                      <div>
-                        <strong>Fresh Local Potato (बटाटा)</strong>
-                        <div style="font-size: 0.68rem; color: var(--text-tertiary);">1kg • Kolhapur Mandi Grade A</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="tabular-nums">P10</td>
-                  <td>Produce</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">35 left</td>
-                  <td style="text-align: right;" class="tabular-nums">₹30</td>
-                  <td style="text-align: right;" class="tabular-nums">₹22.00</td>
-                  <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">26.7%</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">In Stock</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Stock adjusted: +20 kg')">+ Stock</button>
-                  </td>
-                </tr>
-
-                <!-- Row 11: Amul Taaza Milk 500ml -->
-                <tr>
-                  <td>
-                    <div class="table-prod-cell">
-                      <img src="assets/products/amul_milk.jpg" alt="Amul Milk" class="table-prod-thumb" onerror="this.src='assets/products/DAIRY-AMUL-500M.jpg'" />
-                      <div>
-                        <strong>Amul Taaza Milk 500ml</strong>
-                        <div style="font-size: 0.68rem; color: var(--text-tertiary);">500ml Pouch • Homogenised Toned</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="tabular-nums">P11</td>
-                  <td>Dairy</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">30 left</td>
-                  <td style="text-align: right;" class="tabular-nums">₹27</td>
-                  <td style="text-align: right;" class="tabular-nums">₹24.50</td>
-                  <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">9.2%</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">In Stock</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Morning Dairy Inward logged!')">+ Stock</button>
-                  </td>
-                </tr>
-
-                <!-- Row 12: Reynolds 045 Ballpoint Pen -->
-                <tr>
-                  <td>
-                    <div class="table-prod-cell">
-                      <img src="assets/products/reynolds_pen.jpg" alt="Reynolds Pen" class="table-prod-thumb" onerror="this.src='assets/products/AUTO-VID-PEN.jpg'" />
-                      <div>
-                        <strong>Reynolds 045 Ballpoint Pen</strong>
-                        <div style="font-size: 0.68rem; color: var(--text-tertiary);">Blue Ink 0.7mm • Onboarded via Video Sweep</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="tabular-nums">P12</td>
-                  <td>Stationery</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">50 left</td>
-                  <td style="text-align: right;" class="tabular-nums">₹10</td>
-                  <td style="text-align: right;" class="tabular-nums">₹7.00</td>
-                  <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">30%</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">In Stock</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Stock adjusted: +20 pens')">+ Stock</button>
-                  </td>
-                </tr>
-
-                <!-- Row 13: Classmate Notebook 172p -->
-                <tr>
-                  <td>
-                    <div class="table-prod-cell">
-                      <img src="assets/products/classmate_notebook.jpg" alt="Classmate Notebook" class="table-prod-thumb" onerror="this.src='assets/products/AUTO-VID-NOTEBOOK.jpg'" />
-                      <div>
-                        <strong>Classmate Notebook 172 Pages</strong>
-                        <div style="font-size: 0.68rem; color: var(--text-tertiary);">Single Line 240x180mm • Onboarded via Video Sweep</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="tabular-nums">P13</td>
-                  <td>Stationery</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">25 left</td>
-                  <td style="text-align: right;" class="tabular-nums">₹45</td>
-                  <td style="text-align: right;" class="tabular-nums">₹34.00</td>
-                  <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">24.4%</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">In Stock</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Stock adjusted: +12 books')">+ Stock</button>
-                  </td>
-                </tr>
-
-                <!-- Row 14: Kinley Water Bottle 1L -->
-                <tr>
-                  <td>
-                    <div class="table-prod-cell">
-                      <img src="assets/products/kinley_water.jpg" alt="Kinley Water" class="table-prod-thumb" onerror="this.src='assets/products/AUTO-VID-KINLEY.jpg'" />
-                      <div>
-                        <strong>Kinley Packaged Drinking Water</strong>
-                        <div style="font-size: 0.68rem; color: var(--text-tertiary);">1 Litre Pet Bottle • Onboarded via Video Sweep</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="tabular-nums">P14</td>
-                  <td>Beverages</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">40 left</td>
-                  <td style="text-align: right;" class="tabular-nums">₹20</td>
-                  <td style="text-align: right;" class="tabular-nums">₹14.00</td>
-                  <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">30%</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">In Stock</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Stock adjusted: +24 bottles')">+ Stock</button>
-                  </td>
-                </tr>
+              <tbody id="inventoryTableBody">
+                <!-- Dynamically populated from VyaparCore.inventory -->
               </tbody>
             </table>
           </div>
@@ -2195,13 +1935,287 @@
       }
     }
 
+    // =========================================================================
+    // Dynamic Reactive Inventory Engine
+    // =========================================================================
+    let activeCategory = 'all';
+    let currentSearchQuery = '';
+    let stockHealthChartInstance = null;
+
+    function getLiveInventoryItems() {
+      if (window.VyaparCore) {
+        if (VyaparCore.inventory && Array.isArray(VyaparCore.inventory) && VyaparCore.inventory.length > 0) {
+          return VyaparCore.inventory;
+        }
+        if (typeof VyaparCore.getSKUs === 'function') {
+          const skus = VyaparCore.getSKUs();
+          if (skus && skus.length > 0) return skus;
+        }
+      }
+      return [];
+    }
+
+    function renderInventoryTable(products) {
+      const tbody = document.getElementById('inventoryTableBody');
+      if (!tbody) return;
+      const items = (products && products.length > 0) ? products : getLiveInventoryItems();
+      if (!items || items.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 32px; color: var(--text-tertiary);">
+              No inventory products found. Connect to backend or load defaults.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = items.map(p => {
+        const cost = p.cost_price != null ? p.cost_price : (p.unit_price * 0.82);
+        const margin = p.unit_price > 0 ? (((p.unit_price - cost) / p.unit_price) * 100).toFixed(1) : "0.0";
+        const isOutOfStock = p.stock <= 0;
+        const isLowStock = !isOutOfStock && p.stock <= (p.min_threshold || 10);
+        const img = p.img || (window.VyaparCore ? (VyaparCore.getSKU(p.sku) || {}).img : null) || 'assets/products/parle_g.png';
+
+        let statusBadge = '';
+        if (isOutOfStock) {
+          statusBadge = `<span class="status-pill status-low" style="background: rgba(255, 59, 48, 0.16); color: #d70015;">🚨 Out of Stock</span>`;
+        } else if (isLowStock) {
+          statusBadge = `<span class="status-pill status-low">⚠️ Low Stock</span>`;
+        } else {
+          statusBadge = `<span class="status-pill status-in">🟢 In Stock</span>`;
+        }
+
+        const stockColor = isOutOfStock ? 'color: var(--apple-coral); font-weight: 700;' : (isLowStock ? 'color: var(--apple-amber); font-weight: 700;' : 'color: var(--emerald-900); font-weight: 700;');
+
+        return `
+          <tr data-sku="${p.sku}" id="table-row-${p.sku}" style="transition: background 0.3s ease;">
+            <td>
+              <div class="table-prod-cell">
+                <img src="${img}" alt="${p.name_en || p.name_mr}" class="table-prod-thumb" onerror="this.src='assets/products/parle_g.png'" />
+                <div>
+                  <strong>${p.name_en || p.short_name || p.name_mr}</strong>
+                  <div style="font-size: 0.68rem; color: var(--text-tertiary);">${p.name_mr || ''} • ${p.unit || 'units'}</div>
+                </div>
+              </div>
+            </td>
+            <td class="tabular-nums" style="font-size: 0.76rem; color: var(--text-tertiary);">${p.sku}</td>
+            <td><span class="category-tag">${p.category || 'Kirana Essentials'}</span></td>
+            <td style="text-align: right; ${stockColor}" class="tabular-nums font-bold" id="stock-val-${p.sku}">
+              ${Number(p.stock).toLocaleString('en-IN', { maximumFractionDigits: 2 })} <span style="font-size: 0.7rem; font-weight: 500; color: var(--text-tertiary);">${p.unit || 'units'}</span>
+            </td>
+            <td style="text-align: right;" class="tabular-nums font-bold">₹${Number(p.unit_price).toFixed(2)}</td>
+            <td style="text-align: right;" class="tabular-nums">₹${Number(cost).toFixed(2)}</td>
+            <td style="text-align: right;" class="tabular-nums" style="color: var(--apple-green); font-weight: 600;">${margin}%</td>
+            <td style="text-align: center;">${statusBadge}</td>
+            <td style="text-align: center;">
+              <div style="display: flex; gap: 4px; justify-content: center; align-items: center;">
+                <button class="apple-pill-btn btn-stock" onclick="quickAddStock('${p.sku}', 5, event)" title="Add +5 ${p.unit || 'units'} to ${p.sku}">+5</button>
+                <button class="apple-pill-btn btn-stock" onclick="quickAddStock('${p.sku}', 10, event)" title="Add +10 ${p.unit || 'units'} to ${p.sku}">+10</button>
+                <button class="apple-pill-btn btn-stock" onclick="quickAddStock('${p.sku}', 25, event)" title="Add +25 ${p.unit || 'units'} to ${p.sku}">+25</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      applyFilters();
+    }
+
+    async function quickAddStock(sku, delta, e) {
+      if (e) e.stopPropagation();
+      haptics.playTick();
+      if (!window.VyaparCore || !VyaparCore.addStock) {
+        showAppleToast(`Stock delta +${delta} logged locally for ${sku}`);
+        return;
+      }
+
+      const item = (VyaparCore.inventory || []).find(s => s.sku === sku) || (VyaparCore.getSKU ? VyaparCore.getSKU(sku) : null);
+      const itemName = item ? (item.short_name || item.name_en || item.name_mr) : sku;
+      showAppleToast(`Adding +${delta} stock for ${itemName}...`);
+
+      try {
+        const res = await VyaparCore.addStock(sku, delta, `Manual UI Quick +${delta} Stock`);
+        if (VyaparCore.playSoundboxChime) VyaparCore.playSoundboxChime(150);
+        haptics.playSuccess();
+        showAppleToast(`✓ +${delta} units added to ${itemName}! Stock broadcasted.`);
+        refreshInventoryUI();
+      } catch (err) {
+        console.error("Stock add error:", err);
+        showAppleToast(`+${delta} stock updated locally for ${itemName}`);
+        refreshInventoryUI();
+      }
+    }
+
+    function filterByCategory(cat, btn) {
+      haptics.playTick();
+      activeCategory = cat;
+      document.querySelectorAll('.cat-filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      applyFilters();
+    }
+
     function handleTableSearch(val) {
-      val = val.toLowerCase().trim();
-      const rows = document.querySelectorAll('table tbody tr');
-      rows.forEach(r => {
-        const txt = r.textContent.toLowerCase();
-        r.style.display = txt.includes(val) ? '' : 'none';
+      currentSearchQuery = (val || '').toLowerCase().trim();
+      applyFilters();
+    }
+
+    function matchesCategory(item, cat) {
+      if (!cat || cat === 'all') return true;
+      const c = (item.category || '').toLowerCase();
+      const nameEn = (item.name_en || '').toLowerCase();
+      const nameMr = item.name_mr || '';
+      const shortName = (item.short_name || '').toLowerCase();
+      const aliases = (item.aliases || []).join(' ').toLowerCase();
+      const allText = `${c} ${nameEn} ${nameMr} ${shortName} ${aliases}`;
+
+      if (cat === 'kirana') {
+        return c.includes('spice') || c.includes('essential') || c.includes('bakery') || c.includes('stationery') ||
+               allText.includes('मीठ') || allText.includes('salt') || allText.includes('पाव') || allText.includes('pen') || allText.includes('किराणा');
+      }
+      if (cat === 'grains') {
+        return c.includes('grain') || c.includes('sweetener') || c.includes('pulse') || c.includes('lentil') || c.includes('staple') ||
+               allText.includes('साखर') || allText.includes('sugar') || allText.includes('आटा') || allText.includes('atta') || allText.includes('डाळ') || allText.includes('dal');
+      }
+      if (cat === 'dairy') {
+        return c.includes('dairy') || c.includes('perishable') ||
+               allText.includes('दूध') || allText.includes('milk') || allText.includes('amul') || allText.includes('दही') || allText.includes('तूप');
+      }
+      if (cat === 'fmcg') {
+        return c.includes('fmcg') || c.includes('biscuit') || c.includes('oil') ||
+               allText.includes('पार्ले') || allText.includes('parle') || allText.includes('मॅगी') || allText.includes('maggi') || allText.includes('तेल') || allText.includes('water') || allText.includes('kinley');
+      }
+      if (cat === 'produce') {
+        return c.includes('produce') || c.includes('fresh') || c.includes('vegetable') ||
+               allText.includes('कांदा') || allText.includes('kanda') || allText.includes('onion') || allText.includes('बटाटा') || allText.includes('batata') || allText.includes('potato') || allText.includes('भाजी');
+      }
+      return true;
+    }
+
+    function applyFilters() {
+      const rows = document.querySelectorAll('#inventoryTableBody tr');
+      const items = getLiveInventoryItems();
+
+      rows.forEach(row => {
+        const sku = row.getAttribute('data-sku');
+        const item = items.find(i => i.sku === sku);
+        if (!item) return;
+
+        const catMatch = matchesCategory(item, activeCategory);
+        let searchMatch = true;
+        if (currentSearchQuery) {
+          const rowText = `${item.sku} ${item.name_en || ''} ${item.name_mr || ''} ${item.category || ''} ${(item.aliases || []).join(' ')}`.toLowerCase();
+          searchMatch = rowText.includes(currentSearchQuery);
+        }
+        row.style.display = (catMatch && searchMatch) ? '' : 'none';
       });
+    }
+
+    function updateInventoryMetrics(items) {
+      if (!items) items = getLiveInventoryItems();
+      if (!items || items.length === 0) return;
+
+      const totalVal = items.reduce((sum, p) => sum + (Number(p.stock) * Number(p.unit_price)), 0);
+      const totalUnits = items.reduce((sum, p) => sum + Number(p.stock), 0);
+      const lowItems = items.filter(p => Number(p.stock) <= (p.min_threshold || 10));
+      const outItems = items.filter(p => Number(p.stock) <= 0);
+      const healthyCount = items.length - lowItems.length;
+
+      const valEl = document.getElementById('statStockVal');
+      if (valEl) valEl.textContent = `₹${inrFormatter.format(Math.round(totalVal))}`;
+
+      const unitsEl = document.getElementById('statUnitsCount');
+      if (unitsEl) unitsEl.textContent = inrFormatter.format(Math.round(totalUnits));
+
+      const skuBadge = document.getElementById('statSkuCountBadge');
+      if (skuBadge) skuBadge.textContent = `${items.length} SKUs`;
+
+      const lowPill = document.getElementById('statLowStockPill');
+      if (lowPill) {
+        lowPill.textContent = `${lowItems.length} Urgent`;
+        lowPill.className = lowItems.length > 0 ? "status-pill status-low" : "status-pill status-in";
+      }
+
+      const lowNames = document.getElementById('statLowStockNames');
+      if (lowNames) {
+        if (lowItems.length > 0) {
+          lowNames.textContent = lowItems.slice(0, 3).map(i => i.short_name || i.name_en).join(', ');
+          lowNames.style.color = "var(--apple-coral)";
+        } else {
+          lowNames.textContent = "All inventory healthy";
+          lowNames.style.color = "var(--apple-green)";
+        }
+      }
+
+      const pctLabel = document.getElementById('stockHealthPctLabel');
+      const healthPct = items.length > 0 ? Math.round((healthyCount / items.length) * 100) : 100;
+      if (pctLabel) pctLabel.textContent = `${healthPct}% Healthy`;
+
+      if (stockHealthChartInstance) {
+        stockHealthChartInstance.data.datasets[0].data = [healthyCount, lowItems.length - outItems.length, outItems.length];
+        stockHealthChartInstance.update();
+      }
+    }
+
+    function refreshInventoryUI(items) {
+      const currentItems = (items && items.length > 0) ? items : getLiveInventoryItems();
+      renderInventoryTable(currentItems);
+      updateInventoryMetrics(currentItems);
+    }
+
+    function triggerLiveCSVExport() {
+      haptics.playTick();
+      showAppleToast("Generating live Inventory Register CSV...");
+      const items = getLiveInventoryItems();
+      if (!items || items.length === 0) {
+        showAppleToast("No inventory items found to export");
+        return;
+      }
+
+      const headers = [
+        "SKU Code",
+        "Product Name (English)",
+        "Product Name (Marathi)",
+        "Category",
+        "In Stock",
+        "Unit",
+        "Unit MRP (INR)",
+        "Cost Price (INR)",
+        "Margin %",
+        "Status"
+      ];
+
+      const rows = items.map(p => {
+        const cost = p.cost_price != null ? p.cost_price : (p.unit_price * 0.82);
+        const margin = p.unit_price > 0 ? (((p.unit_price - cost) / p.unit_price) * 100).toFixed(1) : "0.0";
+        const status = p.stock <= 0 ? "Out of Stock" : (p.stock <= (p.min_threshold || 10) ? "Low Stock" : "In Stock");
+        return [
+          `"${p.sku}"`,
+          `"${(p.name_en || p.short_name || '').replace(/"/g, '""')}"`,
+          `"${(p.name_mr || '').replace(/"/g, '""')}"`,
+          `"${(p.category || '').replace(/"/g, '""')}"`,
+          p.stock,
+          `"${p.unit || 'unit'}"`,
+          p.unit_price,
+          cost.toFixed(2),
+          `"${margin}%"`,
+          `"${status}"`
+        ].join(",");
+      });
+
+      const csvString = "\uFEFF" + [headers.join(","), ...rows].join("\r\n");
+      const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const today = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `VyaparAI_Inventory_Register_${today}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showAppleToast("✓ Downloaded live inventory CSV!");
+      haptics.playSuccess();
     }
 
     function animateCounter(id, start, end, duration, prefix = '') {
@@ -2222,10 +2236,13 @@
     }
 
     window.addEventListener('message', (event) => {
-      if (event.data && event.data.type === 'NEW_SALE') {
+      if (event.data && (event.data.type === 'NEW_SALE' || event.data.type === 'VYAPAR_SALE')) {
         const sale = event.data.payload || {};
         showAppleToast(`New WhatsApp Order: ₹${sale.amount || '340'} (${sale.item || 'Order'})!`);
         haptics.playSuccess();
+        refreshInventoryUI();
+      } else if (event.data && (event.data.type === 'VYAPAR_RESTOCK' || event.data.type === 'METRICS_UPDATE')) {
+        refreshInventoryUI();
       }
     });
 
@@ -2246,14 +2263,10 @@
       }
     });
 
-    
     document.addEventListener('DOMContentLoaded', () => {
-      animateCounter('statStockVal', 0, 342850, 1100, '₹');
-      animateCounter('statUnitsCount', 0, 1840, 900);
-
       const ctx = document.getElementById('stockHealthChart');
       if (ctx) {
-        new Chart(ctx, {
+        stockHealthChartInstance = new Chart(ctx, {
           type: 'doughnut',
           data: {
             labels: ['Healthy', 'Low Stock', 'Out of Stock'],
@@ -2273,6 +2286,42 @@
               }
             },
             cutout: '72%'
+          }
+        });
+      }
+
+      // Initial dynamic render
+      const initialItems = getLiveInventoryItems();
+      if (initialItems && initialItems.length > 0) {
+        refreshInventoryUI(initialItems);
+      } else {
+        fetch('/api/inventory', { cache: 'no-store' })
+          .then(r => r.ok ? r.json() : null)
+          .then(data => {
+            if (data && Array.isArray(data) && data.length > 0) {
+              refreshInventoryUI(data);
+            } else {
+              refreshInventoryUI();
+            }
+          })
+          .catch(() => refreshInventoryUI());
+      }
+
+      // Live WebSocket and polling listener
+      if (window.VyaparCore && VyaparCore.registerListener) {
+        VyaparCore.registerListener((type, data) => {
+          if (type === 'METRICS_UPDATE') {
+            const updated = data && data.products ? data.products : getLiveInventoryItems();
+            refreshInventoryUI(updated);
+          }
+        });
+      }
+
+      if (window.VyaparCore && VyaparCore.startLiveSync) {
+        VyaparCore.startLiveSync((type, data) => {
+          if (type === 'METRICS_UPDATE') {
+            const updated = data && data.products ? data.products : getLiveInventoryItems();
+            refreshInventoryUI(updated);
           }
         });
       }

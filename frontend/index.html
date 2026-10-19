@@ -12,7 +12,9 @@
   
   <!-- Chart.js for 60 FPS lightweight responsive chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="assets/godly-loader.css" />
   <script src="assets/vyapar-core.js"></script>
+  <script src="assets/godly-loader.js"></script>
 
   <style>
     /* ==========================================================================
@@ -2730,14 +2732,48 @@
     }
 
     // 6. Action Handlers: Stock Add, Store Cycle
-    function handleStockAdd(productName, price) {
+    async function handleStockAdd(productName, price) {
       haptics.tap();
-      showAppleToast(`+ Stock order initiated for ${productName} (${price})`);
+      let matchedSku = null;
+      let matchedItem = null;
+      if (window.VyaparCore) {
+        const skus = VyaparCore.getSKUs();
+        matchedItem = skus.find(s => 
+          (s.name_en && s.name_en.toLowerCase().includes(productName.toLowerCase())) ||
+          (s.short_name && s.short_name.toLowerCase().includes(productName.toLowerCase())) ||
+          (s.name_mr && s.name_mr.includes(productName)) ||
+          productName.toLowerCase().includes(s.short_name.toLowerCase())
+        );
+        if (matchedItem) matchedSku = matchedItem.sku;
+      }
       
-      // Live Increment Total Sales to simulate immediate interaction
-      const currentSales = 12450;
-      const addedVal = 350;
-      animateCounter('statTotalSales', currentSales, currentSales + addedVal, 800, '₹');
+      // Fallback SKU manual matching
+      if (!matchedSku) {
+        const pLower = productName.toLowerCase();
+        if (pLower.includes("parle")) matchedSku = "FMCG-PARLE-100G";
+        else if (pLower.includes("sugar") || pLower.includes("sakhar")) matchedSku = "GROC-SUG-001";
+        else if (pLower.includes("oil") || pLower.includes("fortune")) matchedSku = "OIL-FORT-1L";
+        else if (pLower.includes("pav")) matchedSku = "BAK-PAV-LADI";
+        else if (pLower.includes("tur") || pLower.includes("dal")) matchedSku = "DAL-TUR-001";
+        else if (pLower.includes("salt") || pLower.includes("tata")) matchedSku = "GROC-SALT-1K";
+        else if (pLower.includes("atta")) matchedSku = "GROC-ATTA-5K";
+        else if (pLower.includes("maggi")) matchedSku = "FMCG-MAGGI-70G";
+        else if (pLower.includes("onion") || pLower.includes("kanda")) matchedSku = "VEG-KANDA-001";
+        else if (pLower.includes("potato") || pLower.includes("batata")) matchedSku = "VEG-BATATA-001";
+        else if (pLower.includes("milk") || pLower.includes("amul")) matchedSku = "DAIRY-AMUL-500M";
+        else if (pLower.includes("pen") || pLower.includes("reynolds")) matchedSku = "AUTO-VID-PEN";
+        else if (pLower.includes("notebook") || pLower.includes("classmate")) matchedSku = "AUTO-VID-NOTEBOOK";
+        else if (pLower.includes("water") || pLower.includes("kinley")) matchedSku = "AUTO-VID-KINLEY";
+      }
+
+      const addQty = 10;
+      if (matchedSku && window.VyaparCore && VyaparCore.addStock) {
+        showAppleToast(`📦 +${addQty} Stock Added: ${matchedItem ? matchedItem.short_name : productName}`);
+        await VyaparCore.addStock(matchedSku, addQty, `Manual +Stock UI Click (${productName})`);
+        if (VyaparCore.playSoundboxChime) VyaparCore.playSoundboxChime(150);
+      } else {
+        showAppleToast(`+ Stock order initiated for ${productName}`);
+      }
     }
 
     // Single Store Invariant: locked strictly to Atharva Kirana Stores, Kolhapur
@@ -2799,6 +2835,12 @@
           </tr>
         `;
       }).join('');
+
+      // Preserve active search filter across real-time metrics re-renders
+      const searchInput = document.getElementById('globalSearchInput');
+      if (searchInput && searchInput.value && searchInput.value.trim() !== '') {
+        handleGlobalSearch(searchInput.value);
+      }
     }
 
     function updateCarouselStock(products) {
@@ -3452,9 +3494,36 @@
       }
     }
 
-    function addScaleResultToBill() {
+    async function addScaleResultToBill() {
       haptics.tap();
-      showAppleToast(`Added Scale Item to Bill: ${currentScaleResult.item} - ${currentScaleResult.grams}g (₹${currentScaleResult.amount})`);
+      const item = (currentScaleResult && currentScaleResult.item) || "साखर";
+      const grams = (currentScaleResult && currentScaleResult.grams) || 476;
+      const amount = (currentScaleResult && currentScaleResult.amount) || 20;
+      showAppleToast(`🧾 Added Scale Item: ${item} (${grams}g - ₹${amount})`);
+
+      if (window.VyaparCore) {
+        let matchedSku = "GROC-SUG-001";
+        const itemLower = item.toLowerCase();
+        if (itemLower.includes("tur") || itemLower.includes("dal")) matchedSku = "DAL-TUR-001";
+        else if (itemLower.includes("atta") || itemLower.includes("gahhu") || itemLower.includes("गहू")) matchedSku = "GROC-ATTA-5K";
+        else if (itemLower.includes("tel") || itemLower.includes("oil")) matchedSku = "OIL-FORT-1L";
+
+        const kgDelta = grams / 1000.0;
+        VyaparCore.deductStock(matchedSku, kgDelta);
+        VyaparCore.addTransaction({
+          type: "SALE",
+          mode: "Digital Scale (Loose)",
+          cust: "Counter Walk-in",
+          items: `${item} ${grams}g`,
+          amount: amount,
+          status: "Success"
+        });
+
+        if (VyaparCore.addStock) {
+          await VyaparCore.addStock(matchedSku, -kgDelta, `Counter Scale Sale (${item} ${grams}g)`);
+        }
+        if (VyaparCore.playSoundboxChime) VyaparCore.playSoundboxChime(amount);
+      }
     }
 
     // D. Header Action Buttons

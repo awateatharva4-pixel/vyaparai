@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Request, Depends, UploadFile, File, Form, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -234,7 +235,8 @@ def trigger_expiration_sweeper(vendor_id: str = "DEMO_KIRANA_KOP", db: Session =
 @router.post("/api/simulator/customer-yaadi")
 async def process_customer_yaadi_simulator(
     customer_phone: str = Form("+919822012345"),
-    text: str = Form(None),
+    text: Optional[str] = Form(None),
+    text_message: Optional[str] = Form(None),
     file: UploadFile = File(None),
     vendor_id: str = Form("DEMO_KIRANA_KOP"),
     db: Session = Depends(get_db)
@@ -246,6 +248,7 @@ async def process_customer_yaadi_simulator(
     """
     prods = db.query(Product).filter_by(vendor_id=vendor_id).all()
     catalog_items = [p.to_dict() for p in prods]
+    actual_text = (text or text_message or "").strip()
 
     if file and file.filename:
         img_bytes = await file.read()
@@ -256,12 +259,12 @@ async def process_customer_yaadi_simulator(
             catalog_items=catalog_items
         )
         raw_msg = f"Handwritten Slip: {file.filename}"
-    elif text and text.strip():
+    elif actual_text:
         parsed = GeminiService.parse_yaadi_from_text(
-            text=text.strip(),
+            text=actual_text,
             catalog_items=catalog_items
         )
-        raw_msg = text.strip()
+        raw_msg = actual_text
     else:
         # Default mock yaadi if both empty
         parsed = GeminiService._offline_yaadi_fallback(catalog_items)

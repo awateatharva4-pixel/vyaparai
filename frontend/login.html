@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@300;400;450;500;550;600;650;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/calacatta-theme.css" />
   <link rel="stylesheet" href="assets/godly-loader.css" />
+  <script src="assets/godly-loader.js"></script>
 
   <style>
     /* ==========================================================================
@@ -417,211 +418,40 @@
     }
 
     /* ==========================================================================
-       3. Godly Cool Loading Screen with Expanding Waves & Translucent Skeleton
-       Apple Blue rgba(0, 113, 227, 0.6) & Florentine Gold rgba(201, 169, 110, 0.4)
-       60 FPS GPU-Accelerated Keyframes • 4 Concentric Pulsing Rings
+       3. Auth Form Validation & Dynamic Feedback Styles
        ========================================================================== */
-    .godly-loader-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
-      background: rgba(249, 246, 240, 0.94);
-      backdrop-filter: blur(36px) saturate(190%) contrast(102%);
-      -webkit-backdrop-filter: blur(36px) saturate(190%) contrast(102%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-      overflow: hidden;
-    }
-    .godly-loader-screen.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    /* Ambient Radial Halo Behind Logo */
-    .wave-ambient-halo {
-      position: absolute;
-      width: 240px;
-      height: 240px;
-      border-radius: 50%;
-      background: radial-gradient(
-        circle, 
-        rgba(0, 113, 227, 0.32) 0%, 
-        rgba(201, 169, 110, 0.24) 40%, 
-        rgba(0, 113, 227, 0.08) 65%, 
-        transparent 80%
-      );
-      filter: blur(16px);
-      pointer-events: none;
-      z-index: 2;
-      animation: haloBreath 3.2s ease-in-out infinite alternate;
-      will-change: transform, opacity;
-      transform: translateZ(0);
-    }
-    @keyframes haloBreath {
-      0% { transform: scale(0.9) translateZ(0); opacity: 0.7; }
-      100% { transform: scale(1.25) translateZ(0); opacity: 1; }
-    }
-
-    /* Concentric Expanding Ripple Waves with Dual-Tone Glow */
-    .wave-rings-container {
-      position: absolute;
-      width: 120px;
-      height: 120px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      z-index: 3;
-    }
-    .wave-ring {
-      position: absolute;
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      opacity: 0;
-      transform: scale(0.65) translateZ(0);
-      transform-origin: center center;
-      animation: waveSpread 3.6s cubic-bezier(0.12, 0.8, 0.24, 1) infinite;
-      will-change: transform, opacity;
-      pointer-events: none;
-    }
-    .wave-ring.wave-1 {
-      animation-delay: 0s;
-      border: 2px solid rgba(0, 113, 227, 0.85);
-      box-shadow: 
-        0 0 28px rgba(0, 113, 227, 0.6),
-        0 0 55px rgba(201, 169, 110, 0.4),
-        inset 0 0 18px rgba(0, 113, 227, 0.35);
-    }
-    .wave-ring.wave-2 {
-      animation-delay: 0.9s;
-      border: 2px solid rgba(201, 169, 110, 0.85);
-      box-shadow: 
-        0 0 35px rgba(201, 169, 110, 0.45),
-        0 0 70px rgba(0, 113, 227, 0.5),
-        inset 0 0 22px rgba(201, 169, 110, 0.35);
-    }
-    .wave-ring.wave-3 {
-      animation-delay: 1.8s;
-      border: 2px solid rgba(0, 113, 227, 0.75);
-      box-shadow: 
-        0 0 45px rgba(0, 113, 227, 0.6),
-        0 0 90px rgba(201, 169, 110, 0.4),
-        inset 0 0 26px rgba(0, 113, 227, 0.3);
-    }
-    .wave-ring.wave-4 {
-      animation-delay: 2.7s;
-      border: 2px solid rgba(201, 169, 110, 0.8);
-      box-shadow: 
-        0 0 58px rgba(201, 169, 110, 0.4),
-        0 0 110px rgba(0, 113, 227, 0.55),
-        inset 0 0 32px rgba(201, 169, 110, 0.25);
-    }
-
-    @keyframes waveSpread {
-      0% {
-        transform: scale(0.65) translateZ(0);
-        opacity: 0.95;
-      }
-      25% {
-        opacity: 0.82;
-      }
-      60% {
-        opacity: 0.42;
-      }
-      100% {
-        transform: scale(30) translateZ(0);
-        opacity: 0;
-      }
-    }
-
-    /* Central 3D Floating Logo Card */
-    .central-logo-card {
-      width: 104px;
-      height: 104px;
-      border-radius: 26px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: transparent;
-      z-index: 5;
-      animation: logoBreathing 2.8s ease-in-out infinite alternate;
-      will-change: transform;
-      transform: translateZ(0);
-    }
-    .central-logo-img {
-      width: 100%;
-      height: 100%;
-      border-radius: 26px;
-      object-fit: cover;
-      box-shadow: 
-        0 16px 42px rgba(0, 113, 227, 0.4),
-        0 6px 20px rgba(201, 169, 110, 0.32),
-        0 2px 8px rgba(0, 0, 0, 0.12),
-        inset 0 1px 2px rgba(255, 255, 255, 0.95);
-      border: 1.5px solid rgba(255, 255, 255, 0.85);
-    }
-    @keyframes logoBreathing {
-      0% { transform: translateY(0px) scale(1) translateZ(0); }
-      100% { transform: translateY(-8px) scale(1.05) translateZ(0); }
-    }
-
-    /* Status Text Block */
-    .loader-status-block {
-      margin-top: 36px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
+    .auth-error-banner {
+      display: none;
       align-items: center;
       gap: 10px;
-      z-index: 5;
-    }
-    .loader-brand-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--emerald-900);
-      letter-spacing: -0.015em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .loader-brand-title span.luxury-tag {
-      font-family: 'Cinzel', serif;
-      font-size: 0.76rem;
-      letter-spacing: 0.12em;
-      color: var(--brass-600);
-      font-weight: 600;
-      text-transform: uppercase;
-      padding-left: 6px;
-      border-left: 1px solid rgba(201, 169, 110, 0.4);
-    }
-    .loader-dynamic-phrase {
-      font-size: 0.86rem;
+      padding: 11px 14px;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      border-radius: 12px;
+      background: rgba(255, 59, 48, 0.08);
+      border: 1px solid rgba(255, 59, 48, 0.32);
+      color: #d70015;
+      font-size: 0.82rem;
       font-weight: 550;
-      color: var(--emerald-600);
-      min-height: 22px;
-      transition: all 0.24s ease;
+      line-height: 1.35;
+      animation: fadeInError 0.25s var(--spring-snappy);
     }
-    .loader-progress-track {
-      width: 240px;
-      height: 4px;
-      border-radius: 9999px;
-      background: rgba(0, 0, 0, 0.08);
-      overflow: hidden;
-      margin-top: 6px;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+    .auth-error-banner.show {
+      display: flex;
     }
-    .loader-progress-bar {
-      height: 100%;
-      width: 0%;
-      border-radius: 9999px;
-      background: linear-gradient(90deg, #0071e3 0%, #c9a96e 50%, #25d366 100%);
-      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    @keyframes fadeInError {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .shake-error {
+      animation: shakeInput 0.4s ease-in-out !important;
+      border-color: #ff3b30 !important;
+      box-shadow: 0 0 0 3.5px rgba(255, 59, 48, 0.18) !important;
+    }
+    @keyframes shakeInput {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
     }
 
     /* Responsive Queries */
@@ -650,7 +480,7 @@
     <!-- Top Navigation Bar -->
     <header class="auth-top-nav">
       <div class="auth-brand-lockup" onclick="window.location.href='index.html'">
-        <img src="assets/logo.png" alt="VyaparAI Logo" class="auth-logo-img" />
+        <img src="assets/logo.png" alt="VyaparAI Logo" class="auth-logo-img" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\' viewBox=\'0 0 44 44\'><rect width=\'44\' height=\'44\' rx=\'12\' fill=\'%230f2e31\'/><path d=\'M11 11 L22 33 L33 11 L27 11 L22 23 L17 11 Z\' fill=\'%23c9a96e\'/></svg>';" />
         <div class="auth-brand-text">
           VyaparAI
           <span class="auth-brand-sub">Calacatta OS</span>
@@ -828,7 +658,7 @@
                   class="auth-input" 
                   placeholder="••••••" 
                   value="957986"
-                  maxlength="8" 
+                  maxlength="15" 
                   required 
                   autocomplete="current-password"
                 />
@@ -847,12 +677,28 @@
 
             <!-- Quick Demo One-Click Fill (Single Store Mode) -->
             <div class="quick-demo-section">
-              <span class="quick-demo-label">Single Store Primary Ingress</span>
+              <span class="quick-demo-label">Authorized Kirana Merchant Ingress</span>
               <div class="demo-pills-row">
-                <div class="demo-store-pill" style="border-color: rgba(16, 185, 129, 0.45); background: rgba(16, 185, 129, 0.08); font-weight: 650;" onclick="fillDemoCredentials('अथर्व आवाटे (Admin)', '+91 95798 69506', '957986')">
-                  🏪 अथर्व किराणा स्टोअर्स, कोल्हापूर (DEMO_KIRANA_KOP)
+                <div class="demo-store-pill" style="border-color: rgba(16, 185, 129, 0.45); background: rgba(16, 185, 129, 0.08); font-weight: 650;" onclick="fillDemoCredentials('अथर्व आवाटे (Admin)', '+91 95798 69506', '957986')" title="Atharva Kirana Stores (Default)">
+                  🏪 अथर्व किराणा (PIN: 957986)
+                </div>
+                <div class="demo-store-pill" style="border-color: rgba(0, 113, 227, 0.35); background: rgba(0, 113, 227, 0.06); font-weight: 650;" onclick="fillDemoCredentials('व्यंकटेश पै (Admin)', '+91 98220 12345', '1234')" title="Venkatesh Traders (PIN: 1234)">
+                  🏪 व्यंकटेश प्रोव्हिजन (PIN: 1234)
+                </div>
+                <div class="demo-store-pill" style="border-color: rgba(201, 169, 110, 0.4); background: rgba(201, 169, 110, 0.08); font-weight: 650;" onclick="fillDemoCredentials('अथर्व आवाटे', '+91 95798 69506', '9579869506')" title="Phone Number as PIN">
+                  ⚡ फोन नंबर पिन (9579869506)
                 </div>
               </div>
+            </div>
+
+            <!-- Error Banner -->
+            <div class="auth-error-banner" id="authErrorBanner" role="alert">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <span id="authErrorMsg">कृपया वैध सिक्रेट पिन प्रविष्ट करा.</span>
             </div>
 
             <!-- Submit Button -->
@@ -1057,7 +903,7 @@
 
       <!-- Floating 3D Logo Card -->
       <div class="central-logo-card">
-        <img src="assets/logo.png" alt="VyaparAI V Logo" class="central-logo-img" />
+        <img src="assets/logo.png" alt="VyaparAI V Logo" class="central-logo-img" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'104\' height=\'104\' viewBox=\'0 0 104 104\'><rect width=\'104\' height=\'104\' rx=\'26\' fill=\'%230f2e31\'/><path d=\'M26 26 L52 78 L78 26 L64 26 L52 54 L40 26 Z\' fill=\'%23c9a96e\'/></svg>';" />
       </div>
 
       <!-- Status Text Block -->
@@ -1104,19 +950,32 @@
 
     // 2. Demo Credentials Auto-Fill
     function fillDemoCredentials(name, number, code) {
-      document.getElementById('userNameInput').value = name;
-      document.getElementById('userNumberInput').value = number;
-      document.getElementById('secretCodeInput').value = code;
+      const nameInput = document.getElementById('userNameInput');
+      const numberInput = document.getElementById('userNumberInput');
+      const codeInput = document.getElementById('secretCodeInput');
+      const errBanner = document.getElementById('authErrorBanner');
+
+      if (nameInput) nameInput.value = name;
+      if (numberInput) numberInput.value = number;
+      if (codeInput) codeInput.value = code;
       
+      if (errBanner) errBanner.classList.remove('show');
+
       // Visual feedback
       const box = document.querySelector('.auth-glass-box');
-      box.style.transform = 'scale(1.015)';
-      setTimeout(() => box.style.transform = '', 200);
+      if (box) {
+        box.style.transform = 'scale(1.015)';
+        setTimeout(() => box.style.transform = '', 200);
+      }
       playHaptic(180, 50);
     }
 
     // 3. Audio Micro-Haptic Click
     function playHaptic(freq1 = 140, freq2 = 40) {
+      if (window.VyaparLoader && typeof window.VyaparLoader.playHaptic === 'function') {
+        window.VyaparLoader.playHaptic(freq1, freq2, 0.025, 0.12);
+        return;
+      }
       try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!AudioContext) return;
@@ -1135,48 +994,119 @@
       } catch (e) {}
     }
 
-    // 4. Form Submit & Godly Wave Loading Animation
-    function handleAuthSubmit(event) {
-      event.preventDefault();
-      playHaptic(200, 60);
+    // 4. Credential Validation Rules (Merchant PIN & Phone)
+    function validateCredentials(phone, pin) {
+      const cleanPin = (pin || '').trim().replace(/\s+/g, '');
+      const cleanPhone = (phone || '').replace(/\D/g, '');
 
-      const name = (document.getElementById('userNameInput').value || 'अथर्व आवाटे').trim();
-      const number = (document.getElementById('userNumberInput').value || '+91 95798 69506').trim();
-      const code = (document.getElementById('secretCodeInput').value || '957986').trim();
-      
-      // Store authenticated merchant session locked to Single Store
-      localStorage.setItem('vyaparai_auth_user', JSON.stringify({
-        name: name,
-        phone: number,
-        store: 'अथर्व किराणा स्टोअर्स, कोल्हापूर',
-        vendor_id: 'DEMO_KIRANA_KOP'
-      }));
-      localStorage.setItem('vyaparai_auth_token', 'AUTH_TOKEN_ATHARVA_' + Date.now());
+      if (!cleanPin) {
+        return { valid: false, error: 'कृपया अधिकृत व्यापारी सिक्रेट पिन प्रविष्ट करा (Enter Merchant PIN).' };
+      }
+      if (cleanPhone.length < 10) {
+        return { valid: false, error: 'कृपया वैध १० अंकी मोबाईल नंबर प्रविष्ट करा (Valid 10-digit mobile required).' };
+      }
 
-      const loader = document.getElementById('godlyLoaderScreen');
-      const phrase = document.getElementById('loaderDynamicPhrase');
-      const progress = document.getElementById('loaderProgressBar');
-      if (loader) loader.classList.add('active');
-
-      const steps = [
-        { pct: 25, text: "Verifying Kirana Vendor Security Token (DEMO_KIRANA_KOP)...", delay: 300 },
-        { pct: 55, text: "Connecting to Cloud Supabase & Kolhapur Catalog...", delay: 750 },
-        { pct: 85, text: "Synchronizing WhatsApp Voice & 30-min Auto-Undo Engine...", delay: 1250 },
-        { pct: 100, text: `Welcome, ${name.split(' ')[0]}! Calacatta OS Ready...`, delay: 1750 }
+      // Authorized PIN list (Atharva Awate, Venkatesh Pai, SIH Demo Master PINs)
+      const authorizedPins = [
+        '957986', '9579869506', '9579', 
+        '982201', '9822012345', '9822',
+        '1234', '123456', '0000', '9999'
       ];
 
-      steps.forEach((step) => {
-        setTimeout(() => {
-          if (progress) progress.style.width = step.pct + '%';
-          if (phrase) phrase.textContent = step.text;
+      let isAllowed = false;
+      if (authorizedPins.includes(cleanPin)) {
+        isAllowed = true;
+      } else if (cleanPhone && cleanPin === cleanPhone) {
+        isAllowed = true; // Phone number accepted as PIN
+      } else if (cleanPhone && cleanPhone.slice(-6) === cleanPin) {
+        isAllowed = true; // Last 6 digits of phone accepted as PIN
+      } else if (cleanPin.length >= 4 && /^\d+$/.test(cleanPin)) {
+        isAllowed = true; // Any valid 4+ digit numeric PIN
+      }
 
-          if (step.pct === 100) {
-            setTimeout(() => {
-              window.location.href = 'index.html';
-            }, 400);
-          }
-        }, step.delay);
-      });
+      if (!isAllowed) {
+        return { 
+          valid: false, 
+          error: 'अवैध पिन कोड. कृपया अधिकृत पिन प्रविष्ट करा (उदा. 957986 / 1234 / 9822012345)' 
+        };
+      }
+
+      return { valid: true };
+    }
+
+    // 5. Form Submit & Godly Wave Loading Ingress
+    function handleAuthSubmit(event) {
+      event.preventDefault();
+
+      const nameInput = document.getElementById('userNameInput');
+      const numberInput = document.getElementById('userNumberInput');
+      const codeInput = document.getElementById('secretCodeInput');
+      const errBanner = document.getElementById('authErrorBanner');
+      const errText = document.getElementById('authErrorMsg');
+
+      const name = (nameInput.value || 'अथर्व आवाटे').trim();
+      const number = (numberInput.value || '+91 95798 69506').trim();
+      const code = (codeInput.value || '').trim();
+
+      // Validate Merchant Credentials
+      const validation = validateCredentials(number, code);
+      if (!validation.valid) {
+        if (errBanner) {
+          errBanner.classList.add('show');
+          if (errText) errText.textContent = validation.error;
+        }
+        codeInput.classList.add('shake-error');
+        playHaptic(100, 30);
+        setTimeout(() => codeInput.classList.remove('shake-error'), 450);
+        codeInput.focus();
+        return;
+      }
+
+      if (errBanner) errBanner.classList.remove('show');
+      playHaptic(200, 60);
+
+      // Determine Merchant Store Identity
+      const isVenkatesh = number.includes('9822') || name.includes('व्यंकटेश') || name.toLowerCase().includes('venkatesh');
+      const userRecord = {
+        name: name,
+        phone: number,
+        store: isVenkatesh ? 'व्यंकटेश ट्रेडर्स & प्रोव्हिजन, कोल्हापूर' : 'अथर्व किराणा स्टोअर्स, कोल्हापूर',
+        vendor_id: isVenkatesh ? 'DEMO_PAI_KOP' : 'DEMO_KIRANA_KOP',
+        role: 'owner',
+        authenticated_at: Date.now()
+      };
+
+      const storeRecord = {
+        vendor_id: userRecord.vendor_id,
+        name: userRecord.store,
+        proprietor: userRecord.name,
+        phone: userRecord.phone
+      };
+
+      // Persist authenticated merchant session in localStorage
+      localStorage.setItem('vyaparai_auth_user', JSON.stringify(userRecord));
+      localStorage.setItem('vyaparai_auth_token', 'AUTH_TOKEN_' + userRecord.vendor_id + '_' + Date.now());
+      localStorage.setItem('vyaparai_active_store', JSON.stringify(storeRecord));
+
+      // Trigger Godly Wave Loader with real-time transition to index.html
+      const firstName = name.split(' ')[0] || 'Vendor';
+      if (window.triggerGodlyWaveLoader) {
+        window.triggerGodlyWaveLoader({
+          redirect: 'index.html',
+          successPhrase: `Welcome, ${firstName}! Calacatta OS Ready...`,
+          steps: [
+            { pct: 25, text: `Verifying Kirana Vendor Security Token (${userRecord.vendor_id})...`, delay: 280 },
+            { pct: 55, text: "Connecting to Cloud Supabase & Kolhapur Catalog...", delay: 720 },
+            { pct: 85, text: "Synchronizing WhatsApp Voice & 30-min Auto-Undo Engine...", delay: 1200 },
+            { pct: 100, text: `Welcome, ${firstName}! Calacatta OS Ready...`, delay: 1700 }
+          ]
+        });
+      } else {
+        // Fallback in case loader script hasn't initialized
+        const loader = document.getElementById('godlyLoaderScreen');
+        if (loader) loader.classList.add('active');
+        setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+      }
     }
   </script>
   <script src="assets/godly-loader.js"></script>

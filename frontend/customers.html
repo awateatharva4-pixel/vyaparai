@@ -1181,13 +1181,66 @@
       transition: transform 0.4s var(--spring-snappy);
       pointer-events: none;
     }
-    .apple-toast.show {
+    .apple-toast.show, .apple-toast.visible {
       transform: translate3d(-50%, 0, 0);
     }
     .toast-icon {
       color: var(--apple-green);
       display: flex;
       align-items: center;
+    }
+
+    /* Vision Modals */
+    .vision-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 46, 49, 0.55);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      z-index: 120;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s var(--spring-snappy);
+    }
+    .vision-modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .vision-modal-sheet {
+      width: 90%;
+      background: rgba(255, 255, 255, 0.96);
+      border: var(--glass-border-specular);
+      border-radius: 24px;
+      box-shadow: var(--glass-shadow-floating);
+      padding: 26px 28px;
+      position: relative;
+      overflow: hidden;
+      transform: scale(0.92) translateY(14px);
+      transition: transform 0.35s var(--spring-snappy);
+    }
+    .vision-modal-backdrop.open .vision-modal-sheet {
+      transform: scale(1) translateY(0);
+    }
+    .pay-mode-pill {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-align: center;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .pay-mode-pill.active {
+      background: var(--emerald-800);
+      color: #fff;
+      border-color: var(--emerald-800);
+      box-shadow: 0 2px 8px var(--emerald-glow);
     }
 
     /* Responsive Breakpoints */
@@ -1359,7 +1412,7 @@
             <div class="metric-sub-card">
               <div class="metric-top-bar">
                 <span class="metric-title">Total Outstanding Udhar</span>
-                <span class="metric-pill-badge badge-green">38 Accounts</span>
+                <span class="metric-pill-badge badge-green" id="statKhataAccountsBadge">38 Accounts</span>
               </div>
               <div class="metric-value-num tabular-nums" id="statKhataTotal">₹42,800</div>
             </div>
@@ -1416,10 +1469,10 @@
               Customer Khata Directory (Kolhapur Wards)
             </h2>
             <div style="display: flex; gap: 8px;">
-              <button class="apple-pill-btn btn-stock" onclick="showAppleToast('WhatsApp Reminders sent to all 8 pending accounts!')">
+              <button class="apple-pill-btn btn-stock" id="btnBulkRemind" onclick="handleBulkRemind(this)" title="Send automated WhatsApp payment reminders to all pending accounts">
                 ⚡ 1-Click WhatsApp Reminders (All)
               </button>
-              <button class="restock-btn" onclick="showAppleToast('Opening New Khata Registration Modal...')">
+              <button class="restock-btn" onclick="openNewCustomerModal()" title="Add a new customer khata account">
                 + New Customer
               </button>
             </div>
@@ -1431,91 +1484,15 @@
                 <tr>
                   <th>Customer Name</th>
                   <th>Phone Number</th>
-                  <th>Kolhapur Locality</th>
+                  <th>Kolhapur Locality / Details</th>
                   <th style="text-align: right;">Outstanding Balance</th>
-                  <th>Last Payment</th>
-                  <th style="text-align: center;">Trust Score</th>
+                  <th>Last Payment / Due</th>
+                  <th style="text-align: center;">Trust Score / Status</th>
                   <th style="text-align: center;">Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Rahul Patil</strong></td>
-                  <td class="tabular-nums">+91 98220 14820</td>
-                  <td>Rajarampuri Ward 4</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold" style="color: var(--apple-coral);">₹3,450</td>
-                  <td>3 days ago (₹1,000)</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">98% High Trust</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('WhatsApp payment reminder sent to Rahul with UPI QR!')">Send Reminder ↗</button>
-                    <button class="apple-pill-btn btn-stock" style="margin-left: 4px;" onclick="showAppleToast('Payment collected: Recorded in Ledger')">Collect ₹</button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td><strong>Sunita Deshmukh</strong></td>
-                  <td class="tabular-nums">+91 94232 55100</td>
-                  <td>Shahupuri 2nd Lane</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">₹1,200</td>
-                  <td>Yesterday (₹500)</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">95% High Trust</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('WhatsApp reminder sent to Sunita!')">Send Reminder ↗</button>
-                    <button class="apple-pill-btn btn-stock" style="margin-left: 4px;" onclick="showAppleToast('Payment collected')">Collect ₹</button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td><strong>Anand Traders</strong></td>
-                  <td class="tabular-nums">+91 98901 88234</td>
-                  <td>Market Yard Depot</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">₹8,900</td>
-                  <td>18 days ago (₹4,000)</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">88% Verified</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Formal Statement PDF sent on WhatsApp!')">Send Statement ↗</button>
-                    <button class="apple-pill-btn btn-stock" style="margin-left: 4px;" onclick="showAppleToast('Payment collected')">Collect ₹</button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td><strong>Prakash Rao</strong></td>
-                  <td class="tabular-nums">+91 97631 22910</td>
-                  <td>Tarabai Park</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold" style="color: var(--apple-coral);">₹4,800</td>
-                  <td>34 days ago</td>
-                  <td style="text-align: center;"><span class="status-pill status-low">64% Overdue</span></td>
-                  <td style="text-align: center;">
-                    <button class="restock-btn" onclick="showAppleToast('Urgent Overdue Notice sent on WhatsApp!')">Urgent Notice ↗</button>
-                    <button class="apple-pill-btn btn-stock" style="margin-left: 4px;" onclick="showAppleToast('Payment collected')">Collect ₹</button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td><strong>Shrikant Joshi</strong></td>
-                  <td class="tabular-nums">+91 99224 77312</td>
-                  <td>Rankala Chowk</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold">₹2,150</td>
-                  <td>12 days ago (₹800)</td>
-                  <td style="text-align: center;"><span class="status-pill status-in">92% Reliable</span></td>
-                  <td style="text-align: center;">
-                    <button class="apple-pill-btn btn-stock" onclick="showAppleToast('Reminder sent with Google Pay link!')">Send Reminder ↗</button>
-                    <button class="apple-pill-btn btn-stock" style="margin-left: 4px;" onclick="showAppleToast('Payment collected')">Collect ₹</button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td><strong>Mahesh Kadam</strong></td>
-                  <td class="tabular-nums">+91 98812 33490</td>
-                  <td>Mangalwar Peth</td>
-                  <td style="text-align: right;" class="tabular-nums font-bold" style="color: var(--apple-coral);">₹6,400</td>
-                  <td>45 days ago</td>
-                  <td style="text-align: center;"><span class="status-pill status-low">52% High Risk</span></td>
-                  <td style="text-align: center;">
-                    <button class="restock-btn" onclick="showAppleToast('Legal Khata Notice drafted and sent via WhatsApp!')">Send Notice ↗</button>
-                    <button class="apple-pill-btn btn-stock" style="margin-left: 4px;" onclick="showAppleToast('Payment collected')">Collect ₹</button>
-                  </td>
-                </tr>
+              <tbody id="khataTableBody">
+                <!-- Dynamically rendered via VyaparCore / Live Sync -->
               </tbody>
             </table>
           </div>
@@ -1536,12 +1513,12 @@
 
           <div style="background: rgba(255, 255, 255, 0.65); padding: 14px 18px; border-radius: 14px; border: var(--glass-border-subtle); display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <div style="font-weight: 600; color: var(--emerald-900); margin-bottom: 4px;">Smart Marathi Polite Format:</div>
-              <div style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.5;">
-                "नमस्कार <strong>[Customer Name]</strong> जी, गणेश किराणा स्टोअर्सकडून नम्र स्मरणपत्र. आपले <strong>₹[Amount]</strong> बाकी आहेत. कृपया सोयीनुसार खालील लिंकवर क्लिक करून UPI द्वारे पेमेंट करावे: <span style="color: var(--apple-blue);">upi://pay?pa=ganeshkirana@upi</span>. धन्यवाद!"
+              <div style="font-weight: 600; color: var(--emerald-900); margin-bottom: 4px;">Smart Marathi Polite Vernacular Format:</div>
+              <div style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.5;" id="marathiTemplateText">
+                "🙏 नमस्कार <strong>[Customer Name] शेठ</strong>! आपल्या <strong>अथर्व किराणा स्टोअर्स</strong>मधील <strong>₹[Amount]</strong> चे उधारी बिल प्रलंबित आहे. कृपया सवडीने Google Pay किंवा रोख भरणा करावा ही नम्र विनंती. - अथर्व किराणा स्टोअर्स 🏪"
               </div>
             </div>
-            <button class="restock-btn" style="white-space: nowrap; margin-left: 20px;" onclick="showAppleToast('Test template sent to shopkeeper phone!')">
+            <button class="restock-btn" style="white-space: nowrap; margin-left: 20px;" onclick="testWhatsAppTemplate()">
               Test on WhatsApp ↗
             </button>
           </div>
@@ -1612,6 +1589,163 @@
       </svg>
     </div>
     <span id="appleToastMessage">Action completed successfully</span>
+  </div>
+
+  <!-- 5. Apple Vision Modal: Settle Khata (जमा करा / पेमेंट) -->
+  <div class="vision-modal-backdrop" id="settleKhataModalBackdrop" onclick="if(event.target.id==='settleKhataModalBackdrop') closeSettleModal()">
+    <div class="vision-modal-sheet" style="max-width: 490px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="badge-icon-box green-box" style="width: 36px; height: 36px; border-radius: 10px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--emerald-900);">उधारी जमा करा (Settle Khata)</h3>
+            <p style="font-size: 0.78rem; color: var(--text-tertiary);">Record customer payment into relational database</p>
+          </div>
+        </div>
+        <button class="close-drawer-btn" onclick="closeSettleModal()" style="font-size: 1rem; width: 32px; height: 32px;">✕</button>
+      </div>
+
+      <input type="hidden" id="settleCreditId" />
+
+      <div style="background: var(--bg-marble-cream); border: var(--glass-border-subtle); border-radius: 14px; padding: 14px 16px; margin-bottom: 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="font-size: 0.8rem; color: var(--text-tertiary);">Customer Name</span>
+          <strong id="settleCustomerName" style="color: var(--text-primary); font-size: 0.95rem;">—</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="font-size: 0.8rem; color: var(--text-tertiary);">WhatsApp Phone</span>
+          <span id="settleCustomerPhone" class="tabular-nums" style="font-size: 0.85rem; color: var(--text-secondary);">—</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px dashed rgba(0,0,0,0.12);">
+          <span style="font-size: 0.84rem; font-weight: 600; color: var(--emerald-900);">Current Outstanding</span>
+          <span id="settleCurrentBalance" class="tabular-nums font-bold" style="font-size: 1.15rem; color: var(--apple-coral);">₹0</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">
+          Payment Amount (जमा रक्कम ₹) *
+        </label>
+        <input type="number" id="settleAmountInput" class="apple-search-input" style="width: 100%; font-size: 1.15rem; font-weight: 700; color: var(--emerald-900); padding: 10px 14px; background: #fff; border: 1.5px solid var(--emerald-500); border-radius: 12px;" placeholder="उदा. 450" />
+        <div style="display: flex; gap: 6px; margin-top: 8px;">
+          <button type="button" class="apple-pill-btn" onclick="setQuickSettleAmount(1.0)" style="font-size: 0.72rem; padding: 4px 10px;">Full Settle (पूर्ण जमा)</button>
+          <button type="button" class="apple-pill-btn" onclick="setQuickSettleAmount(0.5)" style="font-size: 0.72rem; padding: 4px 10px;">50% Partial</button>
+          <button type="button" class="apple-pill-btn" onclick="setQuickSettleAmount(100, true)" style="font-size: 0.72rem; padding: 4px 10px;">₹100</button>
+          <button type="button" class="apple-pill-btn" onclick="setQuickSettleAmount(500, true)" style="font-size: 0.72rem; padding: 4px 10px;">₹500</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">
+          Payment Mode (पेमेंट प्रकार)
+        </label>
+        <div style="display: flex; gap: 8px;">
+          <div class="pay-mode-pill active" id="modeCashPill" onclick="selectPayMode('CASH')">
+            💵 Cash (रोख)
+          </div>
+          <div class="pay-mode-pill" id="modeUpiPill" onclick="selectPayMode('UPI')">
+            📱 UPI / Soundbox
+          </div>
+          <div class="pay-mode-pill" id="modeBankPill" onclick="selectPayMode('BANK')">
+            🏦 Bank Transfer
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">
+          Notes / पावती शेरा (Optional)
+        </label>
+        <input type="text" id="settleNotesInput" class="apple-search-input" style="width: 100%; font-size: 0.85rem; padding: 10px 12px; background: #fff; border-radius: 10px;" placeholder="उदा. गुगल पे द्वारे प्राप्त" />
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button class="apple-pill-btn" onclick="closeSettleModal()" style="flex: 1; padding: 12px; font-weight: 600;">रद्द करा (Cancel)</button>
+        <button class="restock-btn" id="confirmSettleBtn" onclick="confirmKhataSettlement()" style="flex: 2; padding: 12px; font-weight: 700; font-size: 0.95rem; justify-content: center; background: var(--emerald-700);">
+          जमा नोंदवा (Confirm Payment) ✓
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Apple Vision Modal: Add New Customer / Account (+ New Customer) -->
+  <div class="vision-modal-backdrop" id="newCustomerModalBackdrop" onclick="if(event.target.id==='newCustomerModalBackdrop') closeNewCustomerModal()">
+    <div class="vision-modal-sheet" style="max-width: 520px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="badge-icon-box green-box" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(0, 113, 227, 0.12); color: var(--apple-blue);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+          </div>
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--emerald-900);">नवीन खाते जोडा (Add New Khata)</h3>
+            <p style="font-size: 0.78rem; color: var(--text-tertiary);">Open a new customer ledger account in database</p>
+          </div>
+        </div>
+        <button class="close-drawer-btn" onclick="closeNewCustomerModal()" style="font-size: 1rem; width: 32px; height: 32px;">✕</button>
+      </div>
+
+      <form id="newCustomerForm" onsubmit="handleNewCustomerSubmit(event)">
+        <div style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">
+            Customer Full Name (ग्राहकाचे नाव) *
+          </label>
+          <input type="text" id="newCustName" required class="apple-search-input" style="width: 100%; font-size: 0.9rem; padding: 10px 14px; background: #fff; border-radius: 10px;" placeholder="उदा. तानाजी जाधव (Tanaji Jadhav)" />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">
+              WhatsApp Phone *
+            </label>
+            <input type="tel" id="newCustPhone" required class="apple-search-input tabular-nums" style="width: 100%; font-size: 0.9rem; padding: 10px 14px; background: #fff; border-radius: 10px;" placeholder="+91 98221 55667" />
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">
+              Kolhapur Locality / Area
+            </label>
+            <input type="text" id="newCustArea" class="apple-search-input" style="width: 100%; font-size: 0.9rem; padding: 10px 14px; background: #fff; border-radius: 10px;" placeholder="उदा. Rajarampuri 3rd Lane" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">
+              Opening Udhar (सुरुवातीची उधारी ₹)
+            </label>
+            <input type="number" id="newCustAmount" min="0" step="1" value="0" class="apple-search-input tabular-nums" style="width: 100%; font-size: 0.9rem; padding: 10px 14px; background: #fff; border-radius: 10px;" />
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">
+              Due Date (मुदत तारीख)
+            </label>
+            <input type="text" id="newCustDueDate" class="apple-search-input" style="width: 100%; font-size: 0.9rem; padding: 10px 14px; background: #fff; border-radius: 10px;" placeholder="उदा. 2026-10-30 किंवा तात्काळ" />
+          </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">
+            Notes / सुरुवातीचा तपशील (Notes / Items)
+          </label>
+          <input type="text" id="newCustNotes" class="apple-search-input" style="width: 100%; font-size: 0.85rem; padding: 10px 12px; background: #fff; border-radius: 10px;" placeholder="उदा. २ किलो साखर + १ लिटर तेल" />
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="apple-pill-btn" onclick="closeNewCustomerModal()" style="flex: 1; padding: 12px; font-weight: 600;">रद्द करा (Cancel)</button>
+          <button type="submit" class="restock-btn" id="saveNewCustomerBtn" style="flex: 2; padding: 12px; font-weight: 700; font-size: 0.95rem; justify-content: center; background: var(--emerald-700);">
+            खाते तयार करा (Open Account) ✓
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- Apple-Grade Micro-Interactions, Haptics & Sync -->
@@ -1716,7 +1850,7 @@
       }
     }
 
-    const dukaans = ['All Dukaans', 'Ganesh Kirana (Shahupuri)', 'Laxmi Stores (Rajarampuri)', 'Kolhapur Central Depot'];
+    const dukaans = ['All Dukaans', 'अथर्व किराणा स्टोअर्स (DEMO_KIRANA_KOP)', 'गणेश किराणा (Shahupuri)', 'लक्ष्मी स्टोअर्स (Rajarampuri)'];
     let dIndex = 0;
     function cycleDukaans() {
       dIndex = (dIndex + 1) % dukaans.length;
@@ -1727,13 +1861,303 @@
       }
     }
 
-    function handleTableSearch(val) {
-      val = val.toLowerCase().trim();
-      const rows = document.querySelectorAll('table tbody tr');
-      rows.forEach(r => {
-        const txt = r.textContent.toLowerCase();
-        r.style.display = txt.includes(val) ? '' : 'none';
+    let currentLedger = [];
+    let activePayMode = 'CASH';
+
+    function selectPayMode(mode) {
+      activePayMode = mode;
+      document.querySelectorAll('.pay-mode-pill').forEach(p => p.classList.remove('active'));
+      const pill = document.getElementById(`mode${mode.charAt(0) + mode.slice(1).toLowerCase()}Pill`);
+      if (pill) pill.classList.add('active');
+      haptics.playTick();
+    }
+
+    function setQuickSettleAmount(factorOrVal, isAbsolute = false) {
+      const curBal = parseFloat(document.getElementById('settleCreditId').dataset.balance || 0);
+      const inp = document.getElementById('settleAmountInput');
+      if (!inp) return;
+      if (isAbsolute) {
+        inp.value = Math.min(curBal, factorOrVal);
+      } else {
+        inp.value = Math.max(0, Math.round(curBal * factorOrVal));
+      }
+      haptics.playTick();
+    }
+
+    function openSettleModal(creditId, custName, phone, currentAmt) {
+      const backdrop = document.getElementById('settleKhataModalBackdrop');
+      if (!backdrop) return;
+      document.getElementById('settleCreditId').value = creditId;
+      document.getElementById('settleCreditId').dataset.balance = currentAmt;
+      document.getElementById('settleCustomerName').textContent = custName;
+      document.getElementById('settleCustomerPhone').textContent = phone;
+      document.getElementById('settleCurrentBalance').textContent = `₹${inrFormatter.format(currentAmt)}`;
+      document.getElementById('settleAmountInput').value = currentAmt;
+      document.getElementById('settleNotesInput').value = '';
+      selectPayMode('CASH');
+      backdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      haptics.playTick();
+      setTimeout(() => {
+        const inp = document.getElementById('settleAmountInput');
+        if (inp) { inp.focus(); inp.select(); }
+      }, 100);
+    }
+
+    function closeSettleModal() {
+      const backdrop = document.getElementById('settleKhataModalBackdrop');
+      if (backdrop) backdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    async function confirmKhataSettlement() {
+      const creditId = document.getElementById('settleCreditId').value;
+      const custName = document.getElementById('settleCustomerName').textContent;
+      const amt = parseFloat(document.getElementById('settleAmountInput').value);
+      const notes = document.getElementById('settleNotesInput').value;
+      const btn = document.getElementById('confirmSettleBtn');
+
+      if (isNaN(amt) || amt <= 0) {
+        showAppleToast('कृपया वैध रक्कम टाका (Enter valid payment amount)');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'जमा होत आहे...';
+
+      try {
+        const result = await VyaparCore.settleKhata(creditId, amt, activePayMode, notes);
+        closeSettleModal();
+        showAppleToast(`₹${inrFormatter.format(amt)} जमा यशस्वी (${custName})!`);
+        haptics.playSuccess();
+        await refreshKhataData();
+      } catch (err) {
+        console.error('Settlement error', err);
+        showAppleToast('पेमेंट नोंदवण्यात त्रुटी आली. कृपया पुन्हा प्रयत्न करा.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'जमा नोंदवा (Confirm Payment) ✓';
+      }
+    }
+
+    function openNewCustomerModal() {
+      const backdrop = document.getElementById('newCustomerModalBackdrop');
+      if (!backdrop) return;
+      document.getElementById('newCustomerForm').reset();
+      backdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      haptics.playTick();
+      setTimeout(() => {
+        const inp = document.getElementById('newCustName');
+        if (inp) inp.focus();
+      }, 100);
+    }
+
+    function closeNewCustomerModal() {
+      const backdrop = document.getElementById('newCustomerModalBackdrop');
+      if (backdrop) backdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    async function handleNewCustomerSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('newCustName').value.trim();
+      const phone = document.getElementById('newCustPhone').value.trim();
+      const area = document.getElementById('newCustArea').value.trim();
+      const amount = parseFloat(document.getElementById('newCustAmount').value) || 0;
+      const dueDate = document.getElementById('newCustDueDate').value.trim() || 'तात्काळ (Immediate)';
+      const notes = document.getElementById('newCustNotes').value.trim() || area || 'Counter Udhar';
+      const btn = document.getElementById('saveNewCustomerBtn');
+
+      if (!name || !phone) {
+        showAppleToast('नाव आणि मोबाईल नंबर आवश्यक आहे');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'खाते तयार होत आहे...';
+
+      try {
+        await VyaparCore.createCustomerAccount({
+          customer_name: name,
+          customer_phone: phone,
+          amount_due: amount,
+          vendor_id: "DEMO_KIRANA_KOP",
+          due_date: dueDate,
+          notes: notes
+        });
+        closeNewCustomerModal();
+        showAppleToast(`नवीन खाते सुरू झाले: ${name} (₹${amount})!`);
+        haptics.playSuccess();
+        await refreshKhataData();
+      } catch (err) {
+        console.error('Account creation error', err);
+        showAppleToast('खाते उघडण्यात त्रुटी आली.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'खाते तयार करा (Open Account) ✓';
+      }
+    }
+
+    async function handleSendReminder(creditId, custName, phone, amount) {
+      showAppleToast(`WhatsApp reminder dispatched to ${custName}...`);
+      haptics.playTick();
+
+      try {
+        await VyaparCore.sendUdharReminder(creditId, true);
+      } catch (e) {
+        console.warn('Backend reminder error', e);
+      }
+
+      const linkInfo = VyaparCore.getWhatsAppReminderLink({
+        customer_name: custName,
+        customer_phone: phone,
+        amount_due: amount
       });
+      window.open(linkInfo.waUrl, '_blank');
+      showAppleToast(`WhatsApp reminder sent to ${custName} (₹${amount})!`);
+      haptics.playSuccess();
+      await refreshKhataData();
+    }
+
+    async function handleBulkRemind(btn) {
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '⚡ Reminding All...';
+      }
+      showAppleToast('Sending bulk WhatsApp reminders to pending accounts...');
+      haptics.playTick();
+
+      try {
+        const res = await VyaparCore.bulkRemindUdhar("DEMO_KIRANA_KOP");
+        const count = res && res.reminded_count !== undefined ? res.reminded_count : currentLedger.filter(c => (c.amount_due || c.udhar) > 0).length;
+        showAppleToast(`Dispatched polite Marathi reminders to ${count} pending accounts!`);
+        haptics.playSuccess();
+        await refreshKhataData();
+      } catch (e) {
+        console.error('Bulk remind failed', e);
+        showAppleToast('Bulk reminder completed.');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '⚡ 1-Click WhatsApp Reminders (All)';
+        }
+      }
+    }
+
+    function testWhatsAppTemplate() {
+      const link = VyaparCore.getWhatsAppReminderLink({
+        customer_name: "शंकरराव पाटील",
+        customer_phone: "+919579869506",
+        amount_due: 840
+      });
+      window.open(link.waUrl, '_blank');
+      showAppleToast('Opening WhatsApp with verified Kolhapur Marathi template...');
+      haptics.playSuccess();
+    }
+
+    function renderKhataTable(records) {
+      const tbody = document.getElementById('khataTableBody');
+      if (!tbody) return;
+
+      if (!records || records.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--text-tertiary);">No customer records found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = records.map(c => {
+        const id = c.id;
+        const name = c.customer_name || c.name || 'Unnamed Customer';
+        const phone = c.customer_phone || c.phone || '—';
+        const area = c.notes || c.area || c.locality || 'Rajarampuri, Kolhapur';
+        const amt = parseFloat(c.amount_due !== undefined ? c.amount_due : (c.udhar || 0));
+        const status = c.status || (amt > 0 ? 'PENDING' : 'PAID');
+        const lastTx = c.last_reminder_sent ? `Reminded (${new Date(c.last_reminder_sent).toLocaleDateString()})` : (c.due_date ? `Due: ${c.due_date}` : (c.last_tx || 'Recent'));
+
+        let trustPill = `<span class="status-pill status-in">95% High Trust</span>`;
+        if (status === 'PAID' || amt === 0) {
+          trustPill = `<span class="status-pill status-in" style="background: rgba(40,205,65,0.15); color: var(--apple-green);">Settled / शून्य बाकी</span>`;
+        } else if (amt >= 700 || status === 'OVERDUE') {
+          trustPill = `<span class="status-pill status-low">Critical Overdue</span>`;
+        }
+
+        const amtColor = amt > 0 ? 'color: var(--apple-coral);' : 'color: var(--apple-green);';
+        const safeName = name.replace(/'/g, "\\'");
+
+        return `
+          <tr data-customer-id="${id}">
+            <td><strong>${name}</strong></td>
+            <td class="tabular-nums">${phone}</td>
+            <td style="font-size: 0.82rem; color: var(--text-secondary);">${area}</td>
+            <td style="text-align: right; ${amtColor}" class="tabular-nums font-bold">₹${inrFormatter.format(amt)}</td>
+            <td style="font-size: 0.8rem; color: var(--text-tertiary);">${lastTx}</td>
+            <td style="text-align: center;">${trustPill}</td>
+            <td style="text-align: center; white-space: nowrap;">
+              <button class="apple-pill-btn btn-stock" onclick="handleSendReminder('${id}', '${safeName}', '${phone}', ${amt})" title="Send WhatsApp reminder with Marathi template">
+                Send Reminder ↗
+              </button>
+              <button class="apple-pill-btn btn-stock" style="margin-left: 4px; background: rgba(40, 205, 65, 0.12); color: var(--apple-green); border-color: rgba(40, 205, 65, 0.3);" onclick="openSettleModal('${id}', '${safeName}', '${phone}', ${amt})" title="Settle or record partial/full payment">
+                जमा करा (₹)
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function refreshKhataData() {
+      try {
+        const ledger = await VyaparCore.getUdharLedger();
+        if (ledger && Array.isArray(ledger) && ledger.length > 0) {
+          currentLedger = ledger;
+          renderKhataTable(currentLedger);
+          updateMetricsUI(currentLedger);
+        }
+      } catch (e) {
+        console.warn('Refresh khata data fallback', e);
+      }
+    }
+
+    function updateMetricsUI(records) {
+      if (!records) return;
+      let totalUdhar = 0;
+      let pendingCount = 0;
+      let overdueTotal = 0;
+
+      records.forEach(c => {
+        const amt = parseFloat(c.amount_due !== undefined ? c.amount_due : (c.udhar || 0));
+        if (amt > 0) {
+          totalUdhar += amt;
+          pendingCount++;
+          if (amt >= 700 || c.status === 'OVERDUE') {
+            overdueTotal += amt;
+          }
+        }
+      });
+
+      const statTotal = document.getElementById('statKhataTotal');
+      if (statTotal) statTotal.textContent = `₹${inrFormatter.format(totalUdhar)}`;
+
+      const statBadge = document.getElementById('statKhataAccountsBadge');
+      if (statBadge) statBadge.textContent = `${pendingCount} Accounts Pending`;
+
+      const statOver = document.getElementById('statOverdue');
+      if (statOver) statOver.textContent = `₹${inrFormatter.format(overdueTotal)}`;
+    }
+
+    function handleTableSearch(val) {
+      val = (val || '').toLowerCase().trim();
+      if (!val) {
+        renderKhataTable(currentLedger);
+        return;
+      }
+      const filtered = currentLedger.filter(c => {
+        const name = (c.customer_name || c.name || '').toLowerCase();
+        const phone = (c.customer_phone || c.phone || '').toLowerCase();
+        const area = (c.notes || c.area || '').toLowerCase();
+        return name.includes(val) || phone.includes(val) || area.includes(val);
+      });
+      renderKhataTable(filtered);
     }
 
     function animateCounter(id, start, end, duration, prefix = '') {
@@ -1771,6 +2195,8 @@
         }
       }
       if (e.key === 'Escape') {
+        closeSettleModal();
+        closeNewCustomerModal();
         const backdrop = document.getElementById('iphoneDrawerBackdrop');
         if (backdrop && backdrop.classList.contains('open')) {
           toggleWhatsAppDrawer();
@@ -1778,11 +2204,20 @@
       }
     });
 
-    
-    document.addEventListener('DOMContentLoaded', () => {
-      animateCounter('statKhataTotal', 0, 42800, 1100, '₹');
-      animateCounter('statRecovered', 0, 68500, 1000, '₹');
-      animateCounter('statOverdue', 0, 6400, 800, '₹');
+    document.addEventListener('DOMContentLoaded', async () => {
+      await refreshKhataData();
+
+      VyaparCore.startLiveSync((event, data) => {
+        if (event === 'UDHAR_LEDGER_UPDATED' && Array.isArray(data)) {
+          currentLedger = data;
+          renderKhataTable(currentLedger);
+          updateMetricsUI(currentLedger);
+        } else if (event === 'METRICS_UPDATE' && data && data.udhar_ledger) {
+          currentLedger = data.udhar_ledger;
+          renderKhataTable(currentLedger);
+          updateMetricsUI(currentLedger);
+        }
+      });
 
       const ctx = document.getElementById('khataRecoveryChart');
       if (ctx) {

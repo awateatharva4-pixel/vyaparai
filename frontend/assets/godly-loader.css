@@ -1,0 +1,270 @@
+/* ==========================================================================
+   VyaparAI Godly Concentric Wave Loading Screen Styles
+   Apple Blue rgba(0, 113, 227, 0.6) & Florentine Gold rgba(201, 169, 110, 0.4)
+   60 FPS GPU-Accelerated Keyframes • 4 Concentric Pulsing Rings
+   ========================================================================== */
+
+.godly-loader-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(249, 246, 240, 0.94);
+  backdrop-filter: blur(36px) saturate(190%) contrast(102%);
+  -webkit-backdrop-filter: blur(36px) saturate(190%) contrast(102%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.godly-loader-screen.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Central Stage Container */
+.logo-wave-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 10;
+  cursor: default;
+}
+
+/* Ambient Radial Halo Behind Logo */
+.wave-ambient-halo {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle, 
+    rgba(0, 113, 227, 0.32) 0%, 
+    rgba(201, 169, 110, 0.24) 40%, 
+    rgba(0, 113, 227, 0.08) 65%, 
+    transparent 80%
+  );
+  filter: blur(16px);
+  pointer-events: none;
+  z-index: 2;
+  animation: haloBreath 3.2s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+@keyframes haloBreath {
+  0% { transform: scale(0.9) translateZ(0); opacity: 0.7; }
+  100% { transform: scale(1.25) translateZ(0); opacity: 1; }
+}
+
+/* Concentric Expanding Ripple Waves with Dual-Tone Glow */
+.wave-rings-container {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.wave-ring {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.65) translateZ(0);
+  transform-origin: center center;
+  animation: waveSpread 3.6s cubic-bezier(0.12, 0.8, 0.24, 1) infinite;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+.wave-ring.wave-1 {
+  animation-delay: 0s;
+  border: 2px solid rgba(0, 113, 227, 0.85);
+  box-shadow: 
+    0 0 28px rgba(0, 113, 227, 0.6),
+    0 0 55px rgba(201, 169, 110, 0.4),
+    inset 0 0 18px rgba(0, 113, 227, 0.35);
+}
+
+.wave-ring.wave-2 {
+  animation-delay: 0.9s;
+  border: 2px solid rgba(201, 169, 110, 0.85);
+  box-shadow: 
+    0 0 35px rgba(201, 169, 110, 0.45),
+    0 0 70px rgba(0, 113, 227, 0.5),
+    inset 0 0 22px rgba(201, 169, 110, 0.35);
+}
+
+.wave-ring.wave-3 {
+  animation-delay: 1.8s;
+  border: 2px solid rgba(0, 113, 227, 0.75);
+  box-shadow: 
+    0 0 45px rgba(0, 113, 227, 0.6),
+    0 0 90px rgba(201, 169, 110, 0.4),
+    inset 0 0 26px rgba(0, 113, 227, 0.3);
+}
+
+.wave-ring.wave-4 {
+  animation-delay: 2.7s;
+  border: 2px solid rgba(201, 169, 110, 0.8);
+  box-shadow: 
+    0 0 58px rgba(201, 169, 110, 0.4),
+    0 0 110px rgba(0, 113, 227, 0.55),
+    inset 0 0 32px rgba(201, 169, 110, 0.25);
+}
+
+@keyframes waveSpread {
+  0% {
+    transform: scale(0.65) translateZ(0);
+    opacity: 0.95;
+  }
+  25% {
+    opacity: 0.82;
+  }
+  60% {
+    opacity: 0.42;
+  }
+  100% {
+    transform: scale(30) translateZ(0);
+    opacity: 0;
+  }
+}
+
+/* Central 3D Floating Logo Card */
+.central-logo-card {
+  width: 104px;
+  height: 104px;
+  border-radius: 26px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  z-index: 5;
+  animation: logoBreathing 2.8s ease-in-out infinite alternate;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.central-logo-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 26px;
+  object-fit: cover;
+  box-shadow: 
+    0 16px 42px rgba(0, 113, 227, 0.4),
+    0 6px 20px rgba(201, 169, 110, 0.32),
+    0 2px 8px rgba(0, 0, 0, 0.12),
+    inset 0 1px 2px rgba(255, 255, 255, 0.95);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+}
+
+@keyframes logoBreathing {
+  0% { transform: translateY(0px) scale(1) translateZ(0); }
+  100% { transform: translateY(-8px) scale(1.05) translateZ(0); }
+}
+
+/* Status Text Block */
+.loader-status-block {
+  margin-top: 36px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 5;
+}
+
+.loader-brand-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #134e4a;
+  letter-spacing: -0.015em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loader-brand-title span.luxury-tag {
+  font-family: 'Cinzel', serif;
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  color: #b58900;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding-left: 6px;
+  border-left: 1px solid rgba(201, 169, 110, 0.4);
+}
+
+.loader-dynamic-phrase {
+  font-size: 0.86rem;
+  font-weight: 550;
+  color: #059669;
+  min-height: 22px;
+  transition: all 0.24s ease;
+}
+
+.loader-progress-track {
+  width: 240px;
+  height: 4px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin-top: 6px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.loader-progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #0071e3 0%, #c9a96e 50%, #25d366 100%);
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Floating Preview Controls Bar */
+.godly-preview-controls-bar {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 100;
+}
+
+.godly-preview-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(201, 169, 110, 0.4);
+  color: #134e4a;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.godly-preview-pill-btn:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 113, 227, 0.5);
+}

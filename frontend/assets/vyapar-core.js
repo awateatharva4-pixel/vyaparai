@@ -266,6 +266,7 @@ const VyaparCore = (function() {
   // Storage Keys
   const KEY_SKUS = "vyapar_inventory_skus_v3";
   const KEY_CUSTOMERS = "vyapar_customers";
+  const KEY_UDHAR = "vyapar_udhar_ledger";
   const KEY_TX = "vyapar_transactions";
   const KEY_ORDERS = "vyapar_pending_orders";
   const KEY_STORE = "vyapar_active_dukaan";
@@ -296,33 +297,53 @@ const VyaparCore = (function() {
   // Active State
   let skus = load(KEY_SKUS, DEFAULT_SKUS);
   let customers = load(KEY_CUSTOMERS, DEFAULT_CUSTOMERS);
+  let udharLedger = load(KEY_UDHAR, []);
   let transactions = load(KEY_TX, DEFAULT_TRANSACTIONS);
   let pendingOrders = load(KEY_ORDERS, DEFAULT_PENDING_ORDERS);
   let activeDukaan = (typeof localStorage !== 'undefined' ? localStorage.getItem(KEY_STORE) : null) || "अथर्व किराणा स्टोअर्स, कोल्हापूर (DEMO_KIRANA_KOP)";
 
-  // Backend URL configuration (Seamless for Render cloud HTTPS, localhost:8000, or file://)
+  // Backend URL configuration with Automatic Health Probe Fallback
   const RENDER_PROD_URL = "https://vyaparai-oddf.onrender.com";
+  let resolvedBackendUrl = null;
 
   function getBackendUrl() {
+    if (resolvedBackendUrl) return resolvedBackendUrl;
     if (typeof window !== 'undefined' && window.location) {
       const origin = window.location.origin || "";
       const host = window.location.host || "";
       const protocol = window.location.protocol || "";
-      if (host.includes("render.com")) {
-        return origin;
-      }
-      if (host.includes(":8000")) {
-        return origin;
-      }
-      // If accessed via file://, localhost, 127.0.0.1, Live Server (port 5500/3000), point to local FastAPI uvicorn on port 8000!
-      if (protocol === "file:" || host.includes("localhost") || host.includes("127.0.0.1") || origin === "null") {
-        return "http://localhost:8000";
+      if (host.includes("render.com") || host.includes(":8000")) {
+        return (resolvedBackendUrl = origin);
       }
       const customUrl = (typeof localStorage !== 'undefined') ? localStorage.getItem("VYAPAR_BACKEND_URL") : null;
-      if (customUrl) return customUrl;
-      return "http://localhost:8000";
+      if (customUrl) return (resolvedBackendUrl = customUrl);
+      if (protocol === "file:" || origin === "null") {
+        // Default to localhost, but probe will switch to Render if offline
+        return resolvedBackendUrl || "http://localhost:8000";
+      }
+      return origin || "http://localhost:8000";
     }
     return "http://localhost:8000";
+  }
+
+  async function probeBackendUrl() {
+    if (resolvedBackendUrl && !resolvedBackendUrl.includes("localhost")) return resolvedBackendUrl;
+    if (typeof window !== 'undefined' && window.location && window.location.host.includes("render.com")) {
+      return (resolvedBackendUrl = window.location.origin);
+    }
+    try {
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 650);
+      const res = await fetch("http://localhost:8000/health", { signal: ctrl.signal });
+      clearTimeout(tid);
+      if (res.ok) {
+        resolvedBackendUrl = "http://localhost:8000";
+        return resolvedBackendUrl;
+      }
+    } catch (e) {}
+    resolvedBackendUrl = RENDER_PROD_URL;
+    console.log("[VyaparCore] Localhost offline. Auto-routed to cloud backend:", RENDER_PROD_URL);
+    return resolvedBackendUrl;
   }
 
   function getWebSocketUrl() {
@@ -333,11 +354,14 @@ const VyaparCore = (function() {
     return `${wsProto}//${cleanHost}/ws/inventory`;
   }
 
-  // Live Reactive WebSocket & Polling Sync Engine
+  // Live Reactive WebSocket & Adaptive Polling Sync Engine
   let activeWebSocket = null;
+  let heartbeatTimer = null;
   let pollIntervalId = null;
   let syncListeners = [];
   let lastSyncMetrics = null;
+  let isSyncInProgress = false;
+  let reconnectAttempts = 0;
 
   function registerSyncListener(cb) {
     if (typeof cb === 'function') syncListeners.push(cb);
@@ -350,8 +374,15 @@ const VyaparCore = (function() {
   }
 
   async function performLiveSync() {
+    if (isSyncInProgress) return;
+    isSyncInProgress = true;
     try {
-      const res = await fetch(`${getBackendUrl()}/api/metrics`, { cache: 'no-store' });
+      await probeBackendUrl();
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 4000);
+      const res = await fetch(`${getBackendUrl()}/api/metrics`, { signal: ctrl.signal, cache: 'no-store' });
+      clearTimeout(tid);
+
       if (res.ok) {
         const data = await res.json();
         if (data.products && data.products.length > 0) {
@@ -369,7 +400,7 @@ const VyaparCore = (function() {
                 sku: bp.sku,
                 name_mr: bp.name_mr,
                 name_en: bp.name_en,
-                short_name: bp.name_en,
+                short_name: bp.name_en || bp.name_mr,
                 category: bp.category,
                 stock: bp.stock,
                 unit: bp.unit,
@@ -386,6 +417,28 @@ const VyaparCore = (function() {
           if (hasChanged) {
             save(KEY_SKUS, skus);
           }
+        }
+        if (data.recent_transactions && Array.isArray(data.recent_transactions) && data.recent_transactions.length > 0) {
+          const mappedTx = data.recent_transactions.map(t => ({
+            id: t.id ? (typeof t.id === 'string' && t.id.startsWith('TX-') ? t.id : `TX-${t.id}`) : `TX-${Math.floor(1000 + Math.random()*9000)}`,
+            time: t.time || (t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Just now"),
+            type: t.type || "SALE",
+            mode: t.raw_message && t.raw_message.toLowerCase().includes("voice") ? "WhatsApp Voice" : (t.type === "UDHAR" ? "WhatsApp Yaadi" : (t.type === "SALE" ? "Cash Counter" : "UPI QR")),
+            cust: t.cust || (t.type === "UDHAR" ? "शंकरराव पाटील" : "Counter Customer"),
+            items: t.item_name || t.raw_message || "Kirana Items",
+            amount: parseFloat(t.amount || 0),
+            status: t.is_reversed ? "Reversed" : "Success"
+          }));
+          if (mappedTx.length > 0) {
+            transactions = mappedTx;
+            save(KEY_TX, transactions);
+            notifySyncListeners("TRANSACTIONS_UPDATED", transactions);
+          }
+        }
+        if (data.udhar_ledger && Array.isArray(data.udhar_ledger)) {
+          udharLedger = data.udhar_ledger;
+          save(KEY_UDHAR, udharLedger);
+          notifySyncListeners("UDHAR_LEDGER_UPDATED", udharLedger);
         }
         lastSyncMetrics = data;
         notifySyncListeners("METRICS_UPDATE", data);
@@ -430,9 +483,26 @@ const VyaparCore = (function() {
         return data;
       }
     } catch (e) {
-      // offline/silent
+      // Offline fallback silent
+    } finally {
+      isSyncInProgress = false;
     }
     return null;
+  }
+
+  function startAdaptivePolling() {
+    if (!pollIntervalId) {
+      console.log("[VyaparCore] WS disconnected. Activating 3s adaptive fallback polling.");
+      pollIntervalId = setInterval(performLiveSync, 3000);
+    }
+  }
+
+  function stopAdaptivePolling() {
+    if (pollIntervalId) {
+      console.log("[VyaparCore] WS active. Pausing high-frequency polling to preserve network and UI state.");
+      clearInterval(pollIntervalId);
+      pollIntervalId = null;
+    }
   }
 
   function startLiveSync(callback) {
@@ -441,19 +511,38 @@ const VyaparCore = (function() {
     // Initial immediate sync
     performLiveSync();
 
-    // 1. Establish persistent WebSocket stream
     function connectWS() {
+      if (activeWebSocket && (activeWebSocket.readyState === WebSocket.OPEN || activeWebSocket.readyState === WebSocket.CONNECTING)) {
+        return;
+      }
+
       try {
         const wsUrl = getWebSocketUrl();
         activeWebSocket = new WebSocket(wsUrl);
+
         activeWebSocket.onopen = function() {
           console.log("[VyaparCore WS] Connected to live inventory stream at", wsUrl);
+          reconnectAttempts = 0;
+          stopAdaptivePolling();
           notifySyncListeners("WS_STATUS", { connected: true, url: wsUrl });
+
+          // Start 25-second heartbeat ping to prevent cloud proxy disconnects
+          if (heartbeatTimer) clearInterval(heartbeatTimer);
+          heartbeatTimer = setInterval(() => {
+            if (activeWebSocket && activeWebSocket.readyState === WebSocket.OPEN) {
+              try { activeWebSocket.send("ping"); } catch (e) {}
+            }
+          }, 25000);
         };
+
         activeWebSocket.onmessage = function(event) {
+          // Heartbeat pong string check (avoids JSON.parse crash)
+          if (event.data === "pong" || event.data === "ping") {
+            return;
+          }
+
           try {
             const msg = JSON.parse(event.data);
-            console.log("[VyaparCore WS] Ingress event:", msg);
             if (msg.type === "METRICS_UPDATE" && msg.metrics) {
               if (msg.metrics.products) {
                 msg.metrics.products.forEach(bp => {
@@ -465,6 +554,11 @@ const VyaparCore = (function() {
                 });
                 save(KEY_SKUS, skus);
               }
+              if (msg.metrics.udhar_ledger && Array.isArray(msg.metrics.udhar_ledger)) {
+                udharLedger = msg.metrics.udhar_ledger;
+                save(KEY_UDHAR, udharLedger);
+                notifySyncListeners("UDHAR_LEDGER_UPDATED", udharLedger);
+              }
               lastSyncMetrics = msg.metrics;
               notifySyncListeners("METRICS_UPDATE", msg.metrics);
             } else if (msg.type === "NEW_CUSTOMER_YAADI" || msg.event === "NEW_CUSTOMER_YAADI") {
@@ -473,6 +567,37 @@ const VyaparCore = (function() {
               }
               notifySyncListeners("NEW_CUSTOMER_YAADI", msg.order);
               performLiveSync();
+            } else if (msg.type === "ORDER_EXPIRED_ROLLBACK" || msg.event === "ORDER_EXPIRED_ROLLBACK") {
+              const expiredId = msg.order_id || (msg.order ? msg.order.order_id : null);
+              if (expiredId) {
+                pendingOrders = pendingOrders.filter(o => o.order_id !== expiredId && o.id !== expiredId);
+                save(KEY_ORDERS, pendingOrders);
+                notifySyncListeners("PENDING_ORDERS_UPDATED", pendingOrders);
+              }
+              performLiveSync();
+            } else if (msg.type === "ORDER_CONFIRMED" || msg.event === "ORDER_CONFIRMED") {
+              const confirmedOrder = msg.order;
+              if (confirmedOrder) {
+                const match = pendingOrders.find(o => o.order_id === confirmedOrder.order_id || o.id === confirmedOrder.order_id);
+                if (match) {
+                  match.status = "CONFIRMED";
+                  match.confirmed_by_customer = true;
+                  save(KEY_ORDERS, pendingOrders);
+                  notifySyncListeners("PENDING_ORDERS_UPDATED", pendingOrders);
+                }
+              }
+              performLiveSync();
+            } else if (msg.type === "CUSTOMER_ORDER_PACKED" || msg.event === "CUSTOMER_ORDER_PACKED") {
+              const packedId = msg.order_id || (msg.order ? msg.order.order_id : null);
+              if (packedId) {
+                const match = pendingOrders.find(o => o.order_id === packedId || o.id === packedId);
+                if (match) {
+                  match.status = "PACKED";
+                  save(KEY_ORDERS, pendingOrders);
+                  notifySyncListeners("PENDING_ORDERS_UPDATED", pendingOrders);
+                }
+              }
+              performLiveSync();
             } else if (msg.type === "CATALOG_ONBOARDED" || msg.event === "CATALOG_ONBOARDED") {
               performLiveSync();
             }
@@ -480,52 +605,275 @@ const VyaparCore = (function() {
             console.error("WS Parse error", err);
           }
         };
+
         activeWebSocket.onclose = function() {
+          if (heartbeatTimer) clearInterval(heartbeatTimer);
           notifySyncListeners("WS_STATUS", { connected: false });
-          setTimeout(connectWS, 4000);
+          startAdaptivePolling();
+          reconnectAttempts++;
+          const delay = Math.min(1000 * Math.pow(1.5, reconnectAttempts), 20000) + Math.random() * 500;
+          setTimeout(connectWS, delay);
         };
+
         activeWebSocket.onerror = function() {
-          try { activeWebSocket.close(); } catch(e){}
+          try { activeWebSocket.close(); } catch (e) {}
         };
       } catch (err) {
         console.error("WS connect failed", err);
+        startAdaptivePolling();
       }
     }
 
     connectWS();
-
-    // 2. Active background polling fallback every 2.5 seconds
-    if (!pollIntervalId) {
-      pollIntervalId = setInterval(performLiveSync, 2500);
-    }
   }
 
   return {
     // -------------------------------------------------------------------------
     // 1. INVENTORY METHODS
     // -------------------------------------------------------------------------
+    get inventory() {
+      return skus;
+    },
     getSKUs: function() {
       return skus;
     },
     getSKU: function(skuCode) {
       return skus.find(s => s.sku === skuCode);
     },
-    restock: function(skuCode, addQty) {
+    addStock: async function(skuCode, addQty, reason = "Manual UI Stock Add") {
       const item = skus.find(s => s.sku === skuCode);
       if (item) {
-        item.stock = Math.max(0, parseFloat((item.stock + addQty).toFixed(2)));
+        item.stock = Math.max(0, parseFloat((Number(item.stock) + Number(addQty)).toFixed(2)));
         save(KEY_SKUS, skus);
-        this.addTransaction({
-          type: "RESTOCK",
-          mode: "Supplier Delivery",
-          cust: "Store Restock",
-          items: `+${addQty} ${item.unit} ${item.short_name}`,
-          amount: parseFloat((addQty * item.unit_price).toFixed(2)),
-          status: "Stock Added"
+        notifySyncListeners("METRICS_UPDATE", { products: skus });
+      }
+      try {
+        const url = `${getBackendUrl()}/api/items/stock-delta`;
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sku: skuCode, delta: Number(addQty), reason: reason })
         });
-        return item;
+        if (res.ok) {
+          const data = await res.json();
+          if (data.metrics) {
+            lastSyncMetrics = data.metrics;
+            notifySyncListeners("METRICS_UPDATE", data.metrics);
+          }
+          return data;
+        }
+      } catch (e) {
+        console.warn("[VyaparCore] Stock-delta sync failed:", e);
       }
       return null;
+    },
+    undoLastTransaction: async function() {
+      let undoneTx = null;
+      if (transactions && transactions.length > 0) {
+        undoneTx = transactions.shift();
+        save(KEY_TX, transactions);
+        notifySyncListeners("TRANSACTIONS_UPDATED", transactions);
+      }
+      try {
+        const url = `${getBackendUrl()}/api/transactions/undo`;
+        const res = await fetch(url, { method: "POST" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.metrics) {
+            lastSyncMetrics = data.metrics;
+            if (data.metrics.products) {
+              data.metrics.products.forEach(bp => {
+                const local = skus.find(s => s.sku === bp.sku);
+                if (local) {
+                  local.stock = bp.stock;
+                }
+              });
+              save(KEY_SKUS, skus);
+            }
+            notifySyncListeners("METRICS_UPDATE", data.metrics);
+          }
+          return data;
+        }
+      } catch (e) {
+        console.warn("[VyaparCore] Undo transaction failed:", e);
+      }
+      return undoneTx ? { status: "SUCCESS", undone: undoneTx } : null;
+    },
+    settleKhata: async function(creditId, amount, mode = "CASH", notes = "") {
+      try {
+        const url = `${getBackendUrl()}/api/udhar/${creditId}/pay`;
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: Number(amount), payment_mode: mode, notes: notes })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.metrics) {
+            lastSyncMetrics = data.metrics;
+            if (data.metrics.udhar_ledger) {
+              udharLedger = data.metrics.udhar_ledger;
+              save(KEY_UDHAR, udharLedger);
+              notifySyncListeners("UDHAR_LEDGER_UPDATED", udharLedger);
+            }
+            notifySyncListeners("METRICS_UPDATE", data.metrics);
+          }
+          // Also settle locally in customers if matched
+          const cidStr = String(creditId);
+          const localCust = customers.find(c => c.id === cidStr || String(c.id).includes(cidStr));
+          if (localCust) {
+            localCust.udhar = Math.max(0, (localCust.udhar || 0) - Number(amount));
+            if (localCust.udhar <= 0) localCust.status = "SETTLED";
+            localCust.last_tx = `Just now (Paid ₹${amount})`;
+            save(KEY_CUSTOMERS, customers);
+          }
+          // Log a transaction
+          this.addTransaction({
+            type: "SALE",
+            mode: mode.includes("UPI") ? "UPI Soundbox" : "Cash Counter",
+            cust: (data.credit && data.credit.customer_name) || (localCust && localCust.name) || "Khata Customer",
+            items: `Khata Udhar Payment (₹${amount})`,
+            amount: Number(amount),
+            status: "Success"
+          });
+          this.playSoundboxChime(Number(amount));
+          return data;
+        }
+      } catch (e) {
+        console.warn("[VyaparCore] Settle khata failed:", e);
+      }
+      return null;
+    },
+    getUdharLedger: async function(vendorId = "DEMO_KIRANA_KOP") {
+      try {
+        const res = await fetch(`${getBackendUrl()}/api/udhar/ledger?vendor_id=${vendorId}`);
+        if (res.ok) {
+          const ledger = await res.json();
+          if (Array.isArray(ledger)) {
+            udharLedger = ledger;
+            save(KEY_UDHAR, udharLedger);
+            notifySyncListeners("UDHAR_LEDGER_UPDATED", udharLedger);
+            return udharLedger;
+          }
+        }
+      } catch (e) {
+        console.warn("[VyaparCore] Get udhar ledger failed:", e);
+      }
+      return udharLedger && udharLedger.length > 0 ? udharLedger : DEFAULT_CUSTOMERS;
+    },
+    getCachedUdharLedger: function() {
+      return udharLedger && udharLedger.length > 0 ? udharLedger : DEFAULT_CUSTOMERS;
+    },
+    getCustomers: function() {
+      return customers;
+    },
+    sendUdharReminder: async function(creditId, sendWhatsApp = true) {
+      try {
+        const url = `${getBackendUrl()}/api/udhar/remind/${creditId}?send_whatsapp=${sendWhatsApp}`;
+        const res = await fetch(url, { method: "POST" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.metrics) {
+            lastSyncMetrics = data.metrics;
+            if (data.metrics.udhar_ledger) {
+              udharLedger = data.metrics.udhar_ledger;
+              save(KEY_UDHAR, udharLedger);
+              notifySyncListeners("UDHAR_LEDGER_UPDATED", udharLedger);
+            }
+            notifySyncListeners("METRICS_UPDATE", data.metrics);
+          }
+          return data;
+        }
+      } catch (e) {
+        console.warn("[VyaparCore] Send udhar reminder failed:", e);
+      }
+      return null;
+    },
+    bulkRemindUdhar: async function(vendorId = "DEMO_KIRANA_KOP") {
+      try {
+        const url = `${getBackendUrl()}/api/udhar/bulk-remind?vendor_id=${vendorId}`;
+        const res = await fetch(url, { method: "POST" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.metrics) {
+            lastSyncMetrics = data.metrics;
+            if (data.metrics.udhar_ledger) {
+              udharLedger = data.metrics.udhar_ledger;
+              save(KEY_UDHAR, udharLedger);
+              notifySyncListeners("UDHAR_LEDGER_UPDATED", udharLedger);
+            }
+            notifySyncListeners("METRICS_UPDATE", data.metrics);
+          }
+          return data;
+        }
+      } catch (e) {
+        console.warn("[VyaparCore] Bulk remind failed:", e);
+      }
+      return null;
+    },
+    createCustomerAccount: async function(payload) {
+      try {
+        const url = `${getBackendUrl()}/api/udhar/accounts`;
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customer_name: payload.customer_name || payload.name,
+            customer_phone: payload.customer_phone || payload.phone,
+            amount_due: parseFloat(payload.amount_due || payload.amount || 0),
+            vendor_id: payload.vendor_id || "DEMO_KIRANA_KOP",
+            due_date: payload.due_date || "तात्काळ (Immediate)",
+            notes: payload.notes || "New Counter Customer"
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.metrics) {
+            lastSyncMetrics = data.metrics;
+            if (data.metrics.udhar_ledger) {
+              udharLedger = data.metrics.udhar_ledger;
+              save(KEY_UDHAR, udharLedger);
+              notifySyncListeners("UDHAR_LEDGER_UPDATED", udharLedger);
+            }
+            notifySyncListeners("METRICS_UPDATE", data.metrics);
+          }
+          // Also add to local customers list
+          const newCust = {
+            id: data.credit ? String(data.credit.id) : "c" + (customers.length + 1),
+            name: payload.customer_name || payload.name,
+            area: payload.notes || payload.area || "Kolhapur Ward",
+            phone: payload.customer_phone || payload.phone,
+            udhar: parseFloat(payload.amount_due || payload.amount || 0),
+            status: "DUE_SOON",
+            last_tx: "Just now (Account Opened)",
+            trust: "A",
+            orders: 1,
+            pref: "Counter Walk-in / Udhar"
+          };
+          customers.unshift(newCust);
+          save(KEY_CUSTOMERS, customers);
+          return data;
+        }
+      } catch (e) {
+        console.warn("[VyaparCore] Create customer account failed:", e);
+      }
+      return null;
+    },
+    getWhatsAppReminderLink: function(customer, shopName = "अथर्व किराणा स्टोअर्स") {
+      const rawPhone = (customer.customer_phone || customer.phone || "").replace(/[^0-9]/g, "");
+      const phone = rawPhone.length === 10 ? "91" + rawPhone : (rawPhone || "919579869506");
+      const name = customer.customer_name || customer.name || "ग्राहक";
+      const cleanName = name.replace(" शेठ", "").replace("शेठ", "").trim();
+      const amount = Math.round(customer.amount_due !== undefined ? customer.amount_due : (customer.udhar || 0));
+      const message = `🙏 नमस्कार ${cleanName} शेठ! आपल्या ${shopName}मधील ₹${amount} चे उधारी बिल प्रलंबित आहे. कृपया सवडीने Google Pay किंवा रोख भरणा करावा ही नम्र विनंती. - ${shopName} 🏪`;
+      return {
+        phone: phone,
+        message: message,
+        waUrl: `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+      };
+    },
+    restock: function(skuCode, addQty) {
+      return this.addStock(skuCode, addQty);
     },
     deductStock: function(skuCode, qty) {
       const item = skus.find(s => s.sku === skuCode);
@@ -557,6 +905,9 @@ const VyaparCore = (function() {
     // -------------------------------------------------------------------------
     // 2. TRANSACTION & SALES METHODS
     // -------------------------------------------------------------------------
+    get transactions() {
+      return transactions;
+    },
     getTransactions: function() {
       return transactions;
     },
@@ -636,14 +987,8 @@ const VyaparCore = (function() {
     packAndFulfillOrder: function(orderId) {
       const order = pendingOrders.find(o => o.order_id === orderId);
       if (order && order.status === "PENDING") {
-        // Decrement stock atomically
-        if (order.items && order.items.length > 0) {
-          order.items.forEach(it => {
-            if (it.sku) {
-              this.deductStock(it.sku, it.qty || 1.0);
-            }
-          });
-        }
+        // Note: Stock was already safely soft-reserved by backend on order arrival.
+        // We only commit sales ledger locally and await backend atomic fulfillment confirmation.
 
         // Add to Sales Ledger
         this.addTransaction({
