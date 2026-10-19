@@ -34,10 +34,8 @@ class CustomerOrder(Base):
             items_list = []
 
         clean_p = str(self.customer_phone or "").replace("+", "").replace("@c.us", "").strip()
-        if "7019259321" in clean_p:
+        if "7019259321" in clean_p or "9822012345" in clean_p:
             known_name = "व्यंकटेश पै (Venkatesh Pai)"
-        elif "9822012345" in clean_p:
-            known_name = "तानाजी शेठ"
         elif "9822067890" in clean_p:
             known_name = "आनंदराव"
         elif "9822054321" in clean_p:

@@ -68,6 +68,9 @@ class Product(Base):
             return f"/static/products/{sku_clean}.jpg"
         # 2. Check alias or slug
         slug_map = {
+            "DAIRY-MILK-500ML": "amul_milk.jpg",
+            "DAIRY-AMUL-500M": "amul_milk.jpg",
+            "DAIRY-AMUL-500ML": "amul_milk.jpg",
             "GROC-SUG-001": "sugar.jpg",
             "FMCG-PARLE-100G": "parle_g.jpg",
             "OIL-FORT-1L": "fortune_oil.jpg",
@@ -78,17 +81,38 @@ class Product(Base):
             "FMCG-MAGGI-70G": "maggi.jpg",
             "VEG-KANDA-001": "red_onion.jpg",
             "VEG-BATATA-001": "potato.jpg",
+            "AUTO-VID-NOTEBOOK": "classmate_notebook.jpg",
+            "AUTO-VID-PEN": "reynolds_pen.jpg",
+            "AUTO-VID-KINLEY": "kinley_water.jpg",
             "KINLEY": "kinley_water.jpg",
             "PEN": "reynolds_pen.jpg",
             "NOTEBOOK": "classmate_notebook.jpg",
-            "AMUL": "amul_milk.jpg"
+            "AMUL": "amul_milk.jpg",
+            "MILK": "amul_milk.jpg",
+            "DAIRY": "amul_milk.jpg"
         }
         if sku_clean in slug_map and os.path.exists(os.path.join(static_dir, slug_map[sku_clean])):
             return f"/static/products/{slug_map[sku_clean]}"
         for k, v in slug_map.items():
             if k in sku_clean.upper() and os.path.exists(os.path.join(static_dir, v)):
                 return f"/static/products/{v}"
-        return f"/static/products/parle_g.jpg"
+
+        # Category-based heuristic fallback
+        cat_lower = (self.category or "").lower()
+        name_lower = ((self.name_en or "") + " " + (self.name_mr or "")).lower()
+        if "dairy" in cat_lower or "milk" in name_lower or "दूध" in name_lower:
+            return "/static/products/amul_milk.jpg"
+        if "grain" in cat_lower or "sugar" in name_lower or "साखर" in name_lower:
+            return "/static/products/sugar.jpg"
+        if "oil" in cat_lower or "तेल" in name_lower:
+            return "/static/products/fortune_oil.jpg"
+        if "salt" in name_lower or "मीठ" in name_lower:
+            return "/static/products/tata_salt.jpg"
+        if "atta" in name_lower or "आटा" in name_lower:
+            return "/static/products/aashirvaad_atta.jpg"
+
+        # Safe neutral SVG placeholder - NEVER fall back to parle_g for non-biscuit items
+        return "/static/products/placeholder.svg"
 
     def to_dict(self):
         return {

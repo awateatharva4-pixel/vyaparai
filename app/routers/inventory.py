@@ -96,31 +96,31 @@ def quick_add_dairy(db: Session = Depends(get_db)):
     [TROJAN HORSE HOOK: Dynamic Polymorphic Category with Expiry Tracking]
     Adds Amul Milk under Dairy category on the spot without migration.
     """
-    existing = db.query(Product).filter(Product.sku == "DAIRY-AMUL-500ML").first()
+    existing = db.query(Product).filter(Product.sku.in_(["DAIRY-MILK-500ML", "DAIRY-AMUL-500ML", "DAIRY-AMUL-500M"])).first()
     if existing:
         existing.stock = 24.0
-        existing.name_mr = "अमुल ताजा दूध ५०० मिली (Amul Milk)"
-        existing.name_en = "Amul Taaza Milk 500ml"
+        existing.name_mr = "गोकुळ / अमूल ताझा दूध (५०० मिली)"
+        existing.name_en = "Gokul / Amul Taaza Milk 500ml"
         existing.category = "Dairy & Perishables / दुग्धजन्य पदार्थ"
         existing.unit = "pouch"
         existing.unit_price = 27.0
         existing.min_threshold = 6.0
-        existing.aliases = ["दूध", "amul milk", "dudh", "milk", "taaza"]
+        existing.aliases = ["दूध", "amul milk", "dudh", "milk", "taaza", "gokul milk"]
         existing.extra_meta = {"expiry": "2026-10-18", "is_perishable": True, "refrigerated": True}
         new_item = existing
     else:
         new_item = Product(
             vendor_id="DEMO_KIRANA_KOP",
-            sku="DAIRY-AMUL-500ML",
-            name_mr="अमुल ताजा दूध ५०० मिली (Amul Milk)",
-            name_en="Amul Taaza Milk 500ml",
+            sku="DAIRY-MILK-500ML",
+            name_mr="गोकुळ / अमूल ताझा दूध (५०० मिली)",
+            name_en="Gokul / Amul Taaza Milk 500ml",
             category="Dairy & Perishables / दुग्धजन्य पदार्थ",
             stock=24.0,
             unit="pouch",
             unit_price=27.0,
             min_threshold=6.0
         )
-        new_item.aliases = ["दूध", "amul milk", "dudh", "milk", "taaza"]
+        new_item.aliases = ["दूध", "amul milk", "dudh", "milk", "taaza", "gokul milk"]
         new_item.extra_meta = {"expiry": "2026-10-18", "is_perishable": True, "refrigerated": True}
         db.add(new_item)
     

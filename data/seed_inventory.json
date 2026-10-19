@@ -22,6 +22,17 @@
     "aliases": ["दूध", "अमुल दूध", "गोकुळ दूध", "milk", "taaza milk", "fresh milk", "dudh", "doodh", "पिशवी दूध"]
   },
   {
+    "sku": "DAIRY-AMUL-500M",
+    "name_mr": "अमुल ताजा दूध ५०० मिली (Amul Taaza Milk 500ml)",
+    "name_en": "Amul Taaza Milk 500ml",
+    "category": "Dairy & Perishables / डेअरी व दुग्धजन्य",
+    "stock": 24.0,
+    "unit": "pouch",
+    "unit_price": 27.0,
+    "min_threshold": 6.0,
+    "aliases": ["दूध", "अमुल दूध", "milk", "taaza milk", "amul milk", "dudh", "doodh", "पिशवी दूध"]
+  },
+  {
     "sku": "FMCG-PARLE-100G",
     "name_mr": "पार्ले-जी बिस्कीट (Parle-G 100g)",
     "name_en": "Parle-G 100g",

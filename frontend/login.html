@@ -1087,6 +1087,7 @@
       localStorage.setItem('vyaparai_auth_user', JSON.stringify(userRecord));
       localStorage.setItem('vyaparai_auth_token', 'AUTH_TOKEN_' + userRecord.vendor_id + '_' + Date.now());
       localStorage.setItem('vyaparai_active_store', JSON.stringify(storeRecord));
+      sessionStorage.setItem('just_logged_in', 'true');
 
       // Trigger Godly Wave Loader with real-time transition to index.html
       const firstName = name.split(' ')[0] || 'Vendor';

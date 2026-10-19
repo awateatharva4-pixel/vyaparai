@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>VyaparAI — Kirana Store Management Dashboard</title>
+
+  <!-- VyaparAI Authentication Guard -->
+  <script>
+    if (!localStorage.getItem('vyaparai_auth_user')) {
+      window.location.replace('login.html');
+    }
+  </script>
   
   <!-- Apple Typography: SF Pro / Inter font stack -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -571,13 +578,17 @@
     .stock-meter-list {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 13px;
       margin-top: 6px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 2px;
     }
     .stock-meter-row {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
+      transition: transform 0.2s ease;
     }
     .meter-label-row {
       display: flex;
@@ -591,8 +602,10 @@
     }
     .meter-percent-val {
       font-weight: 650;
+      transition: color 0.3s ease;
     }
     .val-danger { color: var(--apple-coral); }
+    .val-warning { color: var(--apple-amber); }
     .val-normal { color: var(--apple-blue); }
 
     .meter-track {
@@ -606,9 +619,10 @@
     .meter-fill {
       height: 100%;
       border-radius: 9999px;
-      transition: width 1s var(--spring-snappy);
+      transition: width 0.8s var(--spring-snappy), background-color 0.4s ease;
     }
     .fill-danger { background: var(--apple-coral); }
+    .fill-warning { background: var(--apple-amber); }
     .fill-blue { background: var(--apple-blue); }
 
     /* Inventory Status Table */
@@ -1231,6 +1245,11 @@
       background: rgba(245, 248, 245, 0.6);
       border-color: rgba(40, 205, 65, 0.3);
     }
+    .yaadi-order-box.cancelled {
+      opacity: 0.65;
+      background: rgba(255, 245, 245, 0.6);
+      border-color: rgba(255, 69, 58, 0.3);
+    }
     .yaadi-order-header {
       display: flex;
       justify-content: space-between;
@@ -1515,11 +1534,11 @@
     <!-- 1. Apple macOS Dock-Style Sidebar Rail -->
     <aside class="apple-dock-rail">
       <div class="dock-top-cluster">
-        <div class="dock-brand-logo" title="VyaparAI Enterprise">V</div>
+        <div class="dock-brand-logo" title="VyaparAI Enterprise" onclick="window.location.href='index.html'">V</div>
         
         <nav class="dock-items-group">
-          <!-- Dashboard (Active) -->
-          <button class="dock-btn active" title="Dashboard" onclick="window.location.href='index.html'">
+          <!-- 1. Home / Dashboard (Active) -->
+          <button class="dock-btn active" title="Dashboard (मुख्यपृष्ठ)" onclick="window.location.href='index.html'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="7" height="7" rx="2"></rect>
               <rect x="14" y="3" width="7" height="7" rx="2"></rect>
@@ -1528,16 +1547,25 @@
             </svg>
           </button>
 
-          <!-- Sales & Transactions -->
-          <button class="dock-btn" title="Sales & Ledger" onclick="window.location.href='sales.html'">
+          <!-- 2. Inventory Register -->
+          <button class="dock-btn" title="Inventory Stock (स्टॉक नोंद)" onclick="window.location.href='inventory.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+          </button>
+
+          <!-- 3. Sales & Transactions -->
+          <button class="dock-btn" title="Sales & Ledger (विक्री खतावणी)" onclick="window.location.href='sales.html'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2" y="5" width="20" height="14" rx="2"></rect>
               <line x1="2" y1="10" x2="22" y2="10"></line>
             </svg>
           </button>
 
-          <!-- Customers / Khata -->
-          <button class="dock-btn" title="Customers & Khata" onclick="window.location.href='customers.html'">
+          <!-- 4. Customers & Khata -->
+          <button class="dock-btn" title="Customers & Khata (खाते नोंद)" onclick="window.location.href='khata.html'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
@@ -1546,17 +1574,16 @@
             </svg>
           </button>
 
-          <!-- Inventory Register -->
-          <button class="dock-btn" title="Inventory Stock" onclick="window.location.href='inventory.html'">
+          <!-- 5. Low Stock Alerts -->
+          <button class="dock-btn" title="Low Stock Alerts (साठा सूचना)" onclick="window.location.href='alerts.html'" style="color: var(--apple-coral);">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
           </button>
 
-          <!-- Analytics & Reports -->
-          <button class="dock-btn" title="Analytics & SIH Reports" onclick="window.location.href='analytics.html'">
+          <!-- 6. Analytics & SIH Reports -->
+          <button class="dock-btn" title="Analytics & SIH Reports (विश्लेषण)" onclick="window.location.href='analytics.html'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="20" x2="18" y2="10"></line>
               <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -1574,10 +1601,20 @@
       </div>
 
       <div class="dock-bottom-cluster">
-        <button class="dock-btn" title="Settings" onclick="window.location.href='settings.html'">
+        <!-- 7. Settings -->
+        <button class="dock-btn" title="Settings (सेटिंग्ज)" onclick="window.location.href='settings.html'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+
+        <!-- 8. Logout -->
+        <button class="dock-btn" title="Logout (बाहेर पडा 🚪)" onclick="localStorage.removeItem('vyaparai_auth_user'); localStorage.removeItem('vyaparai_auth_token'); sessionStorage.removeItem('just_logged_in'); window.location.href='login.html';" style="color: var(--apple-coral);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
           </svg>
         </button>
       </div>
@@ -1649,23 +1686,32 @@
             <span>Alerts</span>
           </a>
 
-          <!-- Admin Pill -->
-          <div class="header-pill-item" onclick="showAppleToast('Admin: अथर्व आवाटे (+91 95798 69506)')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Godly Wave Loader Preview Pill -->
+          <button type="button" class="header-pill-item" onclick="triggerWaveLoaderPreview()" style="background: rgba(0, 113, 227, 0.08); color: var(--apple-blue); border: 1px solid rgba(0, 113, 227, 0.28); font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" title="Preview Godly Concentric Wave Ingress">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span>⚡ Wave Loader</span>
+          </button>
+
+          <!-- Authenticated Merchant Session Pill -->
+          <div class="header-pill-item merchant-user-pill" id="headerMerchantPill" onclick="showAppleToast('अधिकृत व्यापारी: ' + (document.getElementById('headerMerchantName')?.textContent || 'अथर्व आवटे'))" title="Authenticated Kirana Merchant" style="font-weight: 600; cursor: pointer;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; color: var(--emerald-600);">
               <circle cx="12" cy="7" r="4"></circle>
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             </svg>
-            <span>अथर्व आवाटे</span>
+            <span id="headerMerchantName">अथर्व आवटे (DEMO_KIRANA_KOP)</span>
           </div>
 
-          <!-- Login / Switch Account Link -->
-          <a href="login.html" class="header-pill-item" style="text-decoration: none; color: var(--text-secondary);" title="Merchant Login Ingress">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          <!-- Functional Header Logout Button -->
+          <button type="button" class="header-pill-item header-logout-btn" onclick="logoutMerchant()" title="Logout from VyaparAI / बाहेर पडा" style="cursor: pointer; color: var(--apple-coral); border: 1px solid rgba(255, 59, 48, 0.28); background: rgba(255, 59, 48, 0.06); font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
-            <span>Login</span>
-          </a>
+            <span>बाहेर पडा 🚪</span>
+          </button>
         </div>
       </header>
 
@@ -1774,51 +1820,7 @@
             <span class="status-pill status-in" style="font-size: 0.68rem; padding: 2px 8px;">● Live</span>
           </div>
 
-          <div class="stock-meter-list">
-            <!-- Parle-G: 18% left (Critical) -->
-            <div class="stock-meter-row">
-              <div class="meter-label-row">
-                <span class="meter-prod-title">Parle-G</span>
-                <span class="meter-percent-val val-danger tabular-nums">18% left</span>
-              </div>
-              <div class="meter-track">
-                <div class="meter-fill fill-danger" style="width: 18%;"></div>
-              </div>
-            </div>
-
-            <!-- Sugar: 55% left -->
-            <div class="stock-meter-row">
-              <div class="meter-label-row">
-                <span class="meter-prod-title">Sugar</span>
-                <span class="meter-percent-val val-normal tabular-nums">55% left</span>
-              </div>
-              <div class="meter-track">
-                <div class="meter-fill fill-blue" style="width: 55%;"></div>
-              </div>
-            </div>
-
-            <!-- Maggi Sauce: 70% left -->
-            <div class="stock-meter-row">
-              <div class="meter-label-row">
-                <span class="meter-prod-title">Maggi Sauce</span>
-                <span class="meter-percent-val val-normal tabular-nums">70% left</span>
-              </div>
-              <div class="meter-track">
-                <div class="meter-fill fill-blue" style="width: 70%;"></div>
-              </div>
-            </div>
-
-            <!-- Sunflower Oil: 12% left (Critical) -->
-            <div class="stock-meter-row">
-              <div class="meter-label-row">
-                <span class="meter-prod-title">Sunflower Oil</span>
-                <span class="meter-percent-val val-danger tabular-nums">12% left</span>
-              </div>
-              <div class="meter-track">
-                <div class="meter-fill fill-danger" style="width: 12%;"></div>
-              </div>
-            </div>
-          </div>
+          <div class="stock-meter-list" id="stockOverviewMeterList"></div>
           <div class="specular-sweep"></div>
         </div>
 
@@ -1935,43 +1937,7 @@
             <span style="font-size: 0.72rem; color: var(--brass-600); font-weight: 600;">By Revenue</span>
           </div>
 
-          <div class="top-products-list">
-            <!-- Top 1: Parle-G (₹12,450) -->
-            <div class="top-product-item">
-              <div class="top-prod-left">
-                <img src="assets/products/parle_g.png" alt="Parle-G" class="table-prod-thumb" />
-                <div class="top-prod-meta">
-                  <span class="top-prod-name">Parle-G</span>
-                  <span class="top-prod-sku tabular-nums">SKU: P01</span>
-                </div>
-              </div>
-              <div class="top-prod-revenue tabular-nums">₹12,450</div>
-            </div>
-
-            <!-- Top 2: Sugar (Loose) (₹2,500) -->
-            <div class="top-product-item">
-              <div class="top-prod-left">
-                <img src="assets/products/sugar.png" alt="Sugar" class="table-prod-thumb" />
-                <div class="top-prod-meta">
-                  <span class="top-prod-name">Sugar (Loose)</span>
-                  <span class="top-prod-sku tabular-nums">SKU: P02</span>
-                </div>
-              </div>
-              <div class="top-prod-revenue tabular-nums">₹2,500</div>
-            </div>
-
-            <!-- Top 3: Colgate (₹340) -->
-            <div class="top-product-item">
-              <div class="top-prod-left">
-                <img src="assets/products/alert_colgate.png" alt="Colgate" class="table-prod-thumb" />
-                <div class="top-prod-meta">
-                  <span class="top-prod-name">Colgate</span>
-                  <span class="top-prod-sku tabular-nums">SKU: P03</span>
-                </div>
-              </div>
-              <div class="top-prod-revenue tabular-nums">₹340</div>
-            </div>
-          </div>
+          <div class="top-products-list" id="topProductsList"></div>
           <div class="specular-sweep"></div>
         </div>
 
@@ -2255,59 +2221,7 @@
             </span>
           </div>
 
-          <div class="recent-sales-feed" id="recentSalesFeedList">
-            <!-- Item 1: Recent Sale -->
-            <div class="sale-feed-row">
-              <div class="sale-feed-left">
-                <div class="sale-icon-box">
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                  </svg>
-                </div>
-                <div class="sale-meta-group">
-                  <span class="sale-item-title">Recent Sale (5x Parle-G, 2kg Sugar)</span>
-                  <span class="sale-timestamp tabular-nums">1 day 10:05 AM</span>
-                </div>
-              </div>
-              <span class="sale-customer-tag">Yesterday</span>
-            </div>
-
-            <!-- Item 2: Sunflower Oil -->
-            <div class="sale-feed-row">
-              <div class="sale-feed-left">
-                <div class="sale-icon-box basket">
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <path d="M16 10a4 4 0 0 1-8 0"></path>
-                  </svg>
-                </div>
-                <div class="sale-meta-group">
-                  <span class="sale-item-title">Sunflower Oil (1L Bottle)</span>
-                  <span class="sale-timestamp tabular-nums">1 day 10:03 AM</span>
-                </div>
-              </div>
-              <span class="sale-customer-tag">You</span>
-            </div>
-
-            <!-- Item 3: Recent Sale -->
-            <div class="sale-feed-row">
-              <div class="sale-feed-left">
-                <div class="sale-icon-box">
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                  </svg>
-                </div>
-                <div class="sale-meta-group">
-                  <span class="sale-item-title">Recent Sale (Maggi Sauce Bottle)</span>
-                  <span class="sale-timestamp tabular-nums">1 day 10:03 AM</span>
-                </div>
-              </div>
-              <span class="sale-customer-tag">Hari</span>
-            </div>
-          </div>
+          <div class="recent-sales-feed" id="recentSalesFeedList"></div>
           <div class="specular-sweep"></div>
         </div>
 
@@ -2568,6 +2482,56 @@
        7. Apple-Grade Micro-Interactions, 60 FPS Counters & Haptics Engine
        ========================================================================== -->
   <script>
+    // Top-of-script Authentication Guard
+    if (!localStorage.getItem('vyaparai_auth_user')) {
+      window.location.replace('login.html');
+    }
+
+    function logoutMerchant() {
+      localStorage.removeItem('vyaparai_auth_user');
+      localStorage.removeItem('vyaparai_auth_token');
+      localStorage.removeItem('vyaparai_active_store');
+      sessionStorage.removeItem('just_logged_in');
+      window.location.replace('login.html');
+    }
+
+    function syncMerchantSessionUI() {
+      try {
+        const raw = localStorage.getItem('vyaparai_auth_user');
+        if (!raw) {
+          window.location.replace('login.html');
+          return;
+        }
+        const user = JSON.parse(raw);
+        const merchantName = user.name || 'अथर्व आवटे';
+        const vendorId = user.vendor_id || 'DEMO_KIRANA_KOP';
+        const storeName = user.store || 'अथर्व किराणा स्टोअर्स, कोल्हापूर';
+        const formattedLabel = `${merchantName} (${vendorId})`;
+
+        const nameEls = document.querySelectorAll('#headerMerchantName, .merchant-display-name');
+        nameEls.forEach(el => el.textContent = formattedLabel);
+
+        const storeEls = document.querySelectorAll('#currentDukaanName, .store-display-name');
+        storeEls.forEach(el => {
+          if (el.tagName === 'INPUT') {
+            el.value = storeName;
+          } else if (el.id === 'currentDukaanName') {
+            el.textContent = '🏪 ' + storeName;
+          }
+        });
+      } catch (e) {
+        console.error('Session sync error:', e);
+      }
+    }
+
+    function triggerWaveLoaderPreview() {
+      if (window.previewGodlyLoader) {
+        window.previewGodlyLoader();
+      } else if (window.VyaparLoader && typeof window.VyaparLoader.preview === 'function') {
+        window.VyaparLoader.preview();
+      }
+    }
+
     // Singleton Number Formatter (Prevents V8 Heap Churn / GC Pauses)
     const inrFormatter = new Intl.NumberFormat('en-IN');
 
@@ -2771,6 +2735,13 @@
         showAppleToast(`📦 +${addQty} Stock Added: ${matchedItem ? matchedItem.short_name : productName}`);
         await VyaparCore.addStock(matchedSku, addQty, `Manual +Stock UI Click (${productName})`);
         if (VyaparCore.playSoundboxChime) VyaparCore.playSoundboxChime(150);
+        if (VyaparCore.getSKUs) {
+          const updatedSkus = VyaparCore.getSKUs();
+          renderInventoryTable(updatedSkus);
+          updateCarouselStock(updatedSkus);
+          renderStockOverview(updatedSkus);
+          renderTopProducts(updatedSkus);
+        }
       } else {
         showAppleToast(`+ Stock order initiated for ${productName}`);
       }
@@ -2810,12 +2781,14 @@
       if (!tbody || !products || products.length === 0) return;
       tbody.innerHTML = products.map(p => {
         const isLow = p.stock <= (p.min_threshold || 10);
-        const img = p.img || (window.VyaparCore ? (VyaparCore.getSKU(p.sku) || {}).img : null) || 'assets/products/parle_g.png';
+        const img = (window.VyaparCore && VyaparCore.getProductImage) ? VyaparCore.getProductImage(p) : (p.img || 'assets/products/placeholder.svg');
+        const catSafe = (p.category || '').replace(/'/g, "\\'");
+        const skuSafe = (p.sku || '').replace(/'/g, "\\'");
         return `
           <tr data-sku="${p.sku}" id="table-row-${p.sku}" style="transition: background 0.4s ease;">
             <td>
               <div class="table-prod-cell">
-                <img src="${img}" alt="${p.name_en || p.name_mr}" class="table-prod-thumb" onerror="this.src='assets/products/parle_g.jpg'" />
+                <img src="${img}" alt="${p.name_en || p.name_mr}" class="table-prod-thumb" onerror="this.onerror=null; this.src=(window.VyaparCore && VyaparCore.getFallbackImage) ? VyaparCore.getFallbackImage('${catSafe}', '${skuSafe}') : 'assets/products/placeholder.svg';" />
                 <div>
                   <div style="font-weight: 600; font-size: 0.84rem;">${p.name_en || p.name_mr}</div>
                   <div style="font-size: 0.72rem; color: var(--text-tertiary);">${p.name_mr || ''}</div>
@@ -2847,6 +2820,9 @@
       if (!products) return;
       products.forEach(p => {
         let card = document.querySelector(`.product-catalog-card[data-sku="${p.sku}"]`);
+        if (!card && (p.sku === 'DAIRY-MILK-500ML' || p.sku === 'DAIRY-AMUL-500ML' || p.sku === 'DAIRY-AMUL-500M' || (p.sku && p.sku.includes('MILK')))) {
+          card = document.querySelector(`.product-catalog-card[data-sku="DAIRY-AMUL-500M"], .product-catalog-card[data-sku="DAIRY-MILK-500ML"]`);
+        }
         if (!card && p.sku && (p.sku.toLowerCase().includes('notebook') || (p.name_en && p.name_en.toLowerCase().includes('notebook')) || (p.name_en && p.name_en.toLowerCase().includes('classmate')) || (p.name_mr && p.name_mr.includes('वही')))) {
           card = document.querySelector(`.product-catalog-card[data-sku="AUTO-VID-NOTEBOOK"]`);
         }
@@ -2874,30 +2850,253 @@
 
     function updateRecentSalesFeed(transactions) {
       const feed = document.getElementById('recentSalesFeedList');
-      if (!feed || !transactions || transactions.length === 0) return;
-      feed.innerHTML = transactions.slice(0, 6).map(tx => {
+      if (!feed) return;
+      const txList = (transactions && Array.isArray(transactions) && transactions.length > 0)
+        ? transactions
+        : (window.VyaparCore ? (VyaparCore.getTransactions ? VyaparCore.getTransactions() : VyaparCore.transactions) : []);
+
+      if (!txList || txList.length === 0) {
+        feed.innerHTML = `<div style="text-align: center; color: var(--text-tertiary); padding: 18px; font-size: 0.8rem;">No recent transactions yet</div>`;
+        return;
+      }
+
+      feed.innerHTML = txList.slice(0, 6).map(tx => {
         const isSale = (tx.transaction_type || tx.type) === 'SALE';
-        const color = isSale ? '#25d366' : '#0071e3';
-        const bg = isSale ? 'rgba(37, 211, 102, 0.15)' : 'rgba(0, 113, 227, 0.15)';
-        const timeStr = tx.created_at ? new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
+        const isUdhar = (tx.transaction_type || tx.type) === 'UDHAR';
+        const color = isSale ? '#25d366' : (isUdhar ? '#ff9500' : '#0071e3');
+        const bg = isSale ? 'rgba(37, 211, 102, 0.15)' : (isUdhar ? 'rgba(255, 149, 0, 0.15)' : 'rgba(0, 113, 227, 0.15)');
+
+        let timeStr = 'Just now';
+        if (tx.created_at) {
+          timeStr = new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else if (tx.time) {
+          timeStr = tx.time;
+        }
+
+        const title = tx.item_name || tx.items || 'Kirana Sale';
+        const qtyStr = tx.quantity_delta ? `(${Math.abs(tx.quantity_delta)})` : '';
+        const modeStr = tx.mode || (tx.customer_name ? tx.customer_name : (tx.cust ? tx.cust : 'WhatsApp Ingress'));
+        const amt = tx.total_amount !== undefined ? tx.total_amount : (tx.amount !== undefined ? tx.amount : 0);
+
         return `
           <div class="sale-feed-row" style="animation: fadeIn 0.3s ease;">
             <div class="sale-feed-left">
               <div class="sale-icon-box" style="background: ${bg}; color: ${color};">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
                 </svg>
               </div>
               <div class="sale-meta-group">
-                <span class="sale-item-title">${tx.item_name || 'Kirana Sale'} (${Math.abs(tx.quantity_delta || 1)})</span>
-                <span class="sale-timestamp tabular-nums">${timeStr} • WhatsApp Ingress</span>
+                <span class="sale-item-title">${title} ${qtyStr}</span>
+                <span class="sale-timestamp tabular-nums">${timeStr} • ${modeStr}</span>
               </div>
             </div>
-            <span class="sale-customer-tag" style="color: ${color}; font-weight: 700;">+₹${tx.total_amount || 0}</span>
+            <span class="sale-customer-tag" style="color: ${color}; font-weight: 700;">+₹${Number(amt).toLocaleString('en-IN')}</span>
           </div>
         `;
       }).join('');
     }
+
+    function renderStockOverview(skus) {
+      const container = document.getElementById('stockOverviewMeterList');
+      if (!container) return;
+
+      const allSkus = (skus && Array.isArray(skus) && skus.length > 0)
+        ? skus
+        : (window.VyaparCore ? (VyaparCore.getSKUs ? VyaparCore.getSKUs() : VyaparCore.inventory) : []);
+
+      if (!allSkus || allSkus.length === 0) return;
+
+      const KEY_ITEMS = [
+        { key: "parle", sku: "FMCG-PARLE-100G", name: "Parle-G", max_capacity: 100, unit: "packet" },
+        { key: "sugar", sku: "GROC-SUG-001", name: "Sugar", max_capacity: 100, unit: "kg" },
+        { key: "milk", sku: "DAIRY-AMUL-500M", name: "Amul Milk", max_capacity: 50, unit: "pouch" },
+        { key: "oil", sku: "OIL-FORT-1L", name: "Fortune Oil", max_capacity: 50, unit: "pouch" },
+        { key: "tur", sku: "DAL-TUR-001", name: "Tur Dal", max_capacity: 50, unit: "kg" },
+        { key: "atta", sku: "GROC-ATTA-5K", name: "Aashirvaad Atta", max_capacity: 30, unit: "bag" },
+        { key: "onion", sku: "VEG-KANDA-001", name: "Red Onion", max_capacity: 100, unit: "kg" },
+        { key: "maggi", sku: "FMCG-MAGGI-70G", name: "Maggi Noodles", max_capacity: 80, unit: "packet" }
+      ];
+
+      function formatUnit(qty, unit) {
+        const u = (unit || '').toLowerCase();
+        if (u.includes('kg')) return 'kg';
+        if (u.includes('packet')) return qty === 1 ? 'packet' : 'packets';
+        if (u.includes('pouch')) return qty === 1 ? 'pouch' : 'pouches';
+        if (u.includes('bag')) return qty === 1 ? 'bag' : 'bags';
+        if (u.includes('bottle')) return qty === 1 ? 'bottle' : 'bottles';
+        if (u.includes('piece')) return qty === 1 ? 'piece' : 'pieces';
+        if (u.includes('ladi')) return 'ladi';
+        return u || 'units';
+      }
+
+      KEY_ITEMS.forEach(cfg => {
+        const found = allSkus.find(s => s.sku === cfg.sku || 
+          (s.name_en && s.name_en.toLowerCase().includes(cfg.name.toLowerCase())) ||
+          (s.short_name && s.short_name.toLowerCase().includes(cfg.name.toLowerCase()))
+        );
+        const currentStock = found ? Number(found.stock) : 0;
+        const maxCapacity = (found && found.max_capacity) ? Number(found.max_capacity) : cfg.max_capacity;
+        const unit = (found && found.unit) ? found.unit : cfg.unit;
+        const displayName = (found && found.short_name) ? found.short_name : cfg.name;
+
+        const percent = Math.min(100, Math.max(0, Math.round((currentStock / maxCapacity) * 100)));
+        let fillClass = 'fill-blue';
+        let valClass = 'val-normal';
+        if (percent < 25) {
+          fillClass = 'fill-danger';
+          valClass = 'val-danger';
+        } else if (percent <= 50) {
+          fillClass = 'fill-warning';
+          valClass = 'val-warning';
+        } else {
+          fillClass = 'fill-blue';
+          valClass = 'val-normal';
+        }
+
+        const stockFormatted = currentStock.toLocaleString('en-IN', { maximumFractionDigits: 1 });
+        const unitStr = formatUnit(currentStock, unit);
+        const valueText = `${stockFormatted} ${unitStr} left • ${percent}%`;
+
+        let row = container.querySelector(`.stock-meter-row[data-sku="${cfg.sku}"]`);
+        if (row) {
+          const valEl = row.querySelector('.meter-percent-val');
+          const fillEl = row.querySelector('.meter-fill');
+          if (valEl) {
+            valEl.className = `meter-percent-val ${valClass} tabular-nums`;
+            valEl.textContent = valueText;
+          }
+          if (fillEl) {
+            fillEl.className = `meter-fill ${fillClass}`;
+            fillEl.style.width = `${percent}%`;
+          }
+        } else {
+          row = document.createElement('div');
+          row.className = 'stock-meter-row';
+          row.setAttribute('data-sku', cfg.sku);
+          row.innerHTML = `
+            <div class="meter-label-row">
+              <span class="meter-prod-title">${displayName}</span>
+              <span class="meter-percent-val ${valClass} tabular-nums">${valueText}</span>
+            </div>
+            <div class="meter-track">
+              <div class="meter-fill ${fillClass}" style="width: 0%;"></div>
+            </div>
+          `;
+          container.appendChild(row);
+
+          requestAnimationFrame(() => {
+            const fill = row.querySelector('.meter-fill');
+            if (fill) fill.style.width = `${percent}%`;
+          });
+        }
+      });
+    }
+
+    function renderTopProducts(skus, transactions) {
+      const container = document.getElementById('topProductsList');
+      if (!container) return;
+
+      const allSkus = (skus && Array.isArray(skus) && skus.length > 0)
+        ? skus
+        : (window.VyaparCore ? (VyaparCore.getSKUs ? VyaparCore.getSKUs() : VyaparCore.inventory) : []);
+
+      if (!allSkus || allSkus.length === 0) return;
+
+      const allTxs = (transactions && Array.isArray(transactions) && transactions.length > 0)
+        ? transactions
+        : (window.VyaparCore ? (VyaparCore.getTransactions ? VyaparCore.getTransactions() : VyaparCore.transactions) : []);
+
+      const baseRevMap = {
+        "FMCG-PARLE-100G": 12450,
+        "GROC-SUG-001": 4850,
+        "OIL-FORT-1L": 3375,
+        "DAL-TUR-001": 2480,
+        "GROC-ATTA-5K": 1980,
+        "DAIRY-AMUL-500M": 1620,
+        "FMCG-MAGGI-70G": 1120,
+        "VEG-KANDA-001": 980
+      };
+
+      const revenueMap = {};
+      allSkus.forEach(s => {
+        revenueMap[s.sku] = baseRevMap[s.sku] || (s.stock * (s.unit_price || 20) * 0.8);
+      });
+
+      if (allTxs && allTxs.length > 0) {
+        allTxs.forEach(tx => {
+          const amt = Number(tx.total_amount !== undefined ? tx.total_amount : (tx.amount || 0));
+          if (amt <= 0) return;
+
+          let matchedSku = tx.sku;
+          if (!matchedSku) {
+            const txt = ((tx.item_name || '') + ' ' + (tx.items || '')).toLowerCase();
+            const found = allSkus.find(s => 
+              (s.short_name && txt.includes(s.short_name.toLowerCase())) ||
+              (s.name_en && txt.includes(s.name_en.toLowerCase())) ||
+              (s.aliases && s.aliases.some(a => txt.includes(a.toLowerCase())))
+            );
+            if (found) matchedSku = found.sku;
+          }
+
+          if (matchedSku && revenueMap[matchedSku] !== undefined) {
+            revenueMap[matchedSku] += amt;
+          } else {
+            revenueMap["GROC-SUG-001"] = (revenueMap["GROC-SUG-001"] || 0) + amt * 0.5;
+            revenueMap["FMCG-PARLE-100G"] = (revenueMap["FMCG-PARLE-100G"] || 0) + amt * 0.5;
+          }
+        });
+      }
+
+      const sorted = [...allSkus].sort((a, b) => {
+        const revA = revenueMap[a.sku] || 0;
+        const revB = revenueMap[b.sku] || 0;
+        return revB - revA;
+      }).slice(0, 3);
+
+      container.innerHTML = sorted.map(s => {
+        const rev = Math.round(revenueMap[s.sku] || 0);
+        const img = (window.VyaparCore && VyaparCore.getProductImage) ? VyaparCore.getProductImage(s) : (s.img || 'assets/products/placeholder.svg');
+        const name = s.short_name || s.name_en || s.name_mr;
+        const catSafe = (s.category || '').replace(/'/g, "\\'");
+        const skuSafe = (s.sku || '').replace(/'/g, "\\'");
+        return `
+          <div class="top-product-item" style="animation: fadeIn 0.3s ease;">
+            <div class="top-prod-left">
+              <img src="${img}" alt="${name}" class="table-prod-thumb" onerror="this.onerror=null; this.src=(window.VyaparCore && VyaparCore.getFallbackImage) ? VyaparCore.getFallbackImage('${catSafe}', '${skuSafe}') : 'assets/products/placeholder.svg';" />
+              <div class="top-prod-meta">
+                <span class="top-prod-name">${name}</span>
+                <span class="top-prod-sku tabular-nums">SKU: ${s.sku}</span>
+              </div>
+            </div>
+            <div class="top-prod-revenue tabular-nums">₹${rev.toLocaleString('en-IN')}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function performLiveSync() {
+      if (window.VyaparCore) {
+        if (window.VyaparCore.performLiveSync) {
+          await window.VyaparCore.performLiveSync();
+        } else if (VyaparCore.backend && VyaparCore.backend.performLiveSync) {
+          await VyaparCore.backend.performLiveSync();
+        }
+      }
+      if (window.VyaparCore && VyaparCore.getSKUs) {
+        const skus = VyaparCore.getSKUs();
+        renderInventoryTable(skus);
+        updateCarouselStock(skus);
+        renderStockOverview(skus);
+        renderTopProducts(skus);
+      }
+      updateRecentSalesFeed();
+    }
+
+    window.renderStockOverview = renderStockOverview;
+    window.renderTopProducts = renderTopProducts;
+    window.updateRecentSalesFeed = updateRecentSalesFeed;
+    window.performLiveSync = performLiveSync;
 
     function handleLiveMetricsUpdate(metrics) {
       if (!metrics) return;
@@ -2962,17 +3161,20 @@
           showAppleToast(`⚡ WhatsApp Ingress: Recorded sale for ${soldItemName}!`);
         }
 
-        // Render table and carousel stock badges
+        // Render table, carousel, stock overview, and top products
         renderInventoryTable(metrics.products);
         updateCarouselStock(metrics.products);
+        renderStockOverview(metrics.products);
+        renderTopProducts(metrics.products, metrics.recent_transactions);
       }
 
-      // 3. Update Recent Sales Feed
+      // 3. Update Recent Sales Feed & Top Products
       if (metrics.recent_transactions && metrics.recent_transactions.length > 0) {
         const latestTx = metrics.recent_transactions[0];
         if (latestTx && latestTx.id !== previousLatestTxId) {
           previousLatestTxId = latestTx.id;
           updateRecentSalesFeed(metrics.recent_transactions);
+          renderTopProducts(metrics.products, metrics.recent_transactions);
         }
       }
     }
@@ -2989,6 +3191,14 @@
         const currentOrders = parseInt(document.getElementById('statOrdersCount').textContent) || 42;
         animateCounter('statTotalSales', currentSales, currentSales + (sale.amount || 340), 900, '₹');
         animateCounter('statOrdersCount', currentOrders, currentOrders + 1, 600);
+        if (window.VyaparCore && VyaparCore.getSKUs) {
+          const updatedSkus = VyaparCore.getSKUs();
+          renderInventoryTable(updatedSkus);
+          updateCarouselStock(updatedSkus);
+          renderStockOverview(updatedSkus);
+          renderTopProducts(updatedSkus);
+        }
+        updateRecentSalesFeed();
 
         // Prepend new activity item in Recent Sales feed
         const feed = document.getElementById('recentSalesFeedList');
@@ -3020,13 +3230,61 @@
 
     // 9. Chart.js Daily Sales Line Chart (Apple Styled with Subsurface Gradient)
     document.addEventListener('DOMContentLoaded', () => {
+      // Sync merchant session UI immediately
+      syncMerchantSessionUI();
+
+      // Welcome Godly Wave Loader Trigger if freshly logged in
+      if (sessionStorage.getItem('just_logged_in') === 'true') {
+        sessionStorage.removeItem('just_logged_in');
+        if (window.VyaparLoader && typeof window.VyaparLoader.show === 'function') {
+          let merchantFirstName = 'व्यापारी';
+          try {
+            const u = JSON.parse(localStorage.getItem('vyaparai_auth_user'));
+            if (u && u.name) merchantFirstName = u.name.split(' ')[0];
+          } catch(e) {}
+          window.VyaparLoader.show({
+            duration: 1200,
+            successPhrase: `Welcome, ${merchantFirstName}! Calacatta OS Ready...`,
+            steps: [
+              { pct: 30, text: "Verifying Kirana Vendor Security Token...", delay: 200 },
+              { pct: 70, text: "Synchronizing Kolhapur Kirana Catalog & Khata Engine...", delay: 600 },
+              { pct: 100, text: `Welcome, ${merchantFirstName}! Calacatta OS Ready...`, delay: 1000 }
+            ]
+          });
+        }
+      }
+
       // Initialize Momentum Scroll
       initMomentumScroll('catalogCarousel');
 
-      // Initialize initial inventory table from local catalog
+      // Initialize initial inventory table, stock meters, top products, and recent sales
       if (window.VyaparCore && VyaparCore.getSKUs) {
-        renderInventoryTable(VyaparCore.getSKUs());
-        updateCarouselStock(VyaparCore.getSKUs());
+        const initialSkus = VyaparCore.getSKUs();
+        renderInventoryTable(initialSkus);
+        updateCarouselStock(initialSkus);
+        renderStockOverview(initialSkus);
+        renderTopProducts(initialSkus);
+      }
+      updateRecentSalesFeed();
+
+      // Register listener for reactive store events
+      if (window.VyaparCore && VyaparCore.registerListener) {
+        VyaparCore.registerListener((type, data) => {
+          if (type === 'METRICS_UPDATE') {
+            handleLiveMetricsUpdate(data);
+          } else if (type === 'TRANSACTIONS_UPDATED') {
+            updateRecentSalesFeed(data);
+            renderTopProducts(null, data);
+          } else if (type === 'STOCK_UPDATED' || type === 'INVENTORY_UPDATED') {
+            if (window.VyaparCore && VyaparCore.getSKUs) {
+              const curSkus = VyaparCore.getSKUs();
+              renderInventoryTable(curSkus);
+              updateCarouselStock(curSkus);
+              renderStockOverview(curSkus);
+              renderTopProducts(curSkus);
+            }
+          }
+        });
       }
 
       // Initialize Number Counters
@@ -3287,7 +3545,9 @@
       showAppleToast("Committed New SKUs to Master Inventory!");
       closeVideoSweepModal();
 
-      if (window.VyaparCore && window.VyaparCore.performLiveSync) {
+      if (typeof performLiveSync === 'function') {
+        performLiveSync();
+      } else if (window.VyaparCore && window.VyaparCore.performLiveSync) {
         window.VyaparCore.performLiveSync();
       }
 
@@ -3320,14 +3580,48 @@
       container.innerHTML = orders.map(order => {
         const orderId = order.order_id || order.id;
         const isFulfilled = order.status === 'PACKED' || order.status === 'FULFILLED';
-        const isConfirmed = order.status === 'CONFIRMED' || order.confirmed_by_customer;
+        const isCancelled = order.status === 'CANCELLED' || order.status === 'EXPIRED_AUTO_CANCELLED' || order.status === 'EXPIRED';
+        const isConfirmed = (order.status === 'CONFIRMED' || order.confirmed_by_customer) && !isFulfilled && !isCancelled;
+        const isPending = !isFulfilled && !isCancelled && !isConfirmed;
+
         const custName = order.customerName || order.customer_name || "व्यंकटेश पै (Venkatesh Pai)";
-        const custPhone = order.phone || order.customer_phone || "+91 70192 59321";
+        const custPhone = order.phone || order.customer_phone || "+91 98220 12345";
         const totalEst = parseFloat(order.totalEstimated || order.total_amount || 0);
         const orderItems = Array.isArray(order.items) ? order.items : [];
         const remSecs = order.remaining_seconds !== undefined ? order.remaining_seconds : 1800;
+
+        let statusBadgeHtml = '';
+        if (isFulfilled) {
+          statusBadgeHtml = `
+            <span class="status-pill status-in" style="font-size: 0.70rem; background: rgba(52, 199, 89, 0.15); color: #28cd41; border: 1px solid rgba(52, 199, 89, 0.3); font-weight: 600;">
+              ✅ साठा वजा (Packed & Fulfilled)
+            </span>
+          `;
+        } else if (isCancelled) {
+          statusBadgeHtml = `
+            <span class="status-pill status-out" style="font-size: 0.70rem; background: rgba(255, 69, 58, 0.12); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.28); font-weight: 600;">
+              ↩ रद्द / साठा पूर्ववत (Cancelled & Restituted)
+            </span>
+          `;
+        } else if (isConfirmed) {
+          statusBadgeHtml = `
+            <span class="status-pill status-in" style="font-size: 0.70rem; background: rgba(0, 113, 227, 0.12); color: #0071e3; border: 1px solid rgba(0, 113, 227, 0.28); font-weight: 600;">
+              ✓ ग्राहक निश्चिती (Customer Confirmed)
+            </span>
+            <span class="order-timer-pill" id="order-timer-${orderId}" style="font-size: 0.70rem; padding: 2px 7px; border-radius: 999px; background: rgba(255, 149, 0, 0.12); color: #ff9500; font-weight: 700; border: 1px solid rgba(255, 149, 0, 0.28);">⏳ ${formatTimerSeconds(remSecs)}</span>
+          `;
+        } else {
+          // PENDING / Staged
+          statusBadgeHtml = `
+            <span class="status-pill status-low" style="font-size: 0.70rem; background: rgba(255, 149, 0, 0.12); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.28); font-weight: 600;">
+              📋 मागणी प्रलंबित (Pending Approval / Staged)
+            </span>
+            <span class="order-timer-pill" id="order-timer-${orderId}" style="font-size: 0.70rem; padding: 2px 7px; border-radius: 999px; background: rgba(255, 69, 58, 0.12); color: #ff453a; font-weight: 700; border: 1px solid rgba(255, 69, 58, 0.28);">⏳ ${formatTimerSeconds(remSecs)}</span>
+          `;
+        }
+
         return `
-          <div class="yaadi-order-box ${isFulfilled ? 'fulfilled' : ''}" id="yaadi-order-${orderId}">
+          <div class="yaadi-order-box ${isFulfilled ? 'fulfilled' : (isCancelled ? 'cancelled' : '')}" id="yaadi-order-${orderId}">
             <div class="yaadi-order-header">
               <div class="yaadi-cust-info">
                 <div class="yaadi-cust-avatar">${custName.charAt(0)}</div>
@@ -3337,19 +3631,13 @@
                 </div>
               </div>
               <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-                <span class="status-pill status-in" style="font-size: 0.70rem; background: rgba(0, 113, 227, 0.12); color: #0071e3; border: 1px solid rgba(0, 113, 227, 0.25);">
-                  🔒 साठा वजा (Reserved)
-                </span>
-                <span class="status-pill ${isFulfilled ? 'status-in' : (isConfirmed ? 'status-in' : 'status-low')}" style="font-size: 0.70rem;">
-                  ${isFulfilled ? '✓ PACKED & FULFILLED' : (isConfirmed ? '✓ ग्राहक निश्चिती (Confirmed)' : '⏳ ३० मि. मुदत')}
-                </span>
-                ${!isFulfilled ? `<span class="order-timer-pill" id="order-timer-${orderId}" style="font-size: 0.70rem; padding: 2px 7px; border-radius: 999px; background: rgba(255, 69, 58, 0.12); color: #ff453a; font-weight: 700; border: 1px solid rgba(255, 69, 58, 0.25);">⏳ ${formatTimerSeconds(remSecs)}</span>` : ''}
+                ${statusBadgeHtml}
               </div>
             </div>
             
             <div class="yaadi-items-list">
-              <strong>Order Slip:</strong> "${order.rawText || order.raw_message || 'किराणा यादी'}"<br/>
-              <span style="font-size: 0.75rem; color: var(--text-tertiary);">Parsed items: ${orderItems.map(i => `${i.qty || i.quantity || 1}x ${i.name || i.name_mr || 'सामान'}`).join(', ') || 'साखर २ किलो'}</span>
+              <strong>Order Slip:</strong> "${order.rawText || order.raw_message || order.items_text || 'किराणा यादी'}"<br/>
+              <span style="font-size: 0.75rem; color: var(--text-tertiary);">Parsed items: ${orderItems.map(i => `${i.qty || i.quantity || 1}x ${i.name || i.name_mr || 'सामान'}`).join(', ') || 'साखर २ किलो, तेल १ लिटर, पार्ले-जी ५ पुडे, गोकुळ दूध १ पिशवी'}</span>
             </div>
 
             <div class="yaadi-footer-row" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
@@ -3358,10 +3646,10 @@
                 <button 
                   class="btn-pack-order" 
                   onclick="packCustomerOrder('${orderId}')"
-                  ${isFulfilled ? 'disabled' : ''}>
-                  ${isFulfilled ? '✓ Delivered' : 'Pack & Fulfill ✓'}
+                  ${(isFulfilled || isCancelled) ? 'disabled style="opacity: 0.6; cursor: not-allowed;"' : ''}>
+                  ${isFulfilled ? '✓ Delivered' : (isCancelled ? '✕ Cancelled' : 'Pack & Fulfill ✓')}
                 </button>
-                ${!isFulfilled ? `
+                ${(!isFulfilled && !isCancelled) ? `
                 <button 
                   class="btn-stock" 
                   style="font-size: 0.72rem; padding: 5px 10px; border-radius: 999px; background: rgba(255, 69, 58, 0.12); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.25); cursor: pointer;"
@@ -3378,17 +3666,29 @@
 
     function cancelAndRestoreOrderStock(orderId) {
       haptics.tap();
-      const backendUrl = window.VyaparCore && VyaparCore.backend ? VyaparCore.backend.getBackendUrl() : "";
-      fetch(`${backendUrl}/api/orders/${orderId}/expire-now`, { method: "POST" })
-        .then(r => r.json())
-        .then(res => {
-          showAppleToast(`🔄 Order ${orderId} cancelled & stock restored to active inventory!`);
-          if (window.VyaparCore && VyaparCore.backend) {
-            VyaparCore.backend.performLiveSync();
-          }
-          renderPendingYaadiOrders();
-        })
-        .catch(e => console.error("Cancel order error", e));
+      if (window.VyaparCore && VyaparCore.cancelAndRestoreOrder) {
+        VyaparCore.cancelAndRestoreOrder(orderId);
+      }
+      showAppleToast(`🔄 Order ${orderId} cancelled & stock restored to active inventory!`);
+      renderPendingYaadiOrders();
+
+      const backendUrl = (window.VyaparCore && VyaparCore.backend && typeof VyaparCore.backend.getBaseUrl === 'function')
+        ? VyaparCore.backend.getBaseUrl()
+        : (window.VyaparCore && VyaparCore.backend && typeof VyaparCore.backend.getBackendUrl === 'function')
+          ? VyaparCore.backend.getBackendUrl()
+          : '';
+
+      if (backendUrl) {
+        fetch(`${backendUrl}/api/orders/${orderId}/expire-now`, { method: "POST" })
+          .then(r => r.json())
+          .then(res => {
+            if (window.VyaparCore && VyaparCore.backend && VyaparCore.backend.performLiveSync) {
+              VyaparCore.backend.performLiveSync();
+            }
+            renderPendingYaadiOrders();
+          })
+          .catch(e => console.error("Cancel order error", e));
+      }
     }
 
     // Auto-ticking live 30-min countdown timer for pending orders
@@ -3416,12 +3716,14 @@
       if (!window.VyaparCore) return;
       const res = VyaparCore.packAndFulfillOrder(orderId);
       if (res && res.success) {
-        showAppleToast(`Packed order for ${res.order.customerName}! Stock finalized ₹${res.order.totalEstimated}.`);
+        const cust = res.order.customerName || res.order.customer_name || 'व्यंकटेश पै';
+        const total = parseFloat(res.order.totalEstimated || res.order.total_amount || 0);
+        showAppleToast(`Packed order for ${cust}! Stock finalized ₹${total}.`);
         renderPendingYaadiOrders();
 
         const currentSales = parseInt(document.getElementById('statTotalSales').textContent.replace(/[₹,]/g, '')) || 12450;
         const currentOrders = parseInt(document.getElementById('statOrdersCount').textContent) || 42;
-        animateCounter('statTotalSales', currentSales, currentSales + res.order.totalEstimated, 800, '₹');
+        animateCounter('statTotalSales', currentSales, currentSales + total, 800, '₹');
         animateCounter('statOrdersCount', currentOrders, currentOrders + 1, 500);
 
         const feed = document.getElementById('recentSalesFeedList');
@@ -3437,16 +3739,16 @@
                 </svg>
               </div>
               <div class="sale-meta-group">
-                <span class="sale-item-title">Customer Yaadi (${res.order.customerName})</span>
+                <span class="sale-item-title">Customer Yaadi (${cust})</span>
                 <span class="sale-timestamp tabular-nums">Just now</span>
               </div>
             </div>
-            <span class="sale-customer-tag" style="color: var(--apple-green); font-weight: 700;">+₹${res.order.totalEstimated}</span>
+            <span class="sale-customer-tag" style="color: var(--apple-green); font-weight: 700;">+₹${total}</span>
           `;
           feed.insertBefore(newRow, feed.firstChild);
         }
       } else {
-        showAppleToast(res ? res.error : "Failed to pack order");
+        showAppleToast(res ? (res.message || res.error) : "Failed to pack order");
       }
     }
 
@@ -3523,6 +3825,14 @@
           await VyaparCore.addStock(matchedSku, -kgDelta, `Counter Scale Sale (${item} ${grams}g)`);
         }
         if (VyaparCore.playSoundboxChime) VyaparCore.playSoundboxChime(amount);
+        if (VyaparCore.getSKUs) {
+          const updatedSkus = VyaparCore.getSKUs();
+          renderInventoryTable(updatedSkus);
+          updateCarouselStock(updatedSkus);
+          renderStockOverview(updatedSkus);
+          renderTopProducts(updatedSkus);
+        }
+        updateRecentSalesFeed();
       }
     }
 
@@ -3567,6 +3877,9 @@
         }
         renderInventoryTable(VyaparCore.getSKUs());
         updateCarouselStock(VyaparCore.getSKUs());
+        renderStockOverview(VyaparCore.getSKUs());
+        renderTopProducts(VyaparCore.getSKUs());
+        updateRecentSalesFeed();
         if (typeof renderPendingYaadiOrders === 'function') {
           renderPendingYaadiOrders();
         }
@@ -3586,6 +3899,9 @@
         }
         renderInventoryTable(VyaparCore.getSKUs());
         updateCarouselStock(VyaparCore.getSKUs());
+        renderStockOverview(VyaparCore.getSKUs());
+        renderTopProducts(VyaparCore.getSKUs());
+        updateRecentSalesFeed();
         if (typeof renderPendingYaadiOrders === 'function') {
           renderPendingYaadiOrders();
         }
@@ -3601,6 +3917,9 @@
       if (window.VyaparCore && VyaparCore.getSKUs) {
         renderInventoryTable(VyaparCore.getSKUs());
         updateCarouselStock(VyaparCore.getSKUs());
+        renderStockOverview(VyaparCore.getSKUs());
+        renderTopProducts(VyaparCore.getSKUs());
+        updateRecentSalesFeed();
       }
     }
 

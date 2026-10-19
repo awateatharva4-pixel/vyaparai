@@ -133,6 +133,14 @@ app.include_router(simulator.router)
 
 
 @app.get("/")
+@app.get("/login")
+def root_login_entry(request: Request):
+    """Root entry point - always presents merchant login screen first."""
+    if os.path.exists(FRONTEND_DIR):
+        return RedirectResponse(url="/frontend/login.html")
+    return RedirectResponse(url="/frontend/login.html")
+
+
 @app.get("/dashboard")
 def render_dashboard(request: Request, db: Session = Depends(get_db)):
     """Main Merchant Dashboard Portal - serves the interactive Calacatta Marble frontend."""

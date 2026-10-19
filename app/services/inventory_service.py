@@ -1749,7 +1749,7 @@ class InventoryService:
     def get_pending_customer_orders(cls, db: Session, vendor_id: str = "DEMO_KIRANA_KOP") -> List[Dict[str, Any]]:
         orders = db.query(CustomerOrder).filter(
             CustomerOrder.vendor_id == vendor_id,
-            CustomerOrder.status.in_(["PENDING", "CONFIRMED"])
-        ).order_by(CustomerOrder.created_at.desc()).all()
+            CustomerOrder.status.in_(["PENDING", "CONFIRMED", "PACKED", "CANCELLED", "EXPIRED_AUTO_CANCELLED"])
+        ).order_by(CustomerOrder.created_at.desc()).limit(10).all()
         return [o.to_dict() for o in orders]
 

@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>VyaparAI — Kirana Store Management Dashboard</title>
+
+  <!-- VyaparAI Authentication Guard -->
+  <script>
+    if (!localStorage.getItem('vyaparai_auth_user')) {
+      window.location.replace('login.html');
+    }
+  </script>
   
   <!-- Apple Typography: SF Pro / Inter font stack -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,7 +19,9 @@
   
   <!-- Chart.js for 60 FPS lightweight responsive chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="assets/godly-loader.css" />
   <script src="assets/vyapar-core.js"></script>
+  <script src="assets/godly-loader.js"></script>
 
   <style>
     /* ==========================================================================
@@ -569,13 +578,17 @@
     .stock-meter-list {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 13px;
       margin-top: 6px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 2px;
     }
     .stock-meter-row {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
+      transition: transform 0.2s ease;
     }
     .meter-label-row {
       display: flex;
@@ -589,8 +602,10 @@
     }
     .meter-percent-val {
       font-weight: 650;
+      transition: color 0.3s ease;
     }
     .val-danger { color: var(--apple-coral); }
+    .val-warning { color: var(--apple-amber); }
     .val-normal { color: var(--apple-blue); }
 
     .meter-track {
@@ -604,9 +619,10 @@
     .meter-fill {
       height: 100%;
       border-radius: 9999px;
-      transition: width 1s var(--spring-snappy);
+      transition: width 0.8s var(--spring-snappy), background-color 0.4s ease;
     }
     .fill-danger { background: var(--apple-coral); }
+    .fill-warning { background: var(--apple-amber); }
     .fill-blue { background: var(--apple-blue); }
 
     /* Inventory Status Table */
@@ -1229,6 +1245,11 @@
       background: rgba(245, 248, 245, 0.6);
       border-color: rgba(40, 205, 65, 0.3);
     }
+    .yaadi-order-box.cancelled {
+      opacity: 0.65;
+      background: rgba(255, 245, 245, 0.6);
+      border-color: rgba(255, 69, 58, 0.3);
+    }
     .yaadi-order-header {
       display: flex;
       justify-content: space-between;
@@ -1513,11 +1534,11 @@
     <!-- 1. Apple macOS Dock-Style Sidebar Rail -->
     <aside class="apple-dock-rail">
       <div class="dock-top-cluster">
-        <div class="dock-brand-logo" title="VyaparAI Enterprise">V</div>
+        <div class="dock-brand-logo" title="VyaparAI Enterprise" onclick="window.location.href='index.html'">V</div>
         
         <nav class="dock-items-group">
-          <!-- Dashboard (Active) -->
-          <button class="dock-btn active" title="Dashboard" onclick="window.location.href='index.html'">
+          <!-- 1. Home / Dashboard (Active) -->
+          <button class="dock-btn active" title="Dashboard (मुख्यपृष्ठ)" onclick="window.location.href='index.html'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="7" height="7" rx="2"></rect>
               <rect x="14" y="3" width="7" height="7" rx="2"></rect>
@@ -1526,16 +1547,25 @@
             </svg>
           </button>
 
-          <!-- Sales & Transactions -->
-          <button class="dock-btn" title="Sales & Ledger" onclick="window.location.href='sales.html'">
+          <!-- 2. Inventory Register -->
+          <button class="dock-btn" title="Inventory Stock (स्टॉक नोंद)" onclick="window.location.href='inventory.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+          </button>
+
+          <!-- 3. Sales & Transactions -->
+          <button class="dock-btn" title="Sales & Ledger (विक्री खतावणी)" onclick="window.location.href='sales.html'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2" y="5" width="20" height="14" rx="2"></rect>
               <line x1="2" y1="10" x2="22" y2="10"></line>
             </svg>
           </button>
 
-          <!-- Customers / Khata -->
-          <button class="dock-btn" title="Customers & Khata" onclick="window.location.href='customers.html'">
+          <!-- 4. Customers & Khata -->
+          <button class="dock-btn" title="Customers & Khata (खाते नोंद)" onclick="window.location.href='khata.html'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
@@ -1544,17 +1574,16 @@
             </svg>
           </button>
 
-          <!-- Inventory Register -->
-          <button class="dock-btn" title="Inventory Stock" onclick="window.location.href='inventory.html'">
+          <!-- 5. Low Stock Alerts -->
+          <button class="dock-btn" title="Low Stock Alerts (साठा सूचना)" onclick="window.location.href='alerts.html'" style="color: var(--apple-coral);">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
           </button>
 
-          <!-- Analytics & Reports -->
-          <button class="dock-btn" title="Analytics & SIH Reports" onclick="window.location.href='analytics.html'">
+          <!-- 6. Analytics & SIH Reports -->
+          <button class="dock-btn" title="Analytics & SIH Reports (विश्लेषण)" onclick="window.location.href='analytics.html'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="20" x2="18" y2="10"></line>
               <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -1572,10 +1601,20 @@
       </div>
 
       <div class="dock-bottom-cluster">
-        <button class="dock-btn" title="Settings" onclick="window.location.href='settings.html'">
+        <!-- 7. Settings -->
+        <button class="dock-btn" title="Settings (सेटिंग्ज)" onclick="window.location.href='settings.html'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+
+        <!-- 8. Logout -->
+        <button class="dock-btn" title="Logout (बाहेर पडा 🚪)" onclick="localStorage.removeItem('vyaparai_auth_user'); localStorage.removeItem('vyaparai_auth_token'); sessionStorage.removeItem('just_logged_in'); window.location.href='login.html';" style="color: var(--apple-coral);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
           </svg>
         </button>
       </div>
@@ -1629,42 +1668,50 @@
             + Dairy SKU
           </div>
 
-          <!-- Store Selector (Fixed typo: All Dukaans) -->
-          <div class="store-select-pill" onclick="cycleDukaans()">
+          <!-- Single Store Primary Badge (Atharva Kirana) -->
+          <div class="header-pill-item" style="background: rgba(16, 185, 129, 0.12); color: var(--emerald-900); border: 1px solid rgba(16, 185, 129, 0.35); font-weight: 700;" title="Single Active Store: DEMO_KIRANA_KOP">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
               <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
-            <span id="currentDukaanName">All Dukaans</span> ▾
+            <span id="currentDukaanName">🏪 अथर्व किराणा स्टोअर्स, कोल्हापूर</span>
           </div>
 
-          <!-- Admin Pill -->
-          <div class="header-pill-item" onclick="showAppleToast('Admin: Ganesh Kirana Store')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          <!-- Alerts Subpage Navigation Link -->
+          <a href="alerts.html" class="header-pill-item" style="text-decoration: none; color: #ff3b30; border: 1px solid rgba(255,59,48,0.28); font-weight: 600;" title="Stockout Risk & Vendor Alerts">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
-            Admin
-          </div>
+            <span>Alerts</span>
+          </a>
 
-          <!-- Profile Pill -->
-          <div class="header-pill-item" onclick="showAppleToast('Profile Settings')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <!-- Godly Wave Loader Preview Pill -->
+          <button type="button" class="header-pill-item" onclick="triggerWaveLoaderPreview()" style="background: rgba(0, 113, 227, 0.08); color: var(--apple-blue); border: 1px solid rgba(0, 113, 227, 0.28); font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" title="Preview Godly Concentric Wave Ingress">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span>⚡ Wave Loader</span>
+          </button>
+
+          <!-- Authenticated Merchant Session Pill -->
+          <div class="header-pill-item merchant-user-pill" id="headerMerchantPill" onclick="showAppleToast('अधिकृत व्यापारी: ' + (document.getElementById('headerMerchantName')?.textContent || 'अथर्व आवटे'))" title="Authenticated Kirana Merchant" style="font-weight: 600; cursor: pointer;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; color: var(--emerald-600);">
               <circle cx="12" cy="7" r="4"></circle>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             </svg>
-            Profile
+            <span id="headerMerchantName">अथर्व आवटे (DEMO_KIRANA_KOP)</span>
           </div>
 
-          <!-- Logout -->
-          <div class="header-pill-item" onclick="showAppleToast('Session active')" style="color: var(--apple-coral);">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Functional Header Logout Button -->
+          <button type="button" class="header-pill-item header-logout-btn" onclick="logoutMerchant()" title="Logout from VyaparAI / बाहेर पडा" style="cursor: pointer; color: var(--apple-coral); border: 1px solid rgba(255, 59, 48, 0.28); background: rgba(255, 59, 48, 0.06); font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
               <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
-            Logout
-          </div>
+            <span>बाहेर पडा 🚪</span>
+          </button>
         </div>
       </header>
 
@@ -1686,8 +1733,8 @@
               </svg>
               Quick Summary
             </h2>
-            <span class="store-select-pill" style="font-size: 0.76rem; padding: 4px 10px;" onclick="cycleDukaans()">
-              All Dukaans ▾
+            <span class="status-pill status-in" style="font-size: 0.74rem;">
+              📍 कोल्हापूर मुख्य शाखा (Primary Store)
             </span>
           </div>
 
@@ -1773,51 +1820,7 @@
             <span class="status-pill status-in" style="font-size: 0.68rem; padding: 2px 8px;">● Live</span>
           </div>
 
-          <div class="stock-meter-list">
-            <!-- Parle-G: 18% left (Critical) -->
-            <div class="stock-meter-row">
-              <div class="meter-label-row">
-                <span class="meter-prod-title">Parle-G</span>
-                <span class="meter-percent-val val-danger tabular-nums">18% left</span>
-              </div>
-              <div class="meter-track">
-                <div class="meter-fill fill-danger" style="width: 18%;"></div>
-              </div>
-            </div>
-
-            <!-- Sugar: 55% left -->
-            <div class="stock-meter-row">
-              <div class="meter-label-row">
-                <span class="meter-prod-title">Sugar</span>
-                <span class="meter-percent-val val-normal tabular-nums">55% left</span>
-              </div>
-              <div class="meter-track">
-                <div class="meter-fill fill-blue" style="width: 55%;"></div>
-              </div>
-            </div>
-
-            <!-- Maggi Sauce: 70% left -->
-            <div class="stock-meter-row">
-              <div class="meter-label-row">
-                <span class="meter-prod-title">Maggi Sauce</span>
-                <span class="meter-percent-val val-normal tabular-nums">70% left</span>
-              </div>
-              <div class="meter-track">
-                <div class="meter-fill fill-blue" style="width: 70%;"></div>
-              </div>
-            </div>
-
-            <!-- Sunflower Oil: 12% left (Critical) -->
-            <div class="stock-meter-row">
-              <div class="meter-label-row">
-                <span class="meter-prod-title">Sunflower Oil</span>
-                <span class="meter-percent-val val-danger tabular-nums">12% left</span>
-              </div>
-              <div class="meter-track">
-                <div class="meter-fill fill-danger" style="width: 12%;"></div>
-              </div>
-            </div>
-          </div>
+          <div class="stock-meter-list" id="stockOverviewMeterList"></div>
           <div class="specular-sweep"></div>
         </div>
 
@@ -1834,7 +1837,19 @@
               </svg>
               Inventory Status
             </h2>
-            <span style="font-size: 0.74rem; color: var(--text-tertiary);">Live Catalog Register</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 0.74rem; color: var(--text-tertiary);">Live Catalog Register</span>
+              <button onclick="handleManualSyncNow()" id="btnManualSync" title="Force Sync with Backend" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; background: rgba(0, 113, 227, 0.1); color: #0071e3; border: 1px solid rgba(0, 113, 227, 0.25); cursor: pointer;">
+                🔄 Sync Now
+              </button>
+              <button onclick="handleRestockAllDemo()" id="btnRestockAll" title="Restock All SKUs to Full Demo Values" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; background: rgba(37, 211, 102, 0.1); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.25); cursor: pointer;">
+                📦 Restock All
+              </button>
+              <div id="liveSyncStatusBadge" class="live-status-pill" style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 999px; font-size: 0.70rem; font-weight: 600; background: rgba(37, 211, 102, 0.12); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.25);">
+                <span id="liveSyncStatusDot" style="width: 6px; height: 6px; border-radius: 50%; background: #25d366; box-shadow: 0 0 6px #25d366;"></span>
+                <span id="liveSyncStatusText">LIVE WS SYNC</span>
+              </div>
+            </div>
           </div>
 
           <div class="apple-table-wrap">
@@ -1922,43 +1937,7 @@
             <span style="font-size: 0.72rem; color: var(--brass-600); font-weight: 600;">By Revenue</span>
           </div>
 
-          <div class="top-products-list">
-            <!-- Top 1: Parle-G (₹12,450) -->
-            <div class="top-product-item">
-              <div class="top-prod-left">
-                <img src="assets/products/parle_g.png" alt="Parle-G" class="table-prod-thumb" />
-                <div class="top-prod-meta">
-                  <span class="top-prod-name">Parle-G</span>
-                  <span class="top-prod-sku tabular-nums">SKU: P01</span>
-                </div>
-              </div>
-              <div class="top-prod-revenue tabular-nums">₹12,450</div>
-            </div>
-
-            <!-- Top 2: Sugar (Loose) (₹2,500) -->
-            <div class="top-product-item">
-              <div class="top-prod-left">
-                <img src="assets/products/sugar.png" alt="Sugar" class="table-prod-thumb" />
-                <div class="top-prod-meta">
-                  <span class="top-prod-name">Sugar (Loose)</span>
-                  <span class="top-prod-sku tabular-nums">SKU: P02</span>
-                </div>
-              </div>
-              <div class="top-prod-revenue tabular-nums">₹2,500</div>
-            </div>
-
-            <!-- Top 3: Colgate (₹340) -->
-            <div class="top-product-item">
-              <div class="top-prod-left">
-                <img src="assets/products/alert_colgate.png" alt="Colgate" class="table-prod-thumb" />
-                <div class="top-prod-meta">
-                  <span class="top-prod-name">Colgate</span>
-                  <span class="top-prod-sku tabular-nums">SKU: P03</span>
-                </div>
-              </div>
-              <div class="top-prod-revenue tabular-nums">₹340</div>
-            </div>
-          </div>
+          <div class="top-products-list" id="topProductsList"></div>
           <div class="specular-sweep"></div>
         </div>
 
@@ -2128,7 +2107,8 @@
             </div>
 
             <!-- Card 12: Reynolds 045 Pen -->
-            <div class="product-catalog-card" data-sku="AUTO-VID-PEN">
+            <div class="product-catalog-card" data-sku="AUTO-VID-PEN" style="position: relative;">
+              <div class="carousel-stock-badge tabular-nums stock-badge-in" style="position: absolute; top: 10px; right: 10px; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; z-index: 2; background: rgba(52, 199, 89, 0.15); color: #30d158; border: 1px solid rgba(52, 199, 89, 0.3);">50 piece</div>
               <div class="product-image-pedestal pedestal-azure">
                 <img src="assets/products/reynolds_pen.jpg" alt="Reynolds Pen" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/AUTO-VID-PEN.jpg'" />
               </div>
@@ -2141,7 +2121,8 @@
             </div>
 
             <!-- Card 13: Classmate Notebook -->
-            <div class="product-catalog-card" data-sku="AUTO-VID-NOTEBOOK">
+            <div class="product-catalog-card" data-sku="AUTO-VID-NOTEBOOK" style="position: relative;">
+              <div class="carousel-stock-badge tabular-nums stock-badge-in" style="position: absolute; top: 10px; right: 10px; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; z-index: 2; background: rgba(52, 199, 89, 0.15); color: #30d158; border: 1px solid rgba(52, 199, 89, 0.3);">30 piece</div>
               <div class="product-image-pedestal pedestal-peach">
                 <img src="assets/products/classmate_notebook.jpg" alt="Classmate Notebook" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/AUTO-VID-NOTEBOOK.jpg'" />
               </div>
@@ -2154,7 +2135,8 @@
             </div>
 
             <!-- Card 14: Kinley Water 1L -->
-            <div class="product-catalog-card" data-sku="AUTO-VID-KINLEY">
+            <div class="product-catalog-card" data-sku="AUTO-VID-KINLEY" style="position: relative;">
+              <div class="carousel-stock-badge tabular-nums stock-badge-in" style="position: absolute; top: 10px; right: 10px; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; z-index: 2; background: rgba(52, 199, 89, 0.15); color: #30d158; border: 1px solid rgba(52, 199, 89, 0.3);">24 bottle</div>
               <div class="product-image-pedestal pedestal-green">
                 <img src="assets/products/kinley_water.jpg" alt="Kinley 1L Water" class="product-thumb-img" loading="lazy" decoding="async" onerror="this.src='assets/products/AUTO-VID-KINLEY.jpg'" />
               </div>
@@ -2239,59 +2221,7 @@
             </span>
           </div>
 
-          <div class="recent-sales-feed" id="recentSalesFeedList">
-            <!-- Item 1: Recent Sale -->
-            <div class="sale-feed-row">
-              <div class="sale-feed-left">
-                <div class="sale-icon-box">
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                  </svg>
-                </div>
-                <div class="sale-meta-group">
-                  <span class="sale-item-title">Recent Sale (5x Parle-G, 2kg Sugar)</span>
-                  <span class="sale-timestamp tabular-nums">1 day 10:05 AM</span>
-                </div>
-              </div>
-              <span class="sale-customer-tag">Yesterday</span>
-            </div>
-
-            <!-- Item 2: Sunflower Oil -->
-            <div class="sale-feed-row">
-              <div class="sale-feed-left">
-                <div class="sale-icon-box basket">
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <path d="M16 10a4 4 0 0 1-8 0"></path>
-                  </svg>
-                </div>
-                <div class="sale-meta-group">
-                  <span class="sale-item-title">Sunflower Oil (1L Bottle)</span>
-                  <span class="sale-timestamp tabular-nums">1 day 10:03 AM</span>
-                </div>
-              </div>
-              <span class="sale-customer-tag">You</span>
-            </div>
-
-            <!-- Item 3: Recent Sale -->
-            <div class="sale-feed-row">
-              <div class="sale-feed-left">
-                <div class="sale-icon-box">
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                  </svg>
-                </div>
-                <div class="sale-meta-group">
-                  <span class="sale-item-title">Recent Sale (Maggi Sauce Bottle)</span>
-                  <span class="sale-timestamp tabular-nums">1 day 10:03 AM</span>
-                </div>
-              </div>
-              <span class="sale-customer-tag">Hari</span>
-            </div>
-          </div>
+          <div class="recent-sales-feed" id="recentSalesFeedList"></div>
           <div class="specular-sweep"></div>
         </div>
 
@@ -2471,7 +2401,11 @@
       </div>
 
       <!-- Action Buttons -->
-      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; flex-wrap: wrap;">
+        <input type="file" id="videoFileInput" accept="video/*" style="display: none;" onchange="handleRealVideoUpload(event)">
+        <button class="apple-pill-btn" onclick="document.getElementById('videoFileInput').click()" style="background: rgba(255,255,255,0.08); color: var(--text-primary); border: 1px solid var(--border-glass);" title="Upload video file (.mp4, .mov)">
+          📁 Video File निवडा
+        </button>
         <button class="apple-pill-btn btn-stock" onclick="startVideoSweepSimulation()" id="btnStartVideoSweep">
           🎥 Run 15s Vision Sweep
         </button>
@@ -2548,6 +2482,56 @@
        7. Apple-Grade Micro-Interactions, 60 FPS Counters & Haptics Engine
        ========================================================================== -->
   <script>
+    // Top-of-script Authentication Guard
+    if (!localStorage.getItem('vyaparai_auth_user')) {
+      window.location.replace('login.html');
+    }
+
+    function logoutMerchant() {
+      localStorage.removeItem('vyaparai_auth_user');
+      localStorage.removeItem('vyaparai_auth_token');
+      localStorage.removeItem('vyaparai_active_store');
+      sessionStorage.removeItem('just_logged_in');
+      window.location.replace('login.html');
+    }
+
+    function syncMerchantSessionUI() {
+      try {
+        const raw = localStorage.getItem('vyaparai_auth_user');
+        if (!raw) {
+          window.location.replace('login.html');
+          return;
+        }
+        const user = JSON.parse(raw);
+        const merchantName = user.name || 'अथर्व आवटे';
+        const vendorId = user.vendor_id || 'DEMO_KIRANA_KOP';
+        const storeName = user.store || 'अथर्व किराणा स्टोअर्स, कोल्हापूर';
+        const formattedLabel = `${merchantName} (${vendorId})`;
+
+        const nameEls = document.querySelectorAll('#headerMerchantName, .merchant-display-name');
+        nameEls.forEach(el => el.textContent = formattedLabel);
+
+        const storeEls = document.querySelectorAll('#currentDukaanName, .store-display-name');
+        storeEls.forEach(el => {
+          if (el.tagName === 'INPUT') {
+            el.value = storeName;
+          } else if (el.id === 'currentDukaanName') {
+            el.textContent = '🏪 ' + storeName;
+          }
+        });
+      } catch (e) {
+        console.error('Session sync error:', e);
+      }
+    }
+
+    function triggerWaveLoaderPreview() {
+      if (window.previewGodlyLoader) {
+        window.previewGodlyLoader();
+      } else if (window.VyaparLoader && typeof window.VyaparLoader.preview === 'function') {
+        window.VyaparLoader.preview();
+      }
+    }
+
     // Singleton Number Formatter (Prevents V8 Heap Churn / GC Pauses)
     const inrFormatter = new Intl.NumberFormat('en-IN');
 
@@ -2712,25 +2696,64 @@
     }
 
     // 6. Action Handlers: Stock Add, Store Cycle
-    function handleStockAdd(productName, price) {
+    async function handleStockAdd(productName, price) {
       haptics.tap();
-      showAppleToast(`+ Stock order initiated for ${productName} (${price})`);
+      let matchedSku = null;
+      let matchedItem = null;
+      if (window.VyaparCore) {
+        const skus = VyaparCore.getSKUs();
+        matchedItem = skus.find(s => 
+          (s.name_en && s.name_en.toLowerCase().includes(productName.toLowerCase())) ||
+          (s.short_name && s.short_name.toLowerCase().includes(productName.toLowerCase())) ||
+          (s.name_mr && s.name_mr.includes(productName)) ||
+          productName.toLowerCase().includes(s.short_name.toLowerCase())
+        );
+        if (matchedItem) matchedSku = matchedItem.sku;
+      }
       
-      // Live Increment Total Sales to simulate immediate interaction
-      const currentSales = 12450;
-      const addedVal = 350;
-      animateCounter('statTotalSales', currentSales, currentSales + addedVal, 800, '₹');
+      // Fallback SKU manual matching
+      if (!matchedSku) {
+        const pLower = productName.toLowerCase();
+        if (pLower.includes("parle")) matchedSku = "FMCG-PARLE-100G";
+        else if (pLower.includes("sugar") || pLower.includes("sakhar")) matchedSku = "GROC-SUG-001";
+        else if (pLower.includes("oil") || pLower.includes("fortune")) matchedSku = "OIL-FORT-1L";
+        else if (pLower.includes("pav")) matchedSku = "BAK-PAV-LADI";
+        else if (pLower.includes("tur") || pLower.includes("dal")) matchedSku = "DAL-TUR-001";
+        else if (pLower.includes("salt") || pLower.includes("tata")) matchedSku = "GROC-SALT-1K";
+        else if (pLower.includes("atta")) matchedSku = "GROC-ATTA-5K";
+        else if (pLower.includes("maggi")) matchedSku = "FMCG-MAGGI-70G";
+        else if (pLower.includes("onion") || pLower.includes("kanda")) matchedSku = "VEG-KANDA-001";
+        else if (pLower.includes("potato") || pLower.includes("batata")) matchedSku = "VEG-BATATA-001";
+        else if (pLower.includes("milk") || pLower.includes("amul")) matchedSku = "DAIRY-AMUL-500M";
+        else if (pLower.includes("pen") || pLower.includes("reynolds")) matchedSku = "AUTO-VID-PEN";
+        else if (pLower.includes("notebook") || pLower.includes("classmate")) matchedSku = "AUTO-VID-NOTEBOOK";
+        else if (pLower.includes("water") || pLower.includes("kinley")) matchedSku = "AUTO-VID-KINLEY";
+      }
+
+      const addQty = 10;
+      if (matchedSku && window.VyaparCore && VyaparCore.addStock) {
+        showAppleToast(`📦 +${addQty} Stock Added: ${matchedItem ? matchedItem.short_name : productName}`);
+        await VyaparCore.addStock(matchedSku, addQty, `Manual +Stock UI Click (${productName})`);
+        if (VyaparCore.playSoundboxChime) VyaparCore.playSoundboxChime(150);
+        if (VyaparCore.getSKUs) {
+          const updatedSkus = VyaparCore.getSKUs();
+          renderInventoryTable(updatedSkus);
+          updateCarouselStock(updatedSkus);
+          renderStockOverview(updatedSkus);
+          renderTopProducts(updatedSkus);
+        }
+      } else {
+        showAppleToast(`+ Stock order initiated for ${productName}`);
+      }
     }
 
-    const dukaans = ["All Dukaans", "Ganesh Kirana (Main)", "Om Sai Provision", "Venkateshwara Traders"];
-    let dukaanIdx = 0;
-    function cycleDukaans() {
-      haptics.tap();
-      dukaanIdx = (dukaanIdx + 1) % dukaans.length;
-      const name = dukaans[dukaanIdx];
-      document.getElementById('currentDukaanName').textContent = name;
-      showAppleToast(`Active Store Filter: ${name}`);
-    }
+    // Single Store Invariant: locked strictly to Atharva Kirana Stores, Kolhapur
+    const ACTIVE_STORE = {
+      vendor_id: "DEMO_KIRANA_KOP",
+      name: "अथर्व किराणा स्टोअर्स, कोल्हापूर",
+      proprietor: "अथर्व आवाटे",
+      phone: "+91 95798 69506"
+    };
 
     // 7. Global Search Filter
     function handleGlobalSearch(query) {
@@ -2747,6 +2770,415 @@
       });
     }
 
+    // -------------------------------------------------------------------------
+    // Real-Time Reactive DOM Engine: Table, Carousel, Stats & Recent Sales Feed
+    // -------------------------------------------------------------------------
+    let previousStockMap = {};
+    let previousLatestTxId = null;
+
+    function renderInventoryTable(products) {
+      const tbody = document.getElementById('inventoryTableBody');
+      if (!tbody || !products || products.length === 0) return;
+      tbody.innerHTML = products.map(p => {
+        const isLow = p.stock <= (p.min_threshold || 10);
+        const img = (window.VyaparCore && VyaparCore.getProductImage) ? VyaparCore.getProductImage(p) : (p.img || 'assets/products/placeholder.svg');
+        const catSafe = (p.category || '').replace(/'/g, "\\'");
+        const skuSafe = (p.sku || '').replace(/'/g, "\\'");
+        return `
+          <tr data-sku="${p.sku}" id="table-row-${p.sku}" style="transition: background 0.4s ease;">
+            <td>
+              <div class="table-prod-cell">
+                <img src="${img}" alt="${p.name_en || p.name_mr}" class="table-prod-thumb" onerror="this.onerror=null; this.src=(window.VyaparCore && VyaparCore.getFallbackImage) ? VyaparCore.getFallbackImage('${catSafe}', '${skuSafe}') : 'assets/products/placeholder.svg';" />
+                <div>
+                  <div style="font-weight: 600; font-size: 0.84rem;">${p.name_en || p.name_mr}</div>
+                  <div style="font-size: 0.72rem; color: var(--text-tertiary);">${p.name_mr || ''}</div>
+                </div>
+              </div>
+            </td>
+            <td class="tabular-nums" style="font-size: 0.74rem; color: var(--text-tertiary);">${p.sku}</td>
+            <td><span class="category-tag">${p.category || 'Kirana Essentials'}</span></td>
+            <td style="text-align: right;" class="tabular-nums font-bold stock-qty-cell" id="stock-val-${p.sku}">
+              ${Number(p.stock).toLocaleString('en-IN', { maximumFractionDigits: 2 })} <span style="font-size: 0.72rem; font-weight: 500; color: var(--text-tertiary);">${p.unit}</span>
+            </td>
+            <td style="text-align: center;">
+              <span class="status-pill ${isLow ? 'status-low' : 'status-in'}" id="stock-pill-${p.sku}">
+                ${isLow ? '🚨 Low Stock' : '🟢 In Stock'}
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Preserve active search filter across real-time metrics re-renders
+      const searchInput = document.getElementById('globalSearchInput');
+      if (searchInput && searchInput.value && searchInput.value.trim() !== '') {
+        handleGlobalSearch(searchInput.value);
+      }
+    }
+
+    function updateCarouselStock(products) {
+      if (!products) return;
+      products.forEach(p => {
+        let card = document.querySelector(`.product-catalog-card[data-sku="${p.sku}"]`);
+        if (!card && (p.sku === 'DAIRY-MILK-500ML' || p.sku === 'DAIRY-AMUL-500ML' || p.sku === 'DAIRY-AMUL-500M' || (p.sku && p.sku.includes('MILK')))) {
+          card = document.querySelector(`.product-catalog-card[data-sku="DAIRY-AMUL-500M"], .product-catalog-card[data-sku="DAIRY-MILK-500ML"]`);
+        }
+        if (!card && p.sku && (p.sku.toLowerCase().includes('notebook') || (p.name_en && p.name_en.toLowerCase().includes('notebook')) || (p.name_en && p.name_en.toLowerCase().includes('classmate')) || (p.name_mr && p.name_mr.includes('वही')))) {
+          card = document.querySelector(`.product-catalog-card[data-sku="AUTO-VID-NOTEBOOK"]`);
+        }
+        if (!card && p.sku && (p.sku.toLowerCase().includes('pen') || (p.name_en && p.name_en.toLowerCase().includes('reynolds')) || (p.name_mr && p.name_mr.includes('पेन')))) {
+          card = document.querySelector(`.product-catalog-card[data-sku="AUTO-VID-PEN"]`);
+        }
+        if (card) {
+          let badge = card.querySelector('.carousel-stock-badge');
+          if (!badge) {
+            badge = document.createElement('div');
+            badge.className = 'carousel-stock-badge';
+            badge.style.cssText = 'position: absolute; top: 10px; right: 10px; padding: 2px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; z-index: 2;';
+            card.style.position = 'relative';
+            card.appendChild(badge);
+          }
+          const isLow = p.stock <= (p.min_threshold || 10);
+          badge.className = `carousel-stock-badge tabular-nums ${isLow ? 'stock-badge-low' : 'stock-badge-in'}`;
+          badge.style.background = isLow ? 'rgba(255, 69, 58, 0.15)' : 'rgba(52, 199, 89, 0.15)';
+          badge.style.color = isLow ? '#ff453a' : '#30d158';
+          badge.style.border = isLow ? '1px solid rgba(255, 69, 58, 0.3)' : '1px solid rgba(52, 199, 89, 0.3)';
+          badge.textContent = `${Number(p.stock).toLocaleString('en-IN', { maximumFractionDigits: 1 })} ${p.unit}`;
+        }
+      });
+    }
+
+    function updateRecentSalesFeed(transactions) {
+      const feed = document.getElementById('recentSalesFeedList');
+      if (!feed) return;
+      const txList = (transactions && Array.isArray(transactions) && transactions.length > 0)
+        ? transactions
+        : (window.VyaparCore ? (VyaparCore.getTransactions ? VyaparCore.getTransactions() : VyaparCore.transactions) : []);
+
+      if (!txList || txList.length === 0) {
+        feed.innerHTML = `<div style="text-align: center; color: var(--text-tertiary); padding: 18px; font-size: 0.8rem;">No recent transactions yet</div>`;
+        return;
+      }
+
+      feed.innerHTML = txList.slice(0, 6).map(tx => {
+        const isSale = (tx.transaction_type || tx.type) === 'SALE';
+        const isUdhar = (tx.transaction_type || tx.type) === 'UDHAR';
+        const color = isSale ? '#25d366' : (isUdhar ? '#ff9500' : '#0071e3');
+        const bg = isSale ? 'rgba(37, 211, 102, 0.15)' : (isUdhar ? 'rgba(255, 149, 0, 0.15)' : 'rgba(0, 113, 227, 0.15)');
+
+        let timeStr = 'Just now';
+        if (tx.created_at) {
+          timeStr = new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else if (tx.time) {
+          timeStr = tx.time;
+        }
+
+        const title = tx.item_name || tx.items || 'Kirana Sale';
+        const qtyStr = tx.quantity_delta ? `(${Math.abs(tx.quantity_delta)})` : '';
+        const modeStr = tx.mode || (tx.customer_name ? tx.customer_name : (tx.cust ? tx.cust : 'WhatsApp Ingress'));
+        const amt = tx.total_amount !== undefined ? tx.total_amount : (tx.amount !== undefined ? tx.amount : 0);
+
+        return `
+          <div class="sale-feed-row" style="animation: fadeIn 0.3s ease;">
+            <div class="sale-feed-left">
+              <div class="sale-icon-box" style="background: ${bg}; color: ${color};">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                </svg>
+              </div>
+              <div class="sale-meta-group">
+                <span class="sale-item-title">${title} ${qtyStr}</span>
+                <span class="sale-timestamp tabular-nums">${timeStr} • ${modeStr}</span>
+              </div>
+            </div>
+            <span class="sale-customer-tag" style="color: ${color}; font-weight: 700;">+₹${Number(amt).toLocaleString('en-IN')}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderStockOverview(skus) {
+      const container = document.getElementById('stockOverviewMeterList');
+      if (!container) return;
+
+      const allSkus = (skus && Array.isArray(skus) && skus.length > 0)
+        ? skus
+        : (window.VyaparCore ? (VyaparCore.getSKUs ? VyaparCore.getSKUs() : VyaparCore.inventory) : []);
+
+      if (!allSkus || allSkus.length === 0) return;
+
+      const KEY_ITEMS = [
+        { key: "parle", sku: "FMCG-PARLE-100G", name: "Parle-G", max_capacity: 100, unit: "packet" },
+        { key: "sugar", sku: "GROC-SUG-001", name: "Sugar", max_capacity: 100, unit: "kg" },
+        { key: "milk", sku: "DAIRY-AMUL-500M", name: "Amul Milk", max_capacity: 50, unit: "pouch" },
+        { key: "oil", sku: "OIL-FORT-1L", name: "Fortune Oil", max_capacity: 50, unit: "pouch" },
+        { key: "tur", sku: "DAL-TUR-001", name: "Tur Dal", max_capacity: 50, unit: "kg" },
+        { key: "atta", sku: "GROC-ATTA-5K", name: "Aashirvaad Atta", max_capacity: 30, unit: "bag" },
+        { key: "onion", sku: "VEG-KANDA-001", name: "Red Onion", max_capacity: 100, unit: "kg" },
+        { key: "maggi", sku: "FMCG-MAGGI-70G", name: "Maggi Noodles", max_capacity: 80, unit: "packet" }
+      ];
+
+      function formatUnit(qty, unit) {
+        const u = (unit || '').toLowerCase();
+        if (u.includes('kg')) return 'kg';
+        if (u.includes('packet')) return qty === 1 ? 'packet' : 'packets';
+        if (u.includes('pouch')) return qty === 1 ? 'pouch' : 'pouches';
+        if (u.includes('bag')) return qty === 1 ? 'bag' : 'bags';
+        if (u.includes('bottle')) return qty === 1 ? 'bottle' : 'bottles';
+        if (u.includes('piece')) return qty === 1 ? 'piece' : 'pieces';
+        if (u.includes('ladi')) return 'ladi';
+        return u || 'units';
+      }
+
+      KEY_ITEMS.forEach(cfg => {
+        const found = allSkus.find(s => s.sku === cfg.sku || 
+          (s.name_en && s.name_en.toLowerCase().includes(cfg.name.toLowerCase())) ||
+          (s.short_name && s.short_name.toLowerCase().includes(cfg.name.toLowerCase()))
+        );
+        const currentStock = found ? Number(found.stock) : 0;
+        const maxCapacity = (found && found.max_capacity) ? Number(found.max_capacity) : cfg.max_capacity;
+        const unit = (found && found.unit) ? found.unit : cfg.unit;
+        const displayName = (found && found.short_name) ? found.short_name : cfg.name;
+
+        const percent = Math.min(100, Math.max(0, Math.round((currentStock / maxCapacity) * 100)));
+        let fillClass = 'fill-blue';
+        let valClass = 'val-normal';
+        if (percent < 25) {
+          fillClass = 'fill-danger';
+          valClass = 'val-danger';
+        } else if (percent <= 50) {
+          fillClass = 'fill-warning';
+          valClass = 'val-warning';
+        } else {
+          fillClass = 'fill-blue';
+          valClass = 'val-normal';
+        }
+
+        const stockFormatted = currentStock.toLocaleString('en-IN', { maximumFractionDigits: 1 });
+        const unitStr = formatUnit(currentStock, unit);
+        const valueText = `${stockFormatted} ${unitStr} left • ${percent}%`;
+
+        let row = container.querySelector(`.stock-meter-row[data-sku="${cfg.sku}"]`);
+        if (row) {
+          const valEl = row.querySelector('.meter-percent-val');
+          const fillEl = row.querySelector('.meter-fill');
+          if (valEl) {
+            valEl.className = `meter-percent-val ${valClass} tabular-nums`;
+            valEl.textContent = valueText;
+          }
+          if (fillEl) {
+            fillEl.className = `meter-fill ${fillClass}`;
+            fillEl.style.width = `${percent}%`;
+          }
+        } else {
+          row = document.createElement('div');
+          row.className = 'stock-meter-row';
+          row.setAttribute('data-sku', cfg.sku);
+          row.innerHTML = `
+            <div class="meter-label-row">
+              <span class="meter-prod-title">${displayName}</span>
+              <span class="meter-percent-val ${valClass} tabular-nums">${valueText}</span>
+            </div>
+            <div class="meter-track">
+              <div class="meter-fill ${fillClass}" style="width: 0%;"></div>
+            </div>
+          `;
+          container.appendChild(row);
+
+          requestAnimationFrame(() => {
+            const fill = row.querySelector('.meter-fill');
+            if (fill) fill.style.width = `${percent}%`;
+          });
+        }
+      });
+    }
+
+    function renderTopProducts(skus, transactions) {
+      const container = document.getElementById('topProductsList');
+      if (!container) return;
+
+      const allSkus = (skus && Array.isArray(skus) && skus.length > 0)
+        ? skus
+        : (window.VyaparCore ? (VyaparCore.getSKUs ? VyaparCore.getSKUs() : VyaparCore.inventory) : []);
+
+      if (!allSkus || allSkus.length === 0) return;
+
+      const allTxs = (transactions && Array.isArray(transactions) && transactions.length > 0)
+        ? transactions
+        : (window.VyaparCore ? (VyaparCore.getTransactions ? VyaparCore.getTransactions() : VyaparCore.transactions) : []);
+
+      const baseRevMap = {
+        "FMCG-PARLE-100G": 12450,
+        "GROC-SUG-001": 4850,
+        "OIL-FORT-1L": 3375,
+        "DAL-TUR-001": 2480,
+        "GROC-ATTA-5K": 1980,
+        "DAIRY-AMUL-500M": 1620,
+        "FMCG-MAGGI-70G": 1120,
+        "VEG-KANDA-001": 980
+      };
+
+      const revenueMap = {};
+      allSkus.forEach(s => {
+        revenueMap[s.sku] = baseRevMap[s.sku] || (s.stock * (s.unit_price || 20) * 0.8);
+      });
+
+      if (allTxs && allTxs.length > 0) {
+        allTxs.forEach(tx => {
+          const amt = Number(tx.total_amount !== undefined ? tx.total_amount : (tx.amount || 0));
+          if (amt <= 0) return;
+
+          let matchedSku = tx.sku;
+          if (!matchedSku) {
+            const txt = ((tx.item_name || '') + ' ' + (tx.items || '')).toLowerCase();
+            const found = allSkus.find(s => 
+              (s.short_name && txt.includes(s.short_name.toLowerCase())) ||
+              (s.name_en && txt.includes(s.name_en.toLowerCase())) ||
+              (s.aliases && s.aliases.some(a => txt.includes(a.toLowerCase())))
+            );
+            if (found) matchedSku = found.sku;
+          }
+
+          if (matchedSku && revenueMap[matchedSku] !== undefined) {
+            revenueMap[matchedSku] += amt;
+          } else {
+            revenueMap["GROC-SUG-001"] = (revenueMap["GROC-SUG-001"] || 0) + amt * 0.5;
+            revenueMap["FMCG-PARLE-100G"] = (revenueMap["FMCG-PARLE-100G"] || 0) + amt * 0.5;
+          }
+        });
+      }
+
+      const sorted = [...allSkus].sort((a, b) => {
+        const revA = revenueMap[a.sku] || 0;
+        const revB = revenueMap[b.sku] || 0;
+        return revB - revA;
+      }).slice(0, 3);
+
+      container.innerHTML = sorted.map(s => {
+        const rev = Math.round(revenueMap[s.sku] || 0);
+        const img = (window.VyaparCore && VyaparCore.getProductImage) ? VyaparCore.getProductImage(s) : (s.img || 'assets/products/placeholder.svg');
+        const name = s.short_name || s.name_en || s.name_mr;
+        const catSafe = (s.category || '').replace(/'/g, "\\'");
+        const skuSafe = (s.sku || '').replace(/'/g, "\\'");
+        return `
+          <div class="top-product-item" style="animation: fadeIn 0.3s ease;">
+            <div class="top-prod-left">
+              <img src="${img}" alt="${name}" class="table-prod-thumb" onerror="this.onerror=null; this.src=(window.VyaparCore && VyaparCore.getFallbackImage) ? VyaparCore.getFallbackImage('${catSafe}', '${skuSafe}') : 'assets/products/placeholder.svg';" />
+              <div class="top-prod-meta">
+                <span class="top-prod-name">${name}</span>
+                <span class="top-prod-sku tabular-nums">SKU: ${s.sku}</span>
+              </div>
+            </div>
+            <div class="top-prod-revenue tabular-nums">₹${rev.toLocaleString('en-IN')}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function performLiveSync() {
+      if (window.VyaparCore) {
+        if (window.VyaparCore.performLiveSync) {
+          await window.VyaparCore.performLiveSync();
+        } else if (VyaparCore.backend && VyaparCore.backend.performLiveSync) {
+          await VyaparCore.backend.performLiveSync();
+        }
+      }
+      if (window.VyaparCore && VyaparCore.getSKUs) {
+        const skus = VyaparCore.getSKUs();
+        renderInventoryTable(skus);
+        updateCarouselStock(skus);
+        renderStockOverview(skus);
+        renderTopProducts(skus);
+      }
+      updateRecentSalesFeed();
+    }
+
+    window.renderStockOverview = renderStockOverview;
+    window.renderTopProducts = renderTopProducts;
+    window.updateRecentSalesFeed = updateRecentSalesFeed;
+    window.performLiveSync = performLiveSync;
+
+    function handleLiveMetricsUpdate(metrics) {
+      if (!metrics) return;
+
+      // 1. Update metric counters
+      const elSales = document.getElementById('statTotalSales');
+      const elOrders = document.getElementById('statOrdersCount');
+      if (elSales && metrics.today_revenue !== undefined) {
+        const curSales = parseInt(elSales.textContent.replace(/[₹,]/g, '')) || 0;
+        if (metrics.today_revenue !== curSales) {
+          animateCounter('statTotalSales', curSales, metrics.today_revenue, 700, '₹');
+        }
+      }
+      if (elOrders && metrics.today_sales_count !== undefined) {
+        const curOrders = parseInt(elOrders.textContent) || 0;
+        if (metrics.today_sales_count !== curOrders) {
+          animateCounter('statOrdersCount', curOrders, metrics.today_sales_count, 500);
+        }
+      }
+      const lowPill = document.querySelector('.metric-trend-pill');
+      if (lowPill && metrics.low_stock_count !== undefined) {
+        lowPill.textContent = `${metrics.low_stock_count} Items Low`;
+      }
+
+      // 2. Check for stock decreases (new sale from WhatsApp webhook!)
+      if (metrics.products) {
+        let saleDetected = false;
+        let soldItemName = '';
+        let soldAmount = 0;
+
+        metrics.products.forEach(p => {
+          const oldStock = previousStockMap[p.sku];
+          if (oldStock !== undefined && p.stock < oldStock) {
+            saleDetected = true;
+            soldItemName = p.name_en || p.name_mr;
+            soldAmount = Math.round((oldStock - p.stock) * p.unit_price);
+
+            // Flash green highlight on card and row!
+            const card = document.querySelector(`.product-catalog-card[data-sku="${p.sku}"]`);
+            if (card) {
+              card.style.transition = 'box-shadow 0.3s ease, transform 0.3s ease';
+              card.style.boxShadow = '0 0 25px rgba(37, 211, 102, 0.7)';
+              card.style.transform = 'scale(1.03)';
+              setTimeout(() => {
+                card.style.boxShadow = '';
+                card.style.transform = '';
+              }, 1600);
+            }
+            const row = document.getElementById(`table-row-${p.sku}`);
+            if (row) {
+              row.style.background = 'rgba(37, 211, 102, 0.18)';
+              setTimeout(() => { row.style.background = ''; }, 1600);
+            }
+          }
+          previousStockMap[p.sku] = p.stock;
+        });
+
+        if (saleDetected) {
+          if (window.VyaparCore && VyaparCore.playSoundboxChime) {
+            VyaparCore.playSoundboxChime(soldAmount || 50);
+          }
+          showAppleToast(`⚡ WhatsApp Ingress: Recorded sale for ${soldItemName}!`);
+        }
+
+        // Render table, carousel, stock overview, and top products
+        renderInventoryTable(metrics.products);
+        updateCarouselStock(metrics.products);
+        renderStockOverview(metrics.products);
+        renderTopProducts(metrics.products, metrics.recent_transactions);
+      }
+
+      // 3. Update Recent Sales Feed & Top Products
+      if (metrics.recent_transactions && metrics.recent_transactions.length > 0) {
+        const latestTx = metrics.recent_transactions[0];
+        if (latestTx && latestTx.id !== previousLatestTxId) {
+          previousLatestTxId = latestTx.id;
+          updateRecentSalesFeed(metrics.recent_transactions);
+          renderTopProducts(metrics.products, metrics.recent_transactions);
+        }
+      }
+    }
+
     // 8. Cross-Frame Bi-Directional Message Sync with WhatsApp Console
     window.addEventListener('message', (event) => {
       if (event.data && event.data.type === 'NEW_SALE_RECORDED') {
@@ -2759,6 +3191,14 @@
         const currentOrders = parseInt(document.getElementById('statOrdersCount').textContent) || 42;
         animateCounter('statTotalSales', currentSales, currentSales + (sale.amount || 340), 900, '₹');
         animateCounter('statOrdersCount', currentOrders, currentOrders + 1, 600);
+        if (window.VyaparCore && VyaparCore.getSKUs) {
+          const updatedSkus = VyaparCore.getSKUs();
+          renderInventoryTable(updatedSkus);
+          updateCarouselStock(updatedSkus);
+          renderStockOverview(updatedSkus);
+          renderTopProducts(updatedSkus);
+        }
+        updateRecentSalesFeed();
 
         // Prepend new activity item in Recent Sales feed
         const feed = document.getElementById('recentSalesFeedList');
@@ -2790,12 +3230,107 @@
 
     // 9. Chart.js Daily Sales Line Chart (Apple Styled with Subsurface Gradient)
     document.addEventListener('DOMContentLoaded', () => {
+      // Sync merchant session UI immediately
+      syncMerchantSessionUI();
+
+      // Welcome Godly Wave Loader Trigger if freshly logged in
+      if (sessionStorage.getItem('just_logged_in') === 'true') {
+        sessionStorage.removeItem('just_logged_in');
+        if (window.VyaparLoader && typeof window.VyaparLoader.show === 'function') {
+          let merchantFirstName = 'व्यापारी';
+          try {
+            const u = JSON.parse(localStorage.getItem('vyaparai_auth_user'));
+            if (u && u.name) merchantFirstName = u.name.split(' ')[0];
+          } catch(e) {}
+          window.VyaparLoader.show({
+            duration: 1200,
+            successPhrase: `Welcome, ${merchantFirstName}! Calacatta OS Ready...`,
+            steps: [
+              { pct: 30, text: "Verifying Kirana Vendor Security Token...", delay: 200 },
+              { pct: 70, text: "Synchronizing Kolhapur Kirana Catalog & Khata Engine...", delay: 600 },
+              { pct: 100, text: `Welcome, ${merchantFirstName}! Calacatta OS Ready...`, delay: 1000 }
+            ]
+          });
+        }
+      }
+
       // Initialize Momentum Scroll
       initMomentumScroll('catalogCarousel');
+
+      // Initialize initial inventory table, stock meters, top products, and recent sales
+      if (window.VyaparCore && VyaparCore.getSKUs) {
+        const initialSkus = VyaparCore.getSKUs();
+        renderInventoryTable(initialSkus);
+        updateCarouselStock(initialSkus);
+        renderStockOverview(initialSkus);
+        renderTopProducts(initialSkus);
+      }
+      updateRecentSalesFeed();
+
+      // Register listener for reactive store events
+      if (window.VyaparCore && VyaparCore.registerListener) {
+        VyaparCore.registerListener((type, data) => {
+          if (type === 'METRICS_UPDATE') {
+            handleLiveMetricsUpdate(data);
+          } else if (type === 'TRANSACTIONS_UPDATED') {
+            updateRecentSalesFeed(data);
+            renderTopProducts(null, data);
+          } else if (type === 'STOCK_UPDATED' || type === 'INVENTORY_UPDATED') {
+            if (window.VyaparCore && VyaparCore.getSKUs) {
+              const curSkus = VyaparCore.getSKUs();
+              renderInventoryTable(curSkus);
+              updateCarouselStock(curSkus);
+              renderStockOverview(curSkus);
+              renderTopProducts(curSkus);
+            }
+          }
+        });
+      }
 
       // Initialize Number Counters
       animateCounter('statTotalSales', 0, 12450, 1100, '₹');
       animateCounter('statOrdersCount', 0, 42, 900);
+
+      // Launch Live Reactive Synchronization with Backend (WebSocket + Polling)
+      if (window.VyaparCore && VyaparCore.backend && VyaparCore.backend.startLiveSync) {
+        VyaparCore.backend.startLiveSync((eventType, data) => {
+          if (eventType === 'METRICS_UPDATE') {
+            handleLiveMetricsUpdate(data);
+            if (typeof renderPendingYaadiOrders === 'function') {
+              renderPendingYaadiOrders();
+            }
+          } else if (eventType === 'PENDING_ORDERS_UPDATED') {
+            if (typeof renderPendingYaadiOrders === 'function') {
+              renderPendingYaadiOrders();
+            }
+          } else if (eventType === 'WS_STATUS') {
+            const badgeText = document.getElementById('liveSyncStatusText');
+            const badge = document.getElementById('liveSyncStatusBadge');
+            const dot = document.getElementById('liveSyncStatusDot');
+            if (badgeText && badge) {
+              if (data.connected) {
+                badgeText.textContent = "LIVE WS SYNC";
+                badge.style.background = "rgba(37, 211, 102, 0.12)";
+                badge.style.color = "#25d366";
+                badge.style.borderColor = "rgba(37, 211, 102, 0.25)";
+                if (dot) dot.style.background = "#25d366";
+              } else {
+                badgeText.textContent = "LIVE POLL SYNC";
+                badge.style.background = "rgba(255, 159, 10, 0.12)";
+                badge.style.color = "#ff9f0a";
+                badge.style.borderColor = "rgba(255, 159, 10, 0.25)";
+                if (dot) dot.style.background = "#ff9f0a";
+              }
+            }
+          } else if (eventType === 'NEW_CUSTOMER_YAADI') {
+            haptics.tap();
+            showAppleToast(`📥 New Remote Yaadi Arrived from WhatsApp!`);
+            if (typeof renderPendingYaadiOrders === 'function') {
+              renderPendingYaadiOrders();
+            }
+          }
+        });
+      }
 
       // Render Chart
       const ctx = document.getElementById('dailySalesChart');
@@ -2925,27 +3460,106 @@
         } else {
           fill.style.width = '100%';
           pctText.textContent = '100%';
-          statusText.textContent = "✓ Scan Complete: 3 New SKUs Extracted!";
+          statusText.textContent = "✓ Scan Complete: New SKUs Extracted!";
           clearInterval(sweepInterval);
           btnStart.disabled = false;
-          showAppleToast("Gemini 1.5 Flash: Extracted 3 New SKUs from 15s video sweep!");
+          showAppleToast("Gemini Multimodal: Extracted New SKUs from 15s video sweep!");
           
           if (window.VyaparCore && window.VyaparCore.backend) {
             VyaparCore.backend.uploadShelfVideo(new Blob(["video-sweep-demo"], { type: "video/mp4" }))
-              .then(res => console.log("Backend Video Onboarding Response:", res))
+              .then(res => {
+                console.log("Backend Video Onboarding Response:", res);
+                if (res && res.products && res.products.length > 0) {
+                  renderDiscoveredSkusInModal(res.products);
+                }
+              })
               .catch(err => console.log("Offline mode, using client simulation:", err));
           }
         }
       }, 90);
     }
 
+    function handleRealVideoUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      haptics.tap();
+      const fill = document.getElementById('videoSweepProgressFill');
+      const statusText = document.getElementById('videoSweepStatusText');
+      const pctText = document.getElementById('videoSweepPercentText');
+      const btnStart = document.getElementById('btnStartVideoSweep');
+      if (fill) fill.style.width = '35%';
+      if (pctText) pctText.textContent = '35%';
+      if (statusText) statusText.textContent = `Uploading ${file.name} to Gemini Multimodal...`;
+      if (btnStart) btnStart.disabled = true;
+
+      if (window.VyaparCore && window.VyaparCore.backend) {
+        VyaparCore.backend.uploadShelfVideo(file)
+          .then(res => {
+            if (fill) fill.style.width = '100%';
+            if (pctText) pctText.textContent = '100%';
+            const count = (res && res.count) || (res && res.products ? res.products.length : 3);
+            if (statusText) statusText.textContent = `✓ Scan Complete: ${count} SKUs Extracted!`;
+            if (btnStart) btnStart.disabled = false;
+            showAppleToast(`Gemini Video Onboarding: Extracted ${count} New SKUs!`);
+            if (res && res.products && res.products.length > 0) {
+              renderDiscoveredSkusInModal(res.products);
+            }
+          })
+          .catch(err => {
+            console.error("Video upload error:", err);
+            if (fill) fill.style.width = '100%';
+            if (pctText) pctText.textContent = '100%';
+            if (statusText) statusText.textContent = 'Simulation Mode Completed';
+            if (btnStart) btnStart.disabled = false;
+            showAppleToast('Video processed in fallback mode');
+          });
+      }
+    }
+
+    function renderDiscoveredSkusInModal(products) {
+      const container = document.getElementById('discoveredSkusContainer');
+      const btnCommit = document.getElementById('btnCommitSkus');
+      if (!container) return;
+      if (btnCommit) {
+        btnCommit.textContent = `✓ Commit ${products.length} SKUs to Store Catalog`;
+      }
+      container.innerHTML = products.map(p => `
+        <div class="discovered-sku-card">
+          <div style="width: 44px; height: 44px; border-radius: 8px; background: rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
+            📦
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 0.84rem; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name_mr || p.name_en}</div>
+            <div style="font-size: 0.72rem; color: var(--text-tertiary);">${p.name_en || ''} • ${p.category || 'General Store'} • साठा: ${p.stock || 1} ${p.unit || 'unit'}</div>
+          </div>
+          <div style="text-align: right; flex-shrink: 0;">
+            <div style="font-size: 0.9rem; font-weight: 700; color: var(--emerald-900);">₹${parseFloat(p.unit_price || 10).toFixed(2)}</div>
+            <span class="status-pill status-in" style="font-size: 0.68rem; padding: 2px 6px;">New SKU</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
     function commitDiscoveredSkus() {
       haptics.tap();
-      showAppleToast("Committed Reynolds Pen, Notebook, & Kinley Water to Master Inventory!");
+      showAppleToast("Committed New SKUs to Master Inventory!");
       closeVideoSweepModal();
+
+      if (typeof performLiveSync === 'function') {
+        performLiveSync();
+      } else if (window.VyaparCore && window.VyaparCore.performLiveSync) {
+        window.VyaparCore.performLiveSync();
+      }
 
       const currentOrders = parseInt(document.getElementById('statOrdersCount').textContent) || 42;
       animateCounter('statOrdersCount', currentOrders, currentOrders + 3, 600);
+    }
+
+    function formatTimerSeconds(secs) {
+      if (!secs || secs <= 0) return "00:00 (Expired)";
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
     }
 
     // B. Remote Customer Yaadi Queue Handlers
@@ -2964,52 +3578,152 @@
       }
 
       container.innerHTML = orders.map(order => {
-        const isFulfilled = order.status === 'FULFILLED';
+        const orderId = order.order_id || order.id;
+        const isFulfilled = order.status === 'PACKED' || order.status === 'FULFILLED';
+        const isCancelled = order.status === 'CANCELLED' || order.status === 'EXPIRED_AUTO_CANCELLED' || order.status === 'EXPIRED';
+        const isConfirmed = (order.status === 'CONFIRMED' || order.confirmed_by_customer) && !isFulfilled && !isCancelled;
+        const isPending = !isFulfilled && !isCancelled && !isConfirmed;
+
+        const custName = order.customerName || order.customer_name || "व्यंकटेश पै (Venkatesh Pai)";
+        const custPhone = order.phone || order.customer_phone || "+91 98220 12345";
+        const totalEst = parseFloat(order.totalEstimated || order.total_amount || 0);
+        const orderItems = Array.isArray(order.items) ? order.items : [];
+        const remSecs = order.remaining_seconds !== undefined ? order.remaining_seconds : 1800;
+
+        let statusBadgeHtml = '';
+        if (isFulfilled) {
+          statusBadgeHtml = `
+            <span class="status-pill status-in" style="font-size: 0.70rem; background: rgba(52, 199, 89, 0.15); color: #28cd41; border: 1px solid rgba(52, 199, 89, 0.3); font-weight: 600;">
+              ✅ साठा वजा (Packed & Fulfilled)
+            </span>
+          `;
+        } else if (isCancelled) {
+          statusBadgeHtml = `
+            <span class="status-pill status-out" style="font-size: 0.70rem; background: rgba(255, 69, 58, 0.12); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.28); font-weight: 600;">
+              ↩ रद्द / साठा पूर्ववत (Cancelled & Restituted)
+            </span>
+          `;
+        } else if (isConfirmed) {
+          statusBadgeHtml = `
+            <span class="status-pill status-in" style="font-size: 0.70rem; background: rgba(0, 113, 227, 0.12); color: #0071e3; border: 1px solid rgba(0, 113, 227, 0.28); font-weight: 600;">
+              ✓ ग्राहक निश्चिती (Customer Confirmed)
+            </span>
+            <span class="order-timer-pill" id="order-timer-${orderId}" style="font-size: 0.70rem; padding: 2px 7px; border-radius: 999px; background: rgba(255, 149, 0, 0.12); color: #ff9500; font-weight: 700; border: 1px solid rgba(255, 149, 0, 0.28);">⏳ ${formatTimerSeconds(remSecs)}</span>
+          `;
+        } else {
+          // PENDING / Staged
+          statusBadgeHtml = `
+            <span class="status-pill status-low" style="font-size: 0.70rem; background: rgba(255, 149, 0, 0.12); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.28); font-weight: 600;">
+              📋 मागणी प्रलंबित (Pending Approval / Staged)
+            </span>
+            <span class="order-timer-pill" id="order-timer-${orderId}" style="font-size: 0.70rem; padding: 2px 7px; border-radius: 999px; background: rgba(255, 69, 58, 0.12); color: #ff453a; font-weight: 700; border: 1px solid rgba(255, 69, 58, 0.28);">⏳ ${formatTimerSeconds(remSecs)}</span>
+          `;
+        }
+
         return `
-          <div class="yaadi-order-box ${isFulfilled ? 'fulfilled' : ''}" id="yaadi-order-${order.id}">
+          <div class="yaadi-order-box ${isFulfilled ? 'fulfilled' : (isCancelled ? 'cancelled' : '')}" id="yaadi-order-${orderId}">
             <div class="yaadi-order-header">
               <div class="yaadi-cust-info">
-                <div class="yaadi-cust-avatar">${order.customerName ? order.customerName.charAt(0) : 'C'}</div>
+                <div class="yaadi-cust-avatar">${custName.charAt(0)}</div>
                 <div>
-                  <div class="yaadi-cust-name">${order.customerName}</div>
-                  <div class="yaadi-cust-phone">${order.phone} • ${order.timestamp}</div>
+                  <div class="yaadi-cust-name">${custName}</div>
+                  <div class="yaadi-cust-phone">${custPhone} • ${order.timestamp || order.time || 'Just now'}</div>
                 </div>
               </div>
-              <span class="status-pill ${isFulfilled ? 'status-in' : 'status-low'}" style="font-size: 0.72rem;">
-                ${isFulfilled ? '✓ PACKED & FULFILLED' : '⏳ PENDING FULFILLMENT'}
-              </span>
+              <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                ${statusBadgeHtml}
+              </div>
             </div>
             
             <div class="yaadi-items-list">
-              <strong>Order Slip:</strong> "${order.rawText}"<br/>
-              <span style="font-size: 0.75rem; color: var(--text-tertiary);">Parsed items: ${order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</span>
+              <strong>Order Slip:</strong> "${order.rawText || order.raw_message || order.items_text || 'किराणा यादी'}"<br/>
+              <span style="font-size: 0.75rem; color: var(--text-tertiary);">Parsed items: ${orderItems.map(i => `${i.qty || i.quantity || 1}x ${i.name || i.name_mr || 'सामान'}`).join(', ') || 'साखर २ किलो, तेल १ लिटर, पार्ले-जी ५ पुडे, गोकुळ दूध १ पिशवी'}</span>
             </div>
 
-            <div class="yaadi-footer-row">
-              <div class="yaadi-est-total">Est. Total: ₹${order.totalEstimated}</div>
-              <button 
-                class="btn-pack-order" 
-                onclick="packCustomerOrder('${order.id}')"
-                ${isFulfilled ? 'disabled' : ''}>
-                ${isFulfilled ? '✓ Stock Deducted' : 'Pack & Fulfill ✓'}
-              </button>
+            <div class="yaadi-footer-row" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <div class="yaadi-est-total">Est. Total: ₹${totalEst}</div>
+              <div style="display: flex; gap: 6px;">
+                <button 
+                  class="btn-pack-order" 
+                  onclick="packCustomerOrder('${orderId}')"
+                  ${(isFulfilled || isCancelled) ? 'disabled style="opacity: 0.6; cursor: not-allowed;"' : ''}>
+                  ${isFulfilled ? '✓ Delivered' : (isCancelled ? '✕ Cancelled' : 'Pack & Fulfill ✓')}
+                </button>
+                ${(!isFulfilled && !isCancelled) ? `
+                <button 
+                  class="btn-stock" 
+                  style="font-size: 0.72rem; padding: 5px 10px; border-radius: 999px; background: rgba(255, 69, 58, 0.12); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.25); cursor: pointer;"
+                  onclick="cancelAndRestoreOrderStock('${orderId}')"
+                  title="30-min Auto-Undo: Cancel order and restitute reserved stock immediately">
+                  Undo Stock 🔄
+                </button>` : ''}
+              </div>
             </div>
           </div>
         `;
       }).join('');
     }
 
+    function cancelAndRestoreOrderStock(orderId) {
+      haptics.tap();
+      if (window.VyaparCore && VyaparCore.cancelAndRestoreOrder) {
+        VyaparCore.cancelAndRestoreOrder(orderId);
+      }
+      showAppleToast(`🔄 Order ${orderId} cancelled & stock restored to active inventory!`);
+      renderPendingYaadiOrders();
+
+      const backendUrl = (window.VyaparCore && VyaparCore.backend && typeof VyaparCore.backend.getBaseUrl === 'function')
+        ? VyaparCore.backend.getBaseUrl()
+        : (window.VyaparCore && VyaparCore.backend && typeof VyaparCore.backend.getBackendUrl === 'function')
+          ? VyaparCore.backend.getBackendUrl()
+          : '';
+
+      if (backendUrl) {
+        fetch(`${backendUrl}/api/orders/${orderId}/expire-now`, { method: "POST" })
+          .then(r => r.json())
+          .then(res => {
+            if (window.VyaparCore && VyaparCore.backend && VyaparCore.backend.performLiveSync) {
+              VyaparCore.backend.performLiveSync();
+            }
+            renderPendingYaadiOrders();
+          })
+          .catch(e => console.error("Cancel order error", e));
+      }
+    }
+
+    // Auto-ticking live 30-min countdown timer for pending orders
+    setInterval(() => {
+      const timerPills = document.querySelectorAll('.order-timer-pill');
+      timerPills.forEach(pill => {
+        const id = pill.id.replace('order-timer-', '');
+        if (window.VyaparCore && VyaparCore.getPendingOrders) {
+          const ord = VyaparCore.getPendingOrders().find(o => (o.order_id === id || o.id === id));
+          if (ord) {
+            if (ord.remaining_seconds === undefined) ord.remaining_seconds = 1800;
+            ord.remaining_seconds = Math.max(0, ord.remaining_seconds - 1);
+            pill.textContent = `⏳ ${formatTimerSeconds(ord.remaining_seconds)}`;
+            if (ord.remaining_seconds === 0 && ord.status === 'PENDING') {
+              pill.style.background = 'rgba(255, 69, 58, 0.25)';
+              pill.textContent = '⏳ Expired (Auto-Undo)';
+            }
+          }
+        }
+      });
+    }, 1000);
+
     function packCustomerOrder(orderId) {
       haptics.tap();
       if (!window.VyaparCore) return;
       const res = VyaparCore.packAndFulfillOrder(orderId);
       if (res && res.success) {
-        showAppleToast(`Packed order for ${res.order.customerName}! Stock deducted ₹${res.order.totalEstimated}.`);
+        const cust = res.order.customerName || res.order.customer_name || 'व्यंकटेश पै';
+        const total = parseFloat(res.order.totalEstimated || res.order.total_amount || 0);
+        showAppleToast(`Packed order for ${cust}! Stock finalized ₹${total}.`);
         renderPendingYaadiOrders();
 
         const currentSales = parseInt(document.getElementById('statTotalSales').textContent.replace(/[₹,]/g, '')) || 12450;
         const currentOrders = parseInt(document.getElementById('statOrdersCount').textContent) || 42;
-        animateCounter('statTotalSales', currentSales, currentSales + res.order.totalEstimated, 800, '₹');
+        animateCounter('statTotalSales', currentSales, currentSales + total, 800, '₹');
         animateCounter('statOrdersCount', currentOrders, currentOrders + 1, 500);
 
         const feed = document.getElementById('recentSalesFeedList');
@@ -3025,16 +3739,16 @@
                 </svg>
               </div>
               <div class="sale-meta-group">
-                <span class="sale-item-title">Customer Yaadi (${res.order.customerName})</span>
+                <span class="sale-item-title">Customer Yaadi (${cust})</span>
                 <span class="sale-timestamp tabular-nums">Just now</span>
               </div>
             </div>
-            <span class="sale-customer-tag" style="color: var(--apple-green); font-weight: 700;">+₹${res.order.totalEstimated}</span>
+            <span class="sale-customer-tag" style="color: var(--apple-green); font-weight: 700;">+₹${total}</span>
           `;
           feed.insertBefore(newRow, feed.firstChild);
         }
       } else {
-        showAppleToast(res ? res.error : "Failed to pack order");
+        showAppleToast(res ? (res.message || res.error) : "Failed to pack order");
       }
     }
 
@@ -3082,9 +3796,44 @@
       }
     }
 
-    function addScaleResultToBill() {
+    async function addScaleResultToBill() {
       haptics.tap();
-      showAppleToast(`Added Scale Item to Bill: ${currentScaleResult.item} - ${currentScaleResult.grams}g (₹${currentScaleResult.amount})`);
+      const item = (currentScaleResult && currentScaleResult.item) || "साखर";
+      const grams = (currentScaleResult && currentScaleResult.grams) || 476;
+      const amount = (currentScaleResult && currentScaleResult.amount) || 20;
+      showAppleToast(`🧾 Added Scale Item: ${item} (${grams}g - ₹${amount})`);
+
+      if (window.VyaparCore) {
+        let matchedSku = "GROC-SUG-001";
+        const itemLower = item.toLowerCase();
+        if (itemLower.includes("tur") || itemLower.includes("dal")) matchedSku = "DAL-TUR-001";
+        else if (itemLower.includes("atta") || itemLower.includes("gahhu") || itemLower.includes("गहू")) matchedSku = "GROC-ATTA-5K";
+        else if (itemLower.includes("tel") || itemLower.includes("oil")) matchedSku = "OIL-FORT-1L";
+
+        const kgDelta = grams / 1000.0;
+        VyaparCore.deductStock(matchedSku, kgDelta);
+        VyaparCore.addTransaction({
+          type: "SALE",
+          mode: "Digital Scale (Loose)",
+          cust: "Counter Walk-in",
+          items: `${item} ${grams}g`,
+          amount: amount,
+          status: "Success"
+        });
+
+        if (VyaparCore.addStock) {
+          await VyaparCore.addStock(matchedSku, -kgDelta, `Counter Scale Sale (${item} ${grams}g)`);
+        }
+        if (VyaparCore.playSoundboxChime) VyaparCore.playSoundboxChime(amount);
+        if (VyaparCore.getSKUs) {
+          const updatedSkus = VyaparCore.getSKUs();
+          renderInventoryTable(updatedSkus);
+          updateCarouselStock(updatedSkus);
+          renderStockOverview(updatedSkus);
+          renderTopProducts(updatedSkus);
+        }
+        updateRecentSalesFeed();
+      }
     }
 
     // D. Header Action Buttons
@@ -3116,6 +3865,67 @@
         VyaparCore.backend.quickAddDairy("Gokul Cow Milk 500ml", 28, 50);
       }
     }
+
+    async function handleManualSyncNow() {
+      haptics.tap();
+      showAppleToast("🔄 Synchronizing live inventory with backend...");
+      if (window.VyaparCore) {
+        if (VyaparCore.performLiveSync) {
+          await VyaparCore.performLiveSync();
+        } else if (VyaparCore.backend && VyaparCore.backend.syncLiveMetrics) {
+          await VyaparCore.backend.syncLiveMetrics();
+        }
+        renderInventoryTable(VyaparCore.getSKUs());
+        updateCarouselStock(VyaparCore.getSKUs());
+        renderStockOverview(VyaparCore.getSKUs());
+        renderTopProducts(VyaparCore.getSKUs());
+        updateRecentSalesFeed();
+        if (typeof renderPendingYaadiOrders === 'function') {
+          renderPendingYaadiOrders();
+        }
+        showAppleToast("✅ Live Inventory 100% Synced!");
+      }
+    }
+
+    async function handleRestockAllDemo() {
+      haptics.tap();
+      showAppleToast("📦 Restocking all 16 SKUs to full capacity...");
+      if (window.VyaparCore) {
+        if (VyaparCore.resetAllAndRestock) {
+          await VyaparCore.resetAllAndRestock();
+        } else {
+          VyaparCore.resetDefaults();
+          if (VyaparCore.performLiveSync) await VyaparCore.performLiveSync();
+        }
+        renderInventoryTable(VyaparCore.getSKUs());
+        updateCarouselStock(VyaparCore.getSKUs());
+        renderStockOverview(VyaparCore.getSKUs());
+        renderTopProducts(VyaparCore.getSKUs());
+        updateRecentSalesFeed();
+        if (typeof renderPendingYaadiOrders === 'function') {
+          renderPendingYaadiOrders();
+        }
+        showAppleToast("🎉 All 16 SKUs Restocked to Full Capacity!");
+        if (VyaparCore.playSoundboxChime) {
+          VyaparCore.playSoundboxChime(2500);
+        }
+      }
+    }
+
+    // Immediate render if DOM is already ready
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      if (window.VyaparCore && VyaparCore.getSKUs) {
+        renderInventoryTable(VyaparCore.getSKUs());
+        updateCarouselStock(VyaparCore.getSKUs());
+        renderStockOverview(VyaparCore.getSKUs());
+        renderTopProducts(VyaparCore.getSKUs());
+        updateRecentSalesFeed();
+      }
+    }
+
+    // Expose globally for browser console access
+    window.handleManualSyncNow = handleManualSyncNow;
+    window.handleRestockAllDemo = handleRestockAllDemo;
   </script>
 </body>
 </html>

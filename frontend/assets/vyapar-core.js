@@ -23,7 +23,8 @@ const VyaparCore = (function() {
       unit_price: 10.0,
       cost_price: 8.20,
       min_threshold: 15.0,
-      img: "assets/products/parle_g.png",
+      max_capacity: 100.0,
+      img: "assets/products/parle_g.jpg",
       pedestal: "pedestal-peach",
       aliases: ["parle", "parle-g", "biscuit", "पार्ले", "बिस्कीट"]
     },
@@ -38,7 +39,8 @@ const VyaparCore = (function() {
       unit_price: 42.0,
       cost_price: 36.50,
       min_threshold: 10.0,
-      img: "assets/products/sugar.png",
+      max_capacity: 100.0,
+      img: "assets/products/sugar.jpg",
       pedestal: "pedestal-blue",
       aliases: ["sakhar", "sugar", "साखर", "shakkar", "मधुर साखर"]
     },
@@ -53,7 +55,8 @@ const VyaparCore = (function() {
       unit_price: 135.0,
       cost_price: 122.00,
       min_threshold: 5.0,
-      img: "assets/products/fortune_oil.png",
+      max_capacity: 50.0,
+      img: "assets/products/fortune_oil.jpg",
       pedestal: "pedestal-green",
       aliases: ["tel", "oil", "fortune", "तेल", "फॉर्च्युन"]
     },
@@ -68,7 +71,8 @@ const VyaparCore = (function() {
       unit_price: 20.0,
       cost_price: 14.00,
       min_threshold: 8.0,
-      img: "assets/products/bakery_pav.png",
+      max_capacity: 50.0,
+      img: "assets/products/ladi_pav.jpg",
       pedestal: "pedestal-rose",
       aliases: ["pav", "ladi pav", "पाव", "लादी पाव", "ब्रेड"]
     },
@@ -83,7 +87,8 @@ const VyaparCore = (function() {
       unit_price: 155.0,
       cost_price: 136.00,
       min_threshold: 10.0,
-      img: "assets/products/tur_dal.png",
+      max_capacity: 50.0,
+      img: "assets/products/tur_dal.jpg",
       pedestal: "pedestal-azure",
       aliases: ["dal", "tur dal", "डाळ", "तूर डाळ", "तूरडाळ"]
     },
@@ -98,7 +103,8 @@ const VyaparCore = (function() {
       unit_price: 28.0,
       cost_price: 22.50,
       min_threshold: 10.0,
-      img: "assets/products/tata_salt.png",
+      max_capacity: 60.0,
+      img: "assets/products/tata_salt.jpg",
       pedestal: "pedestal-blue",
       aliases: ["mith", "meeth", "salt", "मीठ", "टाटा मीठ"]
     },
@@ -113,7 +119,8 @@ const VyaparCore = (function() {
       unit_price: 220.0,
       cost_price: 195.00,
       min_threshold: 5.0,
-      img: "assets/products/atta.png",
+      max_capacity: 30.0,
+      img: "assets/products/aashirvaad_atta.jpg",
       pedestal: "pedestal-peach",
       aliases: ["atta", "aata", "aashirvaad", "आटा", "पीठ", "आशीर्वाद"]
     },
@@ -128,7 +135,8 @@ const VyaparCore = (function() {
       unit_price: 14.0,
       cost_price: 11.80,
       min_threshold: 12.0,
-      img: "assets/products/maggi.png",
+      max_capacity: 80.0,
+      img: "assets/products/maggi.jpg",
       pedestal: "pedestal-green",
       aliases: ["maggi", "noodles", "मॅगी", "मॅगी नूडल्स"]
     },
@@ -143,7 +151,8 @@ const VyaparCore = (function() {
       unit_price: 35.0,
       cost_price: 26.00,
       min_threshold: 15.0,
-      img: "assets/products/onion.png",
+      max_capacity: 100.0,
+      img: "assets/products/red_onion.jpg",
       pedestal: "pedestal-rose",
       aliases: ["kanda", "onion", "कांदा", "कांदे"]
     },
@@ -158,9 +167,26 @@ const VyaparCore = (function() {
       unit_price: 30.0,
       cost_price: 22.00,
       min_threshold: 15.0,
-      img: "assets/products/potato.png",
+      max_capacity: 100.0,
+      img: "assets/products/potato.jpg",
       pedestal: "pedestal-azure",
       aliases: ["batata", "potato", "बटाटा", "बटाटे", "आलू"]
+    },
+    {
+      sku: "DAIRY-MILK-500ML",
+      name_mr: "गोकुळ / अमूल ताझा दूध (५०० मिली)",
+      name_en: "Gokul / Amul Taaza Milk 500ml",
+      short_name: "Gokul / Amul Milk",
+      category: "Dairy & Perishables",
+      stock: 24.0,
+      unit: "pouch",
+      unit_price: 27.0,
+      cost_price: 24.50,
+      min_threshold: 6.0,
+      max_capacity: 50.0,
+      img: "assets/products/amul_milk.jpg",
+      pedestal: "pedestal-blue",
+      aliases: ["दूध", "अमुल दूध", "गोकुळ दूध", "milk", "taaza milk", "fresh milk", "dudh", "doodh", "पिशवी दूध", "amul", "gokul"]
     },
     {
       sku: "DAIRY-AMUL-500M",
@@ -173,6 +199,7 @@ const VyaparCore = (function() {
       unit_price: 27.0,
       cost_price: 24.50,
       min_threshold: 6.0,
+      max_capacity: 50.0,
       img: "assets/products/amul_milk.jpg",
       pedestal: "pedestal-blue",
       aliases: ["dudh", "milk", "amul", "दूध", "अमुल दूध"]
@@ -188,6 +215,7 @@ const VyaparCore = (function() {
       unit_price: 10.0,
       cost_price: 6.80,
       min_threshold: 10.0,
+      max_capacity: 100.0,
       img: "assets/products/reynolds_pen.jpg",
       pedestal: "pedestal-azure",
       aliases: ["pen", "reynolds", "पेन", "बॉलपेन"]
@@ -203,6 +231,7 @@ const VyaparCore = (function() {
       unit_price: 45.0,
       cost_price: 32.00,
       min_threshold: 8.0,
+      max_capacity: 50.0,
       img: "assets/products/classmate_notebook.jpg",
       pedestal: "pedestal-peach",
       aliases: ["vahi", "notebook", "classmate", "वही", "नोटबुक"]
@@ -218,6 +247,7 @@ const VyaparCore = (function() {
       unit_price: 20.0,
       cost_price: 13.00,
       min_threshold: 6.0,
+      max_capacity: 40.0,
       img: "assets/products/kinley_water.jpg",
       pedestal: "pedestal-green",
       aliases: ["pani", "water", "kinley", "पाणी", "किनले"]
@@ -245,31 +275,131 @@ const VyaparCore = (function() {
   // Initial Pending Customer Yaadi Orders (Zero Direct Deduction Queue)
   const DEFAULT_PENDING_ORDERS = [
     {
-      order_id: "ORD-KOP-9102",
-      customer_name: "सौ. सुवर्णा पाटील",
-      customer_phone: "+91 98223 44102",
-      area: "Rajarampuri 5th Lane",
-      time: "3 mins ago",
-      slip_type: "Handwritten Paper Chit (कच्ची पर्ची)",
-      items_text: "साखर २ किलो, पार्ले-जी ३ पुडे, फॉर्च्युन तेल १ लिटर, लादी पाव २",
+      order_id: "ORD-KOP-7019",
+      customer_name: "व्यंकटेश पै (Venkatesh Pai)",
+      customerName: "व्यंकटेश पै (Venkatesh Pai)",
+      customer_phone: "+91 98220 12345",
+      phone: "+91 98220 12345",
+      area: "Rajarampuri, Kolhapur",
+      time: "Just now",
+      timestamp: "Just now",
+      slip_type: "WhatsApp Yaadi Slip",
+      items_text: "व्हॉट्सॲप किराणा यादी: २ किलो साखर, १ लिटर फॉर्च्युन तेल, ५ पार्ले-जी, १ गोकुळ दूध",
+      rawText: "व्हॉट्सॲप किराणा यादी: २ किलो साखर, १ लिटर फॉर्च्युन तेल, ५ पार्ले-जी, १ गोकुळ दूध",
+      raw_message: "व्हॉट्सॲप किराणा यादी: २ किलो साखर, १ लिटर फॉर्च्युन तेल, ५ पार्ले-जी, १ गोकुळ दूध",
       items: [
-        { sku: "GROC-SUG-001", name: "साखर", qty: 2.0, unit: "kg", price: 42.0 },
-        { sku: "FMCG-PARLE-100G", name: "पार्ले-जी", qty: 3.0, unit: "packet", price: 10.0 },
-        { sku: "OIL-FORT-1L", name: "फॉर्च्युन तेल", qty: 1.0, unit: "pouch", price: 135.0 },
-        { sku: "BAK-PAV-LADI", name: "लादी पाव", qty: 2.0, unit: "ladi", price: 20.0 }
+        { sku: "GROC-SUG-001", sku_matched: "GROC-SUG-001", name: "साखर (Sugar)", name_mr: "साखर", qty: 2.0, quantity: 2.0, unit: "kg", price: 42.0, unit_price: 42.0, line_total: 84.0, total: 84.0, is_available: true },
+        { sku: "OIL-FORT-1L", sku_matched: "OIL-FORT-1L", name: "फॉर्च्युन तेल (Fortune Oil 1L)", name_mr: "फॉर्च्युन तेल", qty: 1.0, quantity: 1.0, unit: "pouch", price: 135.0, unit_price: 135.0, line_total: 135.0, total: 135.0, is_available: true },
+        { sku: "FMCG-PARLE-100G", sku_matched: "FMCG-PARLE-100G", name: "पार्ले-जी (Parle-G 100g)", name_mr: "पार्ले-जी", qty: 5.0, quantity: 5.0, unit: "packet", price: 10.0, unit_price: 10.0, line_total: 50.0, total: 50.0, is_available: true },
+        { sku: "DAIRY-MILK-500ML", sku_matched: "DAIRY-MILK-500ML", name: "गोकुळ दूध (Gokul Milk 500ml)", name_mr: "गोकुळ दूध", qty: 1.0, quantity: 1.0, unit: "pouch", price: 27.0, unit_price: 27.0, line_total: 27.0, total: 27.0, is_available: true }
       ],
-      total_amount: 289.0,
-      status: "PENDING"
+      total_amount: 296.0,
+      totalEstimated: 296.0,
+      status: "PENDING",
+      is_stock_reserved: false,
+      confirmed_by_customer: false,
+      remaining_seconds: 1800
     }
   ];
 
   // Storage Keys
-  const KEY_SKUS = "vyapar_inventory_skus_v3";
+  const KEY_SKUS = "vyapar_inventory_skus_v4";
   const KEY_CUSTOMERS = "vyapar_customers";
   const KEY_UDHAR = "vyapar_udhar_ledger";
   const KEY_TX = "vyapar_transactions";
   const KEY_ORDERS = "vyapar_pending_orders";
   const KEY_STORE = "vyapar_active_dukaan";
+
+  function getCategoryPlaceholderSvg(category, name) {
+    const cat = (category || '').toLowerCase();
+    const nm = (name || '').toLowerCase();
+    let icon = '📦';
+    let label = 'Kirana Item';
+    let bg1 = '#0f2e31';
+    let bg2 = '#081c1e';
+    let accent = '#c9a96e';
+
+    if (cat.includes('dairy') || cat.includes('दुग्ध') || nm.includes('milk') || nm.includes('दूध')) {
+      icon = '🥛';
+      label = 'Dairy';
+      bg1 = '#1e3a8a'; bg2 = '#172554'; accent = '#93c5fd';
+    } else if (cat.includes('grain') || cat.includes('धान्य') || nm.includes('sugar') || nm.includes('atta') || nm.includes('साखर')) {
+      icon = '🌾';
+      label = 'Grocery';
+      bg1 = '#854d0e'; bg2 = '#422006'; accent = '#fef08a';
+    } else if (cat.includes('oil') || cat.includes('तेल') || nm.includes('oil')) {
+      icon = '🌻';
+      label = 'Edible Oil';
+      bg1 = '#b45309'; bg2 = '#78350f'; accent = '#fde68a';
+    } else if (cat.includes('veg') || cat.includes('produce') || cat.includes('भाजी')) {
+      icon = '🥔';
+      label = 'Produce';
+      bg1 = '#15803d'; bg2 = '#14532d'; accent = '#86efac';
+    } else if (cat.includes('snack') || cat.includes('biscuit') || cat.includes('fmcg')) {
+      icon = '🍪';
+      label = 'Packaged FMCG';
+      bg1 = '#c2410c'; bg2 = '#7c2d12'; accent = '#fed7aa';
+    } else if (cat.includes('bakery') || cat.includes('बेकरी') || nm.includes('pav')) {
+      icon = '🍞';
+      label = 'Bakery';
+      bg1 = '#991b1b'; bg2 = '#450a0a'; accent = '#fecaca';
+    } else if (cat.includes('pulse') || cat.includes('lentil') || cat.includes('डाळ')) {
+      icon = '🥣';
+      label = 'Pulses & Dal';
+      bg1 = '#d97706'; bg2 = '#78350f'; accent = '#fef3c7';
+    } else if (cat.includes('stationery') || cat.includes('office') || cat.includes('पेन') || cat.includes('वही')) {
+      icon = '✏️';
+      label = 'Stationery';
+      bg1 = '#6d28d9'; bg2 = '#3b0764'; accent = '#ddd6fe';
+    } else if (cat.includes('beverage') || cat.includes('water') || cat.includes('पेये') || cat.includes('पाणी')) {
+      icon = '💧';
+      label = 'Beverage';
+      bg1 = '#0369a1'; bg2 = '#082f49'; accent = '#bae6fd';
+    } else if (cat.includes('spice') || cat.includes('मीठ') || cat.includes('मसाले')) {
+      icon = '🧂';
+      label = 'Spices & Salt';
+      bg1 = '#334155'; bg2 = '#0f172a'; accent = '#e2e8f0';
+    }
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${bg1}"/><stop offset="100%" stop-color="${bg2}"/></linearGradient></defs><rect width="96" height="96" rx="20" fill="url(#g)"/><rect x="2" y="2" width="92" height="92" rx="18" fill="none" stroke="${accent}" stroke-width="1.5" stroke-opacity="0.35"/><text x="48" y="44" font-size="34" text-anchor="middle" dominant-baseline="central">${icon}</text><text x="48" y="74" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="10" font-weight="700" fill="${accent}" text-anchor="middle" letter-spacing="0.5">${label.toUpperCase()}</text></svg>`;
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+
+  function resolveCatalogImg(sku, category, name) {
+    const s = (sku || '').toUpperCase();
+    if (s.includes('MILK') || s.includes('AMUL') || s.startsWith('DAIRY-')) return 'assets/products/amul_milk.jpg';
+    if (s.includes('SUG')) return 'assets/products/sugar.jpg';
+    if (s.includes('SALT')) return 'assets/products/tata_salt.jpg';
+    if (s.includes('ATTA')) return 'assets/products/aashirvaad_atta.jpg';
+    if (s.includes('MAGGI')) return 'assets/products/maggi.jpg';
+    if (s.includes('PARLE')) return 'assets/products/parle_g.jpg';
+    if (s.includes('FORT') || s.includes('OIL')) return 'assets/products/fortune_oil.jpg';
+    if (s.includes('TUR') || s.includes('DAL')) return 'assets/products/tur_dal.jpg';
+    if (s.includes('PAV') || s.includes('BAK')) return 'assets/products/ladi_pav.jpg';
+    if (s.includes('KANDA') || s.includes('ONION')) return 'assets/products/red_onion.jpg';
+    if (s.includes('BATATA') || s.includes('POTATO')) return 'assets/products/potato.jpg';
+    if (s.includes('NOTEBOOK')) return 'assets/products/classmate_notebook.jpg';
+    if (s.includes('PEN')) return 'assets/products/reynolds_pen.jpg';
+    if (s.includes('KINLEY')) return 'assets/products/kinley_water.jpg';
+
+    const n = ((name || '') + ' ' + (category || '')).toLowerCase();
+    if (n.includes('milk') || n.includes('दूध') || n.includes('dairy')) return 'assets/products/amul_milk.jpg';
+    if (n.includes('sugar') || n.includes('साखर')) return 'assets/products/sugar.jpg';
+    if (n.includes('salt') || n.includes('मीठ')) return 'assets/products/tata_salt.jpg';
+    if (n.includes('atta') || n.includes('आटा') || n.includes('पीठ')) return 'assets/products/aashirvaad_atta.jpg';
+    if (n.includes('maggi') || n.includes('मॅगी')) return 'assets/products/maggi.jpg';
+    if (n.includes('parle') || n.includes('पार्ले')) return 'assets/products/parle_g.jpg';
+    if (n.includes('oil') || n.includes('तेल')) return 'assets/products/fortune_oil.jpg';
+    if (n.includes('tur') || n.includes('dal') || n.includes('डाळ')) return 'assets/products/tur_dal.jpg';
+    if (n.includes('pav') || n.includes('पाव')) return 'assets/products/ladi_pav.jpg';
+    if (n.includes('kanda') || n.includes('onion') || n.includes('कांदा')) return 'assets/products/red_onion.jpg';
+    if (n.includes('batata') || n.includes('potato') || n.includes('बटाटा')) return 'assets/products/potato.jpg';
+    if (n.includes('notebook') || n.includes('वही')) return 'assets/products/classmate_notebook.jpg';
+    if (n.includes('pen') || n.includes('पेन')) return 'assets/products/reynolds_pen.jpg';
+    if (n.includes('water') || n.includes('पाणी')) return 'assets/products/kinley_water.jpg';
+
+    return getCategoryPlaceholderSvg(category, name);
+  }
 
   function load(key, defaultData) {
     try {
@@ -295,7 +425,36 @@ const VyaparCore = (function() {
   }
 
   // Active State
-  let skus = load(KEY_SKUS, DEFAULT_SKUS);
+  let skus = load(KEY_SKUS, null);
+  if (!skus) {
+    const oldV3 = load("vyapar_inventory_skus_v3", null);
+    skus = oldV3 ? [...oldV3] : [...DEFAULT_SKUS];
+  }
+  if (Array.isArray(skus)) {
+    // 1. Ensure DAIRY-MILK-500ML exists
+    if (!skus.some(s => s.sku === "DAIRY-MILK-500ML")) {
+      const milkDef = DEFAULT_SKUS.find(d => d.sku === "DAIRY-MILK-500ML");
+      if (milkDef) skus.push({ ...milkDef });
+    }
+    // 2. Ensure DAIRY-AMUL-500M exists
+    if (!skus.some(s => s.sku === "DAIRY-AMUL-500M")) {
+      const amulDef = DEFAULT_SKUS.find(d => d.sku === "DAIRY-AMUL-500M");
+      if (amulDef) skus.push({ ...amulDef });
+    }
+    // 3. Sanitize packshot mappings
+    skus.forEach(s => {
+      if (s.sku === "DAIRY-MILK-500ML" || s.sku === "DAIRY-AMUL-500M" || s.sku === "DAIRY-AMUL-500ML") {
+        s.img = "assets/products/amul_milk.jpg";
+      } else if (s.img && s.img.includes("parle_g") && !s.sku.includes("PARLE")) {
+        s.img = resolveCatalogImg(s.sku, s.category, s.name_en || s.name_mr);
+      }
+      if (!s.max_capacity) {
+        const def = DEFAULT_SKUS.find(d => d.sku === s.sku);
+        s.max_capacity = def ? def.max_capacity : (s.min_threshold ? s.min_threshold * 5 : 100.0);
+      }
+    });
+    save(KEY_SKUS, skus);
+  }
   let customers = load(KEY_CUSTOMERS, DEFAULT_CUSTOMERS);
   let udharLedger = load(KEY_UDHAR, []);
   let transactions = load(KEY_TX, DEFAULT_TRANSACTIONS);
@@ -388,12 +547,17 @@ const VyaparCore = (function() {
         if (data.products && data.products.length > 0) {
           let hasChanged = false;
           data.products.forEach(bp => {
-            const local = skus.find(s => s.sku === bp.sku);
+            const local = skus.find(s => s.sku === bp.sku || (bp.sku === 'DAIRY-MILK-500ML' && (s.sku === 'DAIRY-MILK-500ML' || s.sku === 'DAIRY-AMUL-500M' || s.sku === 'DAIRY-AMUL-500ML')) || (bp.sku === 'DAIRY-AMUL-500ML' && (s.sku === 'DAIRY-MILK-500ML' || s.sku === 'DAIRY-AMUL-500M')));
+            const properImg = bp.img || resolveCatalogImg(bp.sku, bp.category, bp.name_en || bp.name_mr);
             if (local) {
               if (local.stock !== bp.stock || local.unit_price !== bp.unit_price) {
                 hasChanged = true;
                 local.stock = bp.stock;
                 local.unit_price = bp.unit_price;
+              }
+              if (local.img && local.img.includes('parle_g') && !local.sku.includes('PARLE')) {
+                local.img = properImg;
+                hasChanged = true;
               }
             } else {
               skus.push({
@@ -407,7 +571,7 @@ const VyaparCore = (function() {
                 unit_price: bp.unit_price,
                 cost_price: Math.round(bp.unit_price * 0.82),
                 min_threshold: bp.min_threshold || 5,
-                img: bp.img || "assets/products/parle_g.png",
+                img: properImg,
                 pedestal: "pedestal-blue",
                 aliases: bp.aliases || []
               });
@@ -638,7 +802,61 @@ const VyaparCore = (function() {
       return skus;
     },
     getSKU: function(skuCode) {
-      return skus.find(s => s.sku === skuCode);
+      if (!skuCode) return null;
+      let found = skus.find(s => s.sku === skuCode);
+      if (found) return found;
+      // Normalization / alias fallback
+      if (skuCode === 'DAIRY-MILK-500ML' || skuCode === 'DAIRY-AMUL-500M' || skuCode === 'DAIRY-AMUL-500ML') {
+        return skus.find(s => s.sku === 'DAIRY-MILK-500ML' || s.sku === 'DAIRY-AMUL-500M' || s.sku === 'DAIRY-AMUL-500ML');
+      }
+      return null;
+    },
+    getProductImage: function(item) {
+      if (!item) return 'assets/products/placeholder.svg';
+      const sku = (typeof item === 'string' ? item : item.sku) || '';
+      const cat = (typeof item === 'object' ? item.category : '') || '';
+      const name = (typeof item === 'object' ? (item.name_en || item.name_mr || '') : '') || '';
+      const providedImg = (typeof item === 'object' && item.img) ? item.img : null;
+
+      // Exact SKU mapping
+      const skuMap = {
+        'DAIRY-MILK-500ML': 'assets/products/amul_milk.jpg',
+        'DAIRY-AMUL-500M': 'assets/products/amul_milk.jpg',
+        'DAIRY-AMUL-500ML': 'assets/products/amul_milk.jpg',
+        'GROC-SUG-001': 'assets/products/sugar.jpg',
+        'GROC-SALT-1K': 'assets/products/tata_salt.jpg',
+        'GROC-ATTA-5K': 'assets/products/aashirvaad_atta.jpg',
+        'FMCG-MAGGI-70G': 'assets/products/maggi.jpg',
+        'FMCG-PARLE-100G': 'assets/products/parle_g.jpg',
+        'OIL-FORT-1L': 'assets/products/fortune_oil.jpg',
+        'DAL-TUR-001': 'assets/products/tur_dal.jpg',
+        'BAK-PAV-LADI': 'assets/products/ladi_pav.jpg',
+        'VEG-KANDA-001': 'assets/products/red_onion.jpg',
+        'VEG-BATATA-001': 'assets/products/potato.jpg',
+        'AUTO-VID-NOTEBOOK': 'assets/products/classmate_notebook.jpg',
+        'AUTO-VID-PEN': 'assets/products/reynolds_pen.jpg',
+        'AUTO-VID-KINLEY': 'assets/products/kinley_water.jpg'
+      };
+      if (sku && skuMap[sku]) return skuMap[sku];
+
+      // If valid image provided and it's NOT an erroneous parle_g fallback on a non-parle item
+      if (providedImg && !providedImg.includes('placeholder')) {
+        const isParleSku = sku.includes('PARLE') || name.toLowerCase().includes('parle');
+        if (!providedImg.includes('parle_g') || isParleSku) {
+          return providedImg;
+        }
+      }
+
+      // Check catalog by SKU
+      const catalogItem = this.getSKU(sku);
+      if (catalogItem && catalogItem.img && (!catalogItem.img.includes('parle_g') || sku.includes('PARLE'))) {
+        return catalogItem.img;
+      }
+
+      return resolveCatalogImg(sku, cat, name);
+    },
+    getFallbackImage: function(category, sku) {
+      return resolveCatalogImg(sku, category, '');
     },
     addStock: async function(skuCode, addQty, reason = "Manual UI Stock Add") {
       const item = skus.find(s => s.sku === skuCode);
@@ -880,6 +1098,7 @@ const VyaparCore = (function() {
       if (item) {
         item.stock = Math.max(0, parseFloat((item.stock - qty).toFixed(2)));
         save(KEY_SKUS, skus);
+        notifySyncListeners("METRICS_UPDATE", { products: skus });
         return item;
       }
       return null;
@@ -894,6 +1113,7 @@ const VyaparCore = (function() {
         }
       });
       save(KEY_SKUS, skus);
+      notifySyncListeners("METRICS_UPDATE", { products: skus });
     },
     getLowStockCount: function() {
       return skus.filter(s => s.stock <= s.min_threshold).length;
@@ -926,6 +1146,7 @@ const VyaparCore = (function() {
       };
       transactions.unshift(newTx);
       save(KEY_TX, transactions);
+      notifySyncListeners("TRANSACTIONS_UPDATED", transactions);
       return newTx;
     },
     getDailyMetrics: function() {
@@ -965,47 +1186,73 @@ const VyaparCore = (function() {
     // 3. REMOTE YAADI (CUSTOMER ORDER QUEUE & ZERO DIRECT DEDUCTION INVARIANT)
     // -------------------------------------------------------------------------
     getPendingOrders: function() {
-      return pendingOrders.filter(o => o.status === "PENDING");
+      return pendingOrders;
     },
     addPendingCustomerOrder: function(order) {
       const newOrder = {
         order_id: order.order_id || ("ORD-KOP-" + Math.floor(1000 + Math.random() * 9000)),
-        customer_name: order.customer_name || "WhatsApp Customer",
-        customer_phone: order.customer_phone || "+91 98000 00000",
+        customer_name: order.customer_name || order.customerName || "व्यंकटेश पै (Venkatesh Pai)",
+        customerName: order.customer_name || order.customerName || "व्यंकटेश पै (Venkatesh Pai)",
+        customer_phone: order.customer_phone || order.phone || "+91 98220 12345",
+        phone: order.customer_phone || order.phone || "+91 98220 12345",
         area: order.area || "Kolhapur Walk-in",
         time: "Just now",
+        timestamp: "Just now",
         slip_type: order.slip_type || "WhatsApp Yaadi Slip",
-        items_text: order.items_text || "किराणा यादी",
+        items_text: order.items_text || order.rawText || "किराणा यादी",
+        rawText: order.items_text || order.rawText || "किराणा यादी",
         items: order.items || [],
-        total_amount: parseFloat(order.total_amount || 0),
-        status: "PENDING"
+        total_amount: parseFloat(order.total_amount || order.totalEstimated || 0),
+        totalEstimated: parseFloat(order.total_amount || order.totalEstimated || 0),
+        status: "PENDING",
+        is_stock_reserved: false,
+        confirmed_by_customer: false,
+        remaining_seconds: 1800
       };
       pendingOrders.unshift(newOrder);
       save(KEY_ORDERS, pendingOrders);
+      notifySyncListeners("PENDING_ORDERS_UPDATED", pendingOrders);
       return newOrder;
     },
     packAndFulfillOrder: function(orderId) {
-      const order = pendingOrders.find(o => o.order_id === orderId);
-      if (order && order.status === "PENDING") {
-        // Note: Stock was already safely soft-reserved by backend on order arrival.
-        // We only commit sales ledger locally and await backend atomic fulfillment confirmation.
+      const order = pendingOrders.find(o => o.order_id === orderId || o.id === orderId);
+      if (order && (order.status === "PENDING" || order.status === "CONFIRMED")) {
+        // Zero Double-Deduction Guard: Decrement master stock from active inventory upon merchant fulfillment
+        if (Array.isArray(order.items)) {
+          order.items.forEach(item => {
+            const skuCode = item.sku || item.sku_matched;
+            const qty = parseFloat(item.qty || item.quantity || 0);
+            if (skuCode && qty > 0) {
+              const matched = skus.find(s => s.sku === skuCode);
+              if (matched) {
+                matched.stock = Math.max(0, parseFloat((Number(matched.stock) - qty).toFixed(2)));
+              }
+            }
+          });
+          save(KEY_SKUS, skus);
+          notifySyncListeners("METRICS_UPDATE", { products: skus });
+        }
 
         // Add to Sales Ledger
+        const itemsSummary = order.items_text || order.rawText || (Array.isArray(order.items) ? order.items.map(i => `${i.qty || i.quantity || 1}x ${i.name || i.name_mr || 'Item'}`).join(' + ') : "किराणा यादी");
+        const totalAmt = parseFloat(order.total_amount || order.totalEstimated || 0);
         this.addTransaction({
           type: "SALE",
           mode: "WhatsApp Yaadi (Fulfilled)",
-          cust: order.customer_name,
-          items: order.items_text,
-          amount: order.total_amount,
+          cust: order.customer_name || order.customerName || "व्यंकटेश पै",
+          items: itemsSummary,
+          amount: totalAmt,
           status: "Success"
         });
 
         order.status = "PACKED";
         order.fulfilled_at = new Date().toLocaleTimeString();
         save(KEY_ORDERS, pendingOrders);
+        notifySyncListeners("PENDING_ORDERS_UPDATED", pendingOrders);
 
         // Synchronize with cloud backend
-        fetch(`${getBackendUrl()}/api/orders/${orderId}/pack`, { method: "POST" })
+        const bUrl = typeof getBackendUrl === "function" ? getBackendUrl() : "";
+        fetch(`${bUrl}/api/orders/${orderId}/pack`, { method: "POST" })
           .then(r => r.json())
           .then(res => {
             if (res && res.metrics) {
@@ -1014,10 +1261,31 @@ const VyaparCore = (function() {
           })
           .catch(e => console.log("[PACK API WARN]:", e));
 
-        this.playSoundboxChime(order.total_amount);
+        this.playSoundboxChime(totalAmt);
         return { success: true, order };
       }
       return { success: false, message: "Order not found or already packed" };
+    },
+    cancelAndRestoreOrder: function(orderId) {
+      const order = pendingOrders.find(o => o.order_id === orderId || o.id === orderId);
+      if (order && (order.status === "PENDING" || order.status === "CONFIRMED")) {
+        order.status = "CANCELLED";
+        save(KEY_ORDERS, pendingOrders);
+        notifySyncListeners("PENDING_ORDERS_UPDATED", pendingOrders);
+
+        const bUrl = typeof getBackendUrl === "function" ? getBackendUrl() : "";
+        fetch(`${bUrl}/api/orders/${orderId}/expire-now`, { method: "POST" })
+          .then(r => r.json())
+          .then(res => {
+            if (res && res.metrics) {
+              performLiveSync();
+            }
+          })
+          .catch(e => console.log("[CANCEL API WARN]:", e));
+
+        return { success: true, order };
+      }
+      return { success: false, message: "Order not found or already finalized" };
     },
 
     // -------------------------------------------------------------------------
@@ -1140,11 +1408,13 @@ const VyaparCore = (function() {
     // -------------------------------------------------------------------------
     backend: {
       getBaseUrl: getBackendUrl,
+      getBackendUrl: getBackendUrl,
       getWsUrl: getWebSocketUrl,
       startLiveSync: startLiveSync,
       registerListener: registerSyncListener,
       getLastMetrics: function() { return lastSyncMetrics; },
       syncLiveMetrics: performLiveSync,
+      performLiveSync: performLiveSync,
 
       // Send text message (Merchant Sale / Query / Reverse-Math)
       sendMessage: async function(text, vendorId = "DEMO_KIRANA_KOP") {
@@ -1296,6 +1566,55 @@ const VyaparCore = (function() {
       } catch(e) {}
       await performLiveSync();
       return skus;
+    },
+
+    // Merchant Authentication & Session State
+    getAuthUser: function() {
+      try {
+        const raw = (typeof localStorage !== 'undefined') ? localStorage.getItem('vyaparai_auth_user') : null;
+        return raw ? JSON.parse(raw) : null;
+      } catch(e) {
+        return null;
+      }
+    },
+
+    logout: function() {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('vyaparai_auth_user');
+        localStorage.removeItem('vyaparai_auth_token');
+        localStorage.removeItem('vyaparai_active_store');
+      }
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem('just_logged_in');
+      }
+      if (typeof window !== 'undefined') {
+        window.location.replace('login.html');
+      }
+    },
+
+    syncAuthUI: function() {
+      if (typeof window === 'undefined' || typeof document === 'undefined') return;
+      try {
+        const raw = localStorage.getItem('vyaparai_auth_user');
+        if (!raw) return;
+        const user = JSON.parse(raw);
+        const merchantName = user.name || 'अथर्व आवटे';
+        const vendorId = user.vendor_id || 'DEMO_KIRANA_KOP';
+        const storeName = user.store || 'अथर्व किराणा स्टोअर्स, कोल्हापूर';
+        const formattedLabel = `${merchantName} (${vendorId})`;
+
+        const nameEls = document.querySelectorAll('#headerMerchantName, .merchant-display-name');
+        nameEls.forEach(el => el.textContent = formattedLabel);
+
+        const storeEls = document.querySelectorAll('#currentDukaanName, .store-display-name');
+        storeEls.forEach(el => {
+          if (el.tagName === 'INPUT') {
+            el.value = storeName;
+          } else if (el.id === 'currentDukaanName') {
+            el.textContent = '🏪 ' + storeName;
+          }
+        });
+      } catch(e) {}
     }
   };
 })();
@@ -1303,6 +1622,12 @@ const VyaparCore = (function() {
 // Universal Export
 if (typeof window !== "undefined") {
   window.VyaparCore = VyaparCore;
+  window.logoutMerchant = function() {
+    VyaparCore.logout();
+  };
+  window.syncMerchantSessionUI = function() {
+    VyaparCore.syncAuthUI();
+  };
 }
 if (typeof module !== "undefined" && module.exports) {
   module.exports = VyaparCore;
