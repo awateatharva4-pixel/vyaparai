@@ -20,6 +20,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <!-- VyaparCore Single Source of Truth Engine & Backend Client -->
   <script src="assets/vyapar-core.js"></script>
+  <link rel="stylesheet" href="assets/godly-loader.css" />
+  <script src="assets/godly-loader.js"></script>
   <style>
     /* ==========================================================================
        1. Apple HIG & Italian Calacatta Marble Design Tokens
@@ -1187,7 +1189,8 @@
       transition: transform 0.4s var(--spring-snappy);
       pointer-events: none;
     }
-    .apple-toast.show {
+    .apple-toast.show,
+    .apple-toast.visible {
       transform: translate3d(-50%, 0, 0);
     }
     .toast-icon {
@@ -1379,32 +1382,32 @@
             <div style="display: flex; gap: 12px;">
               <div style="flex: 1;">
                 <label style="font-size: 0.72rem; color: var(--text-tertiary); font-weight: 600;">Store Name</label>
-                <input type="text" class="apple-search-input" value="Ganesh Kirana Stores" style="width: 100%; margin-top: 2px;" />
+                <input type="text" id="settingsStoreName" class="apple-search-input" value="Ganesh Kirana Stores" style="width: 100%; margin-top: 2px;" />
               </div>
               <div style="width: 180px;">
                 <label style="font-size: 0.72rem; color: var(--text-tertiary); font-weight: 600;">GSTIN</label>
-                <input type="text" class="apple-search-input" value="27AABCG1234F1Z5" style="width: 100%; margin-top: 2px;" />
+                <input type="text" id="settingsGstin" class="apple-search-input" value="27AABCG1234F1Z5" style="width: 100%; margin-top: 2px;" />
               </div>
             </div>
 
             <div>
               <label style="font-size: 0.72rem; color: var(--text-tertiary); font-weight: 600;">Store Address</label>
-              <input type="text" class="apple-search-input" value="Shop #14, Main Cloth Market, Shahupuri, Kolhapur 416001" style="width: 100%; margin-top: 2px;" />
+              <input type="text" id="settingsStoreAddress" class="apple-search-input" value="Shop #14, Main Cloth Market, Shahupuri, Kolhapur 416001" style="width: 100%; margin-top: 2px;" />
             </div>
 
             <div style="display: flex; gap: 12px;">
               <div style="flex: 1;">
                 <label style="font-size: 0.72rem; color: var(--text-tertiary); font-weight: 600;">Owner Contact Phone</label>
-                <input type="text" class="apple-search-input" value="+91 98220 99881" style="width: 100%; margin-top: 2px;" />
+                <input type="text" id="settingsOwnerPhone" class="apple-search-input" value="+91 98220 99881" style="width: 100%; margin-top: 2px;" />
               </div>
               <div style="flex: 1;">
                 <label style="font-size: 0.72rem; color: var(--text-tertiary); font-weight: 600;">UPI VPA Address</label>
-                <input type="text" class="apple-search-input" value="ganeshkirana@icici" style="width: 100%; margin-top: 2px;" />
+                <input type="text" id="settingsUpiVpa" class="apple-search-input" value="ganeshkirana@icici" style="width: 100%; margin-top: 2px;" />
               </div>
             </div>
 
             <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
-              <button class="restock-btn" onclick="showAppleToast('Dukaan profile updated successfully!')">Save Profile</button>
+              <button class="restock-btn" onclick="saveStoreProfile()">Save Profile</button>
             </div>
           </div>
           <div class="specular-sweep"></div>
@@ -1687,12 +1690,43 @@
       const text = document.getElementById('appleToastMessage');
       if (!toast || !text) return;
       text.textContent = msg;
-      toast.classList.add('visible');
+      toast.classList.add('visible', 'show');
       haptics.playTick();
       if (toastTimeout) clearTimeout(toastTimeout);
       toastTimeout = setTimeout(() => {
-        toast.classList.remove('visible');
+        toast.classList.remove('visible', 'show');
       }, 3200);
+    }
+
+    function saveStoreProfile() {
+      const storeName = document.getElementById('settingsStoreName') ? document.getElementById('settingsStoreName').value.trim() : '';
+      const gstin = document.getElementById('settingsGstin') ? document.getElementById('settingsGstin').value.trim() : '';
+      const address = document.getElementById('settingsStoreAddress') ? document.getElementById('settingsStoreAddress').value.trim() : '';
+      const phone = document.getElementById('settingsOwnerPhone') ? document.getElementById('settingsOwnerPhone').value.trim() : '';
+      const upi = document.getElementById('settingsUpiVpa') ? document.getElementById('settingsUpiVpa').value.trim() : '';
+
+      const storeRecord = {
+        name: storeName || 'अथर्व किराणा स्टोअर्स, कोल्हापूर',
+        gstin: gstin || '27AABCG1234F1Z5',
+        address: address || 'Shop #14, Main Cloth Market, Shahupuri, Kolhapur 416001',
+        phone: phone || '+91 95798 69506',
+        upi: upi || 'ganeshkirana@icici'
+      };
+
+      try {
+        localStorage.setItem('vyaparai_active_store', JSON.stringify(storeRecord));
+        const rawUser = localStorage.getItem('vyaparai_auth_user');
+        if (rawUser) {
+          const user = JSON.parse(rawUser);
+          user.store = storeRecord.name;
+          if (phone) user.phone = storeRecord.phone;
+          localStorage.setItem('vyaparai_auth_user', JSON.stringify(user));
+        }
+      } catch(e) {}
+
+      syncMerchantSessionUI();
+      showAppleToast('Dukaan profile updated successfully!');
+      haptics.playSuccess();
     }
 
     function toggleWhatsAppDrawer() {
@@ -1779,6 +1813,22 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       syncMerchantSessionUI();
+      try {
+        const rawStore = localStorage.getItem('vyaparai_active_store');
+        const rawUser = localStorage.getItem('vyaparai_auth_user');
+        const user = rawUser ? JSON.parse(rawUser) : null;
+        const store = rawStore ? JSON.parse(rawStore) : null;
+        if (store) {
+          if (store.name && document.getElementById('settingsStoreName')) document.getElementById('settingsStoreName').value = store.name;
+          if (store.gstin && document.getElementById('settingsGstin')) document.getElementById('settingsGstin').value = store.gstin;
+          if (store.address && document.getElementById('settingsStoreAddress')) document.getElementById('settingsStoreAddress').value = store.address;
+          if (store.phone && document.getElementById('settingsOwnerPhone')) document.getElementById('settingsOwnerPhone').value = store.phone;
+          if (store.upi && document.getElementById('settingsUpiVpa')) document.getElementById('settingsUpiVpa').value = store.upi;
+        } else if (user) {
+          if (user.store && document.getElementById('settingsStoreName')) document.getElementById('settingsStoreName').value = user.store;
+          if (user.phone && document.getElementById('settingsOwnerPhone')) document.getElementById('settingsOwnerPhone').value = user.phone;
+        }
+      } catch(e) {}
     });
   </script>
 </body>

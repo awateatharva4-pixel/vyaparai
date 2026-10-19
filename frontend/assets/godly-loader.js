@@ -1,16 +1,14 @@
 /**
  * =============================================================================
- * VyaparAI — Godly Wave Loader Controller (v2.4 Calacatta)
+ * VyaparAI — Godly Wave Loader Controller (v2.5 Calacatta)
  * 60 FPS GPU-Accelerated Concentric Waves (Apple Blue & Florentine Gold)
  * Features:
- *  - window.previewGodlyLoader()
- *  - window.replayGodlyLoaderPreview()
- *  - window.dismissGodlyLoaderPreview()
- *  - window.triggerGodlyWaveLoader(options)
- *  - VyaparLoader.show(options) / VyaparLoader.hide() / VyaparLoader.preview()
- *  - Full dynamic DOM injection of skeleton canvas & wave stage if absent
- *  - Escape key listener dismissal support
- *  - Web Audio API micro-haptics
+ *  - AUTOMATIC snappy Wave Transition on EVERY page load / refresh (~750ms smooth reveal)
+ *  - window.VyaparLoader.navigate(url): ~450ms wave surge then instant location switch
+ *  - Global Click Interceptor: intercepts .dock-btn and navigation links (a[href$='.html'])
+ *  - Zero-latency micro-haptics via Web Audio API
+ *  - Complete dynamic DOM & CSS injection if absent
+ *  - Escape key & backdrop click dismissal
  * =============================================================================
  */
 
@@ -34,6 +32,7 @@
   var activeTimeouts = [];
   var isPreviewActive = false;
   var isLoaderActive = false;
+  var isNavigating = false;
   var currentCompletionCallback = null;
 
   // Zero-latency micro-haptic sound feedback
@@ -81,11 +80,45 @@
   }
 
   /**
+   * Helper: extract clean page label from URL for contextual phrase display
+   */
+  function getPageTitle(url) {
+    if (!url) return 'Workspace';
+    var clean = url.split('?')[0].split('#')[0].toLowerCase();
+    if (clean.indexOf('alert') !== -1) return 'Low Stock Alerts & Breaches';
+    if (clean.indexOf('inventory') !== -1) return 'Inventory Register & Stock';
+    if (clean.indexOf('sale') !== -1) return 'Sales Ledger & Transactions';
+    if (clean.indexOf('khata') !== -1) return 'Customer Register & Khata';
+    if (clean.indexOf('customer') !== -1) return 'Customer Accounts';
+    if (clean.indexOf('analytic') !== -1) return 'Analytics & SIH Intelligence';
+    if (clean.indexOf('setting') !== -1) return 'Calacatta OS Settings';
+    if (clean.indexOf('login') !== -1) return 'Authentication Gateway';
+    if (clean.indexOf('index') !== -1) return 'VyaparAI Main Dashboard';
+    return 'VyaparAI Terminal';
+  }
+
+  /**
+   * Defensive injection: Ensures assets/godly-loader.css is attached
+   */
+  function ensureLoaderStyles() {
+    if (typeof document === 'undefined') return;
+    if (document.getElementById('godlyLoaderStyles')) return;
+    var existing = document.querySelector('link[href*="godly-loader.css"]');
+    if (!existing && document.head) {
+      var link = document.createElement('link');
+      link.id = 'godlyLoaderStyles';
+      link.rel = 'stylesheet';
+      link.href = 'assets/godly-loader.css';
+      document.head.appendChild(link);
+    }
+  }
+
+  /**
    * Invariant: Dynamically injects the full godlyLoaderScreen modal markup
-   * into document.body if it doesn't exist, enabling ANY page (including alerts.html)
-   * to invoke VyaparLoader without markup duplication.
+   * into document.body if it doesn't exist, enabling ANY page to invoke VyaparLoader.
    */
   function ensureLoaderMarkup() {
+    if (typeof document === 'undefined' || !document.body) return null;
     var existing = document.getElementById('godlyLoaderScreen');
     if (existing) return existing;
 
@@ -233,18 +266,13 @@
     setTimeout(function () {
       phraseEl.textContent = newText;
       phraseEl.classList.remove('phrase-crossfade');
-    }, 120);
+    }, 100);
   }
 
   /**
    * Main Programmatic Wave Loader Trigger
-   * Can be invoked with options object:
-   *   window.triggerGodlyWaveLoader({ redirect: 'index.html', steps: [...] })
-   * Or with (durationMs, customPhrase) for backward compatibility:
-   *   window.triggerGodlyWaveLoader(2500, 'Connecting...')
    */
   function showWaveLoader(options, legacyPhrase) {
-    // Normalise options if called with legacy signature (durationMs, phrase)
     if (typeof options === 'number') {
       options = {
         duration: options,
@@ -255,7 +283,10 @@
       options = options || {};
     }
 
+    ensureLoaderStyles();
     var loader = ensureLoaderMarkup();
+    if (!loader) return { cancel: function () {}, element: null };
+
     var progress = document.getElementById('loaderProgressBar');
     var phrase = document.getElementById('loaderDynamicPhrase');
 
@@ -309,9 +340,9 @@
             } else if (!isPreviewActive) {
               scheduleTimeout(function () {
                 hideWaveLoader();
-              }, 500);
+              }, 400);
             }
-          }, 350);
+          }, 300);
         }
       }, step.delay);
     });
@@ -322,10 +353,14 @@
     };
   }
 
+  /**
+   * Hide the Godly Wave Loader with a sleek fade-out
+   */
   function hideWaveLoader() {
     clearAllTimeouts();
     isLoaderActive = false;
     isPreviewActive = false;
+    isNavigating = false;
     currentCompletionCallback = null;
 
     var loader = document.getElementById('godlyLoaderScreen');
@@ -340,9 +375,132 @@
       var phrase = document.getElementById('loaderDynamicPhrase');
       if (progress) progress.style.width = '0%';
       if (phrase) phrase.textContent = 'Verifying vendor terminal security token...';
+    }, 420);
+  }
+
+  /**
+   * Programmatic Smooth Page Navigation with Wave Transition
+   * Shows the wave animation for ~450ms then switches to target URL
+   */
+  function navigateToUrl(url, customPhrase) {
+    if (!url) return;
+    if (isNavigating) return;
+    isNavigating = true;
+
+    // Safety timeout in case navigation is prevented
+    scheduleTimeout(function () {
+      isNavigating = false;
+    }, 3000);
+
+    ensureLoaderStyles();
+    var loader = ensureLoaderMarkup();
+    if (!loader) {
+      window.location.href = url;
+      return;
+    }
+
+    clearAllTimeouts();
+    isLoaderActive = true;
+    isPreviewActive = false;
+
+    var progress = document.getElementById('loaderProgressBar');
+    var phrase = document.getElementById('loaderDynamicPhrase');
+
+    if (progress) progress.style.width = '0%';
+    loader.classList.remove('preview-mode', 'controls-visible');
+
+    var pageLabel = getPageTitle(url);
+    var phraseText = customPhrase || ('Opening ' + pageLabel + ' • Calacatta OS');
+
+    if (phrase) phrase.textContent = phraseText;
+    loader.classList.add('active');
+    playAudioHaptic(190, 75, 0.025, 0.14);
+
+    // Fast surge progress animation
+    scheduleTimeout(function () {
+      if (progress) progress.style.width = '55%';
+      playAudioHaptic(240, 90, 0.02, 0.09);
+    }, 140);
+
+    scheduleTimeout(function () {
+      if (progress) progress.style.width = '100%';
+      playAudioHaptic(280, 110, 0.025, 0.11);
+    }, 320);
+
+    scheduleTimeout(function () {
+      window.location.href = url;
     }, 450);
   }
 
+  /**
+   * Automatic Snappy Wave Ingress on Initial Page Load / Refresh
+   * Plays for ~750ms with concentric ripples and smoothly fades out to reveal content.
+   */
+  function onInitialPageLoad() {
+    ensureLoaderStyles();
+    var loader = ensureLoaderMarkup();
+    if (!loader) return;
+
+    // If already in preview or mid-navigation, do not override
+    if (isPreviewActive || isNavigating) return;
+
+    var progress = document.getElementById('loaderProgressBar');
+    var phrase = document.getElementById('loaderDynamicPhrase');
+
+    clearAllTimeouts();
+    isLoaderActive = true;
+    isPreviewActive = false;
+
+    if (progress) progress.style.width = '0%';
+    loader.classList.remove('preview-mode', 'controls-visible');
+    loader.classList.add('active');
+
+    var isFreshLogin = false;
+    try {
+      if (sessionStorage.getItem('just_logged_in') === 'true') {
+        isFreshLogin = true;
+        sessionStorage.removeItem('just_logged_in');
+      }
+    } catch (e) {}
+
+    var initialText = isFreshLogin
+      ? "Welcome to VyaparAI Kirana Enterprise..."
+      : "VyaparAI Calacatta OS • Synchronizing Terminal...";
+    var finalText = isFreshLogin
+      ? "Store Ingress Authenticated • Calacatta Ready"
+      : "Calacatta OS Ready • Store Ingress Authenticated";
+
+    if (phrase) phrase.textContent = initialText;
+    playAudioHaptic(170, 70, 0.025, 0.11);
+
+    // Timeline for ~750ms snappy delight:
+    scheduleTimeout(function () {
+      if (!isLoaderActive) return;
+      if (progress) progress.style.width = '35%';
+      playAudioHaptic(200, 80, 0.02, 0.07);
+    }, 180);
+
+    scheduleTimeout(function () {
+      if (!isLoaderActive) return;
+      if (progress) progress.style.width = '75%';
+      if (phrase) updatePhrase(phrase, finalText);
+      playAudioHaptic(240, 95, 0.02, 0.08);
+    }, 420);
+
+    scheduleTimeout(function () {
+      if (!isLoaderActive) return;
+      if (progress) progress.style.width = '100%';
+    }, 600);
+
+    scheduleTimeout(function () {
+      if (!isLoaderActive) return;
+      hideWaveLoader();
+    }, 750);
+  }
+
+  /**
+   * Interactive Full-Length Preview Mode (for manual testing via console / shortcut)
+   */
   function previewLoader() {
     return showWaveLoader({
       isPreview: true,
@@ -363,7 +521,79 @@
     previewLoader();
   }
 
-  function setupEscapeListener() {
+  /**
+   * Global Click Interceptor: Intercepts clicks on dock buttons (.dock-btn),
+   * dock logo, and internal navigation links (a[href$='.html']) to play the wave transition.
+   */
+  function handleGlobalNavClick(e) {
+    // Primary left-click only, ignore modified clicks (Ctrl, Cmd, Shift, Alt)
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+    var el = e.target.closest('.dock-btn, .dock-brand-logo, a[href$=".html"], a[href*=".html"], [data-nav-href]');
+    if (!el) return;
+
+    // Do not intercept preview controls or dismiss buttons
+    if (el.classList.contains('godly-preview-pill-btn') || el.closest('.godly-preview-controls-bar')) {
+      return;
+    }
+
+    var onclickAttr = el.getAttribute('onclick') || '';
+
+    // Ignore interactive non-page modal triggers (such as WhatsApp Drawer toggle)
+    if (onclickAttr.indexOf('toggleWhatsAppDrawer') !== -1 ||
+        onclickAttr.indexOf('openVideoSweepModal') !== -1 ||
+        onclickAttr.indexOf('previewGodlyLoader') !== -1 ||
+        onclickAttr.indexOf('replayGodlyLoader') !== -1 ||
+        onclickAttr.indexOf('dismissGodlyLoader') !== -1) {
+      return;
+    }
+
+    var targetUrl = null;
+
+    // 1. Direct Anchor tag check
+    if (el.tagName === 'A') {
+      var href = el.getAttribute('href');
+      if (href && !href.startsWith('#') && !href.startsWith('javascript:') &&
+          !href.startsWith('http://') && !href.startsWith('https://')) {
+        targetUrl = href;
+      }
+    }
+
+    // 2. data-nav-href attribute check
+    if (!targetUrl && el.getAttribute('data-nav-href')) {
+      targetUrl = el.getAttribute('data-nav-href');
+    }
+
+    // 3. Inline onclick location assignment extraction
+    if (!targetUrl && onclickAttr) {
+      var match = onclickAttr.match(/(?:window\.)?location(?:\.href)?\s*=\s*['"]([^'"]+)['"]/);
+      if (match && match[1]) {
+        targetUrl = match[1];
+      }
+    }
+
+    if (targetUrl) {
+      // If this is a logout action, clear the session storage tokens
+      if (onclickAttr.indexOf('removeItem') !== -1 || targetUrl.indexOf('login.html') !== -1) {
+        try {
+          localStorage.removeItem('vyaparai_auth_user');
+          localStorage.removeItem('vyaparai_auth_token');
+          sessionStorage.removeItem('just_logged_in');
+        } catch (err) {}
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof e.stopImmediatePropagation === 'function') {
+        e.stopImmediatePropagation();
+      }
+
+      navigateToUrl(targetUrl);
+    }
+  }
+
+  function setupGlobalListeners() {
+    // 1. Escape key dismissal listener
     window.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' || e.keyCode === 27) {
         var loader = document.getElementById('godlyLoaderScreen');
@@ -372,13 +602,28 @@
         }
       }
     });
+
+    // 2. Back/Forward Cache listener (prevents loader from being stuck when navigating back)
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) {
+        hideWaveLoader();
+      }
+    });
+
+    // 3. Global Click Interceptor for seamless transitions (using Capture phase for priority)
+    document.addEventListener('click', handleGlobalNavClick, true);
   }
 
+  // Auto-init on page load
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', setupEscapeListener);
+      document.addEventListener('DOMContentLoaded', function () {
+        setupGlobalListeners();
+        onInitialPageLoad();
+      });
     } else {
-      setupEscapeListener();
+      setupGlobalListeners();
+      onInitialPageLoad();
     }
   }
 
@@ -386,10 +631,12 @@
     show: showWaveLoader,
     hide: hideWaveLoader,
     dismiss: hideWaveLoader,
+    navigate: navigateToUrl,
     preview: previewLoader,
     replay: replayPreview,
     playHaptic: playAudioHaptic,
-    ensureMarkup: ensureLoaderMarkup
+    ensureMarkup: ensureLoaderMarkup,
+    ensureStyles: ensureLoaderStyles
   };
 
   return api;

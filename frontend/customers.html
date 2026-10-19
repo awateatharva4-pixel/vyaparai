@@ -21,6 +21,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <!-- VyaparCore Single Source of Truth Engine & Backend Client -->
   <script src="assets/vyapar-core.js"></script>
+  <link rel="stylesheet" href="assets/godly-loader.css" />
+  <script src="assets/godly-loader.js"></script>
   <style>
     /* ==========================================================================
        1. Apple HIG & Italian Calacatta Marble Design Tokens
@@ -1894,11 +1896,11 @@
       const text = document.getElementById('appleToastMessage');
       if (!toast || !text) return;
       text.textContent = msg;
-      toast.classList.add('visible');
+      toast.classList.add('visible', 'show');
       haptics.playTick();
       if (toastTimeout) clearTimeout(toastTimeout);
       toastTimeout = setTimeout(() => {
-        toast.classList.remove('visible');
+        toast.classList.remove('visible', 'show');
       }, 3200);
     }
 

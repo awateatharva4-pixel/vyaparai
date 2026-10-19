@@ -8,7 +8,7 @@
   position: fixed;
   inset: 0;
   z-index: 99999;
-  background: rgba(249, 246, 240, 0.94);
+  background: rgba(249, 246, 240, 0.95);
   backdrop-filter: blur(36px) saturate(190%) contrast(102%);
   -webkit-backdrop-filter: blur(36px) saturate(190%) contrast(102%);
   display: flex;
@@ -16,7 +16,8 @@
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  visibility: hidden;
+  transition: opacity 0.42s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.42s;
   overflow: hidden;
   cursor: pointer;
 }
@@ -24,6 +25,7 @@
 .godly-loader-screen.active {
   opacity: 1;
   pointer-events: auto;
+  visibility: visible;
 }
 
 /* Central Stage Container */
@@ -83,7 +85,7 @@
   opacity: 0;
   transform: scale(0.65) translateZ(0);
   transform-origin: center center;
-  animation: waveSpread 3.6s cubic-bezier(0.12, 0.8, 0.24, 1) infinite;
+  animation: waveSpread 2.2s cubic-bezier(0.12, 0.8, 0.24, 1) infinite;
   will-change: transform, opacity;
   pointer-events: none;
 }
@@ -98,7 +100,7 @@
 }
 
 .wave-ring.wave-2 {
-  animation-delay: 0.9s;
+  animation-delay: 0.22s;
   border: 2px solid rgba(201, 169, 110, 0.85);
   box-shadow: 
     0 0 35px rgba(201, 169, 110, 0.45),
@@ -107,7 +109,7 @@
 }
 
 .wave-ring.wave-3 {
-  animation-delay: 1.8s;
+  animation-delay: 0.44s;
   border: 2px solid rgba(0, 113, 227, 0.75);
   box-shadow: 
     0 0 45px rgba(0, 113, 227, 0.6),
@@ -116,7 +118,7 @@
 }
 
 .wave-ring.wave-4 {
-  animation-delay: 2.7s;
+  animation-delay: 0.66s;
   border: 2px solid rgba(201, 169, 110, 0.8);
   box-shadow: 
     0 0 58px rgba(201, 169, 110, 0.4),
@@ -233,15 +235,20 @@
   transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Floating Preview Controls Bar */
+/* Floating Preview Controls Bar (visible strictly in interactive preview mode) */
 .godly-preview-controls-bar {
   position: absolute;
   top: 24px;
   right: 24px;
-  display: flex;
+  display: none;
   align-items: center;
   gap: 10px;
   z-index: 100;
+}
+
+.godly-loader-screen.preview-mode .godly-preview-controls-bar,
+.godly-loader-screen.controls-visible .godly-preview-controls-bar {
+  display: flex;
 }
 
 .godly-preview-pill-btn {

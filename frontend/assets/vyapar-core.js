@@ -298,6 +298,7 @@ const VyaparCore = (function() {
       status: "PENDING",
       is_stock_reserved: false,
       confirmed_by_customer: false,
+      timer_started_at: null,
       remaining_seconds: 1800
     }
   ];
@@ -459,6 +460,18 @@ const VyaparCore = (function() {
   let udharLedger = load(KEY_UDHAR, []);
   let transactions = load(KEY_TX, DEFAULT_TRANSACTIONS);
   let pendingOrders = load(KEY_ORDERS, DEFAULT_PENDING_ORDERS);
+  let pendingOrdersNeedsSave = false;
+  pendingOrders.forEach(o => {
+    if (!o.timer_started_at) {
+      o.timer_started_at = o.created_at ? new Date(o.created_at).getTime() : Date.now();
+      pendingOrdersNeedsSave = true;
+    }
+    const elapsed = Math.floor((Date.now() - o.timer_started_at) / 1000);
+    o.remaining_seconds = Math.max(0, 1800 - elapsed);
+  });
+  if (pendingOrdersNeedsSave) {
+    save(KEY_ORDERS, pendingOrders);
+  }
   let activeDukaan = (typeof localStorage !== 'undefined' ? localStorage.getItem(KEY_STORE) : null) || "अथर्व किराणा स्टोअर्स, कोल्हापूर (DEMO_KIRANA_KOP)";
 
   // Backend URL configuration with Automatic Health Probe Fallback
@@ -613,31 +626,62 @@ const VyaparCore = (function() {
           if (ordRes.ok) {
             const ordData = await ordRes.json();
             if (ordData && Array.isArray(ordData.orders)) {
-              pendingOrders = ordData.orders.map(o => ({
-                order_id: o.order_id,
-                id: o.order_id,
-                customer_name: o.customer_name || o.customerName || "व्यंकटेश पै (Venkatesh Pai)",
-                customerName: o.customer_name || o.customerName || "व्यंकटेश पै (Venkatesh Pai)",
-                customer_phone: o.customer_phone || o.phone || "+91 70192 59321",
-                phone: o.customer_phone || o.phone || "+91 70192 59321",
-                area: "Kolhapur Walk-in",
-                time: o.timestamp || (o.created_at ? new Date(o.created_at).toLocaleTimeString() : "Just now"),
-                timestamp: o.timestamp || (o.created_at ? new Date(o.created_at).toLocaleTimeString() : "Just now"),
-                slip_type: "WhatsApp Yaadi Slip",
-                items_text: o.raw_message || o.rawText || "किराणा यादी",
-                rawText: o.raw_message || o.rawText || "किराणा यादी",
-                items: Array.isArray(o.items) ? o.items.map(it => ({
-                  name: it.name_mr || it.name_raw || it.name || "किराणा सामान",
-                  qty: it.quantity || it.qty || 1,
-                  unit: it.unit || "piece",
-                  price: it.unit_price || it.price || 0,
-                  total: it.line_total || it.total || 0,
-                  sku: it.sku_matched || it.sku || ""
-                })) : [],
-                total_amount: parseFloat(o.total_amount || o.totalEstimated || 0),
-                totalEstimated: parseFloat(o.total_amount || o.totalEstimated || 0),
-                status: o.status || "PENDING"
-              }));
+              const existingMap = new Map();
+              (pendingOrders || []).forEach(po => {
+                const id = po.order_id || po.id;
+                if (id) existingMap.set(id, po);
+              });
+
+              pendingOrders = ordData.orders.map(o => {
+                const orderId = o.order_id || o.id;
+                const existing = existingMap.get(orderId);
+                // Permanent anchor timestamp: preserve existing anchor, or backend provided, or created_at, or Date.now()
+                const timerStartedAt = (existing && existing.timer_started_at) ||
+                  o.timer_started_at ||
+                  (o.created_at ? new Date(o.created_at).getTime() : Date.now());
+                const elapsed = Math.floor((Date.now() - timerStartedAt) / 1000);
+                const remSecs = Math.max(0, 1800 - elapsed);
+
+                return {
+                  order_id: orderId,
+                  id: orderId,
+                  customer_name: o.customer_name || o.customerName || (existing && existing.customer_name) || "व्यंकटेश पै (Venkatesh Pai)",
+                  customerName: o.customer_name || o.customerName || (existing && existing.customerName) || "व्यंकटेश पै (Venkatesh Pai)",
+                  customer_phone: o.customer_phone || o.phone || (existing && existing.customer_phone) || "+91 70192 59321",
+                  phone: o.customer_phone || o.phone || (existing && existing.phone) || "+91 70192 59321",
+                  area: o.area || (existing && existing.area) || "Kolhapur Walk-in",
+                  time: o.timestamp || (o.created_at ? new Date(o.created_at).toLocaleTimeString() : (existing && existing.time) || "Just now"),
+                  timestamp: o.timestamp || (o.created_at ? new Date(o.created_at).toLocaleTimeString() : (existing && existing.timestamp) || "Just now"),
+                  slip_type: o.slip_type || (existing && existing.slip_type) || "WhatsApp Yaadi Slip",
+                  items_text: o.raw_message || o.rawText || (existing && existing.items_text) || "किराणा यादी",
+                  rawText: o.raw_message || o.rawText || (existing && existing.rawText) || "किराणा यादी",
+                  raw_message: o.raw_message || (existing && existing.raw_message) || "किराणा यादी",
+                  items: Array.isArray(o.items) && o.items.length > 0 ? o.items.map(it => ({
+                    name: it.name_mr || it.name_raw || it.name || "किराणा सामान",
+                    qty: it.quantity || it.qty || 1,
+                    unit: it.unit || "piece",
+                    price: it.unit_price || it.price || 0,
+                    total: it.line_total || it.total || 0,
+                    sku: it.sku_matched || it.sku || ""
+                  })) : ((existing && existing.items) || []),
+                  total_amount: parseFloat(o.total_amount || o.totalEstimated || (existing && existing.total_amount) || 0),
+                  totalEstimated: parseFloat(o.total_amount || o.totalEstimated || (existing && existing.totalEstimated) || 0),
+                  status: o.status || (existing && existing.status) || "PENDING",
+                  is_stock_reserved: o.is_stock_reserved !== undefined ? o.is_stock_reserved : (existing ? existing.is_stock_reserved : true),
+                  confirmed_by_customer: o.confirmed_by_customer !== undefined ? o.confirmed_by_customer : (existing ? existing.confirmed_by_customer : false),
+                  timer_started_at: timerStartedAt,
+                  remaining_seconds: remSecs,
+                  created_at: o.created_at || (existing && existing.created_at) || new Date(timerStartedAt).toISOString()
+                };
+              });
+
+              // Retain any existing local orders that backend might not have yet
+              existingMap.forEach((val, key) => {
+                if (!pendingOrders.some(p => (p.order_id === key || p.id === key))) {
+                  pendingOrders.push(val);
+                }
+              });
+
               save(KEY_ORDERS, pendingOrders);
               notifySyncListeners("PENDING_ORDERS_UPDATED", pendingOrders);
             }
@@ -1186,30 +1230,63 @@ const VyaparCore = (function() {
     // 3. REMOTE YAADI (CUSTOMER ORDER QUEUE & ZERO DIRECT DEDUCTION INVARIANT)
     // -------------------------------------------------------------------------
     getPendingOrders: function() {
+      let ordersUpdated = false;
+      pendingOrders.forEach(order => {
+        if (!order.timer_started_at) {
+          order.timer_started_at = order.created_at ? new Date(order.created_at).getTime() : Date.now();
+          ordersUpdated = true;
+        }
+        const elapsed = Math.floor((Date.now() - order.timer_started_at) / 1000);
+        const remSecs = Math.max(0, 1800 - elapsed);
+        if (order.remaining_seconds !== remSecs) {
+          order.remaining_seconds = remSecs;
+        }
+      });
+      if (ordersUpdated) {
+        save(KEY_ORDERS, pendingOrders);
+      }
       return pendingOrders;
     },
     addPendingCustomerOrder: function(order) {
+      const orderId = order.order_id || order.id || ("ORD-KOP-" + Math.floor(1000 + Math.random() * 9000));
+      const existing = pendingOrders.find(o => o.order_id === orderId || o.id === orderId);
+
+      const timerStartedAt = (existing && existing.timer_started_at) ||
+        order.timer_started_at ||
+        (order.created_at ? new Date(order.created_at).getTime() : Date.now());
+      const elapsed = Math.floor((Date.now() - timerStartedAt) / 1000);
+      const remSecs = Math.max(0, 1800 - elapsed);
+
       const newOrder = {
-        order_id: order.order_id || ("ORD-KOP-" + Math.floor(1000 + Math.random() * 9000)),
-        customer_name: order.customer_name || order.customerName || "व्यंकटेश पै (Venkatesh Pai)",
-        customerName: order.customer_name || order.customerName || "व्यंकटेश पै (Venkatesh Pai)",
-        customer_phone: order.customer_phone || order.phone || "+91 98220 12345",
-        phone: order.customer_phone || order.phone || "+91 98220 12345",
-        area: order.area || "Kolhapur Walk-in",
-        time: "Just now",
-        timestamp: "Just now",
+        order_id: orderId,
+        id: orderId,
+        customer_name: order.customer_name || order.customerName || (existing && existing.customer_name) || "व्यंकटेश पै (Venkatesh Pai)",
+        customerName: order.customer_name || order.customerName || (existing && existing.customerName) || "व्यंकटेश पै (Venkatesh Pai)",
+        customer_phone: order.customer_phone || order.phone || (existing && existing.customer_phone) || "+91 98220 12345",
+        phone: order.customer_phone || order.phone || (existing && existing.phone) || "+91 98220 12345",
+        area: order.area || (existing && existing.area) || "Kolhapur Walk-in",
+        time: order.time || order.timestamp || "Just now",
+        timestamp: order.timestamp || order.time || "Just now",
         slip_type: order.slip_type || "WhatsApp Yaadi Slip",
         items_text: order.items_text || order.rawText || "किराणा यादी",
         rawText: order.items_text || order.rawText || "किराणा यादी",
-        items: order.items || [],
-        total_amount: parseFloat(order.total_amount || order.totalEstimated || 0),
-        totalEstimated: parseFloat(order.total_amount || order.totalEstimated || 0),
-        status: "PENDING",
-        is_stock_reserved: false,
-        confirmed_by_customer: false,
-        remaining_seconds: 1800
+        raw_message: order.raw_message || order.rawText || "किराणा यादी",
+        items: order.items || (existing && existing.items) || [],
+        total_amount: parseFloat(order.total_amount || order.totalEstimated || (existing && existing.total_amount) || 0),
+        totalEstimated: parseFloat(order.total_amount || order.totalEstimated || (existing && existing.totalEstimated) || 0),
+        status: order.status || (existing && existing.status) || "PENDING",
+        is_stock_reserved: order.is_stock_reserved !== undefined ? order.is_stock_reserved : (existing ? existing.is_stock_reserved : false),
+        confirmed_by_customer: order.confirmed_by_customer !== undefined ? order.confirmed_by_customer : (existing ? existing.confirmed_by_customer : false),
+        timer_started_at: timerStartedAt,
+        remaining_seconds: remSecs,
+        created_at: order.created_at || (existing && existing.created_at) || new Date(timerStartedAt).toISOString()
       };
-      pendingOrders.unshift(newOrder);
+
+      if (existing) {
+        Object.assign(existing, newOrder);
+      } else {
+        pendingOrders.unshift(newOrder);
+      }
       save(KEY_ORDERS, pendingOrders);
       notifySyncListeners("PENDING_ORDERS_UPDATED", pendingOrders);
       return newOrder;
@@ -1547,6 +1624,12 @@ const VyaparCore = (function() {
       customers = JSON.parse(JSON.stringify(DEFAULT_CUSTOMERS));
       transactions = JSON.parse(JSON.stringify(DEFAULT_TRANSACTIONS));
       pendingOrders = JSON.parse(JSON.stringify(DEFAULT_PENDING_ORDERS));
+      const resetEpoch = Date.now();
+      pendingOrders.forEach(o => {
+        o.timer_started_at = resetEpoch;
+        o.remaining_seconds = 1800;
+        o.created_at = new Date(resetEpoch).toISOString();
+      });
       activeDukaan = "अथर्व किराणा स्टोअर्स, कोल्हापूर (DEMO_KIRANA_KOP)";
       save(KEY_SKUS, skus);
       save(KEY_CUSTOMERS, customers);

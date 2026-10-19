@@ -1196,7 +1196,8 @@
       transition: transform 0.4s var(--spring-snappy);
       pointer-events: none;
     }
-    .apple-toast.show {
+    .apple-toast.show,
+    .apple-toast.visible {
       transform: translate3d(-50%, 0, 0);
     }
     .toast-icon {
@@ -1225,5 +1226,20 @@
       }
       .summary-metrics-trio { grid-template-columns: 1fr; }
       .apple-search-wrap { display: none; }
+    }
+
+    /* Invariant: Apple Dock Rail is visible and fixed on the left side on all desktop/tablet viewports (>768px) */
+    @media (min-width: 769px) {
+      .apple-dock-rail {
+        display: flex !important;
+        position: sticky !important;
+        top: 0 !important;
+        height: 100vh !important;
+        width: 68px !important;
+        flex-shrink: 0 !important;
+        z-index: 40 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
     }
   

@@ -1677,22 +1677,6 @@
             <span id="currentDukaanName">🏪 अथर्व किराणा स्टोअर्स, कोल्हापूर</span>
           </div>
 
-          <!-- Alerts Subpage Navigation Link -->
-          <a href="alerts.html" class="header-pill-item" style="text-decoration: none; color: #ff3b30; border: 1px solid rgba(255,59,48,0.28); font-weight: 600;" title="Stockout Risk & Vendor Alerts">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-            </svg>
-            <span>Alerts</span>
-          </a>
-
-          <!-- Godly Wave Loader Preview Pill -->
-          <button type="button" class="header-pill-item" onclick="triggerWaveLoaderPreview()" style="background: rgba(0, 113, 227, 0.08); color: var(--apple-blue); border: 1px solid rgba(0, 113, 227, 0.28); font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" title="Preview Godly Concentric Wave Ingress">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-            </svg>
-            <span>⚡ Wave Loader</span>
-          </button>
 
           <!-- Authenticated Merchant Session Pill -->
           <div class="header-pill-item merchant-user-pill" id="headerMerchantPill" onclick="showAppleToast('अधिकृत व्यापारी: ' + (document.getElementById('headerMerchantName')?.textContent || 'अथर्व आवटे'))" title="Authenticated Kirana Merchant" style="font-weight: 600; cursor: pointer;">
@@ -3233,26 +3217,7 @@
       // Sync merchant session UI immediately
       syncMerchantSessionUI();
 
-      // Welcome Godly Wave Loader Trigger if freshly logged in
-      if (sessionStorage.getItem('just_logged_in') === 'true') {
-        sessionStorage.removeItem('just_logged_in');
-        if (window.VyaparLoader && typeof window.VyaparLoader.show === 'function') {
-          let merchantFirstName = 'व्यापारी';
-          try {
-            const u = JSON.parse(localStorage.getItem('vyaparai_auth_user'));
-            if (u && u.name) merchantFirstName = u.name.split(' ')[0];
-          } catch(e) {}
-          window.VyaparLoader.show({
-            duration: 1200,
-            successPhrase: `Welcome, ${merchantFirstName}! Calacatta OS Ready...`,
-            steps: [
-              { pct: 30, text: "Verifying Kirana Vendor Security Token...", delay: 200 },
-              { pct: 70, text: "Synchronizing Kolhapur Kirana Catalog & Khata Engine...", delay: 600 },
-              { pct: 100, text: `Welcome, ${merchantFirstName}! Calacatta OS Ready...`, delay: 1000 }
-            ]
-          });
-        }
-      }
+
 
       // Initialize Momentum Scroll
       initMomentumScroll('catalogCarousel');
@@ -3563,105 +3528,189 @@
     }
 
     // B. Remote Customer Yaadi Queue Handlers
+    function getOrderBoxBadgesHtml(order, remSecs) {
+      const orderId = order.order_id || order.id;
+      const isFulfilled = order.status === 'PACKED' || order.status === 'FULFILLED';
+      const isCancelled = order.status === 'CANCELLED' || order.status === 'EXPIRED_AUTO_CANCELLED' || order.status === 'EXPIRED';
+      const isConfirmed = (order.status === 'CONFIRMED' || order.confirmed_by_customer) && !isFulfilled && !isCancelled;
+
+      if (isFulfilled) {
+        return `
+          <span class="status-pill status-in" style="font-size: 0.70rem; background: rgba(52, 199, 89, 0.15); color: #28cd41; border: 1px solid rgba(52, 199, 89, 0.3); font-weight: 600;">
+            ✅ साठा वजा (Packed & Fulfilled)
+          </span>
+        `;
+      } else if (isCancelled) {
+        return `
+          <span class="status-pill status-out" style="font-size: 0.70rem; background: rgba(255, 69, 58, 0.12); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.28); font-weight: 600;">
+            ↩ रद्द / साठा पूर्ववत (Cancelled & Restituted)
+          </span>
+        `;
+      } else if (isConfirmed) {
+        return `
+          <span class="status-pill status-in" style="font-size: 0.70rem; background: rgba(0, 113, 227, 0.12); color: #0071e3; border: 1px solid rgba(0, 113, 227, 0.28); font-weight: 600;">
+            ✓ ग्राहक निश्चिती (Customer Confirmed)
+          </span>
+          <span class="order-timer-pill" id="order-timer-${orderId}" style="font-size: 0.70rem; padding: 2px 7px; border-radius: 999px; background: rgba(255, 149, 0, 0.12); color: #ff9500; font-weight: 700; border: 1px solid rgba(255, 149, 0, 0.28);">⏳ ${formatTimerSeconds(remSecs)}</span>
+        `;
+      } else {
+        // PENDING / Staged
+        return `
+          <span class="status-pill status-low" style="font-size: 0.70rem; background: rgba(255, 149, 0, 0.12); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.28); font-weight: 600;">
+            📋 मागणी प्रलंबित (Pending Approval / Staged)
+          </span>
+          <span class="order-timer-pill" id="order-timer-${orderId}" style="font-size: 0.70rem; padding: 2px 7px; border-radius: 999px; background: rgba(255, 69, 58, 0.12); color: #ff453a; font-weight: 700; border: 1px solid rgba(255, 69, 58, 0.28);">⏳ ${formatTimerSeconds(remSecs)}</span>
+        `;
+      }
+    }
+
+    function getOrderBoxButtonsHtml(order) {
+      const orderId = order.order_id || order.id;
+      const isFulfilled = order.status === 'PACKED' || order.status === 'FULFILLED';
+      const isCancelled = order.status === 'CANCELLED' || order.status === 'EXPIRED_AUTO_CANCELLED' || order.status === 'EXPIRED';
+
+      return `
+        <button 
+          class="btn-pack-order" 
+          onclick="packCustomerOrder('${orderId}')"
+          ${(isFulfilled || isCancelled) ? 'disabled style="opacity: 0.6; cursor: not-allowed;"' : ''}>
+          ${isFulfilled ? '✓ Delivered' : (isCancelled ? '✕ Cancelled' : 'Pack & Fulfill ✓')}
+        </button>
+        ${(!isFulfilled && !isCancelled) ? `
+        <button 
+          class="btn-stock" 
+          style="font-size: 0.72rem; padding: 5px 10px; border-radius: 999px; background: rgba(255, 69, 58, 0.12); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.25); cursor: pointer;"
+          onclick="cancelAndRestoreOrderStock('${orderId}')"
+          title="30-min Auto-Undo: Cancel order and restitute reserved stock immediately">
+          Undo Stock 🔄
+        </button>` : ''}
+      `;
+    }
+
+    function getOrderBoxInnerHtml(order, remSecs) {
+      const custName = order.customerName || order.customer_name || "व्यंकटेश पै (Venkatesh Pai)";
+      const custPhone = order.phone || order.customer_phone || "+91 98220 12345";
+      const totalEst = parseFloat(order.totalEstimated || order.total_amount || 0);
+      const orderItems = Array.isArray(order.items) ? order.items : [];
+
+      return `
+        <div class="yaadi-order-header">
+          <div class="yaadi-cust-info">
+            <div class="yaadi-cust-avatar">${custName.charAt(0)}</div>
+            <div>
+              <div class="yaadi-cust-name">${custName}</div>
+              <div class="yaadi-cust-phone">${custPhone} • ${order.timestamp || order.time || 'Just now'}</div>
+            </div>
+          </div>
+          <div class="yaadi-status-badges" style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+            ${getOrderBoxBadgesHtml(order, remSecs)}
+          </div>
+        </div>
+        
+        <div class="yaadi-items-list">
+          <strong>Order Slip:</strong> "${order.rawText || order.raw_message || order.items_text || 'किराणा यादी'}"<br/>
+          <span style="font-size: 0.75rem; color: var(--text-tertiary);">Parsed items: ${orderItems.map(i => `${i.qty || i.quantity || 1}x ${i.name || i.name_mr || 'सामान'}`).join(', ') || 'साखर २ किलो, तेल १ लिटर, पार्ले-जी ५ पुडे, गोकुळ दूध १ पिशवी'}</span>
+        </div>
+
+        <div class="yaadi-footer-row" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <div class="yaadi-est-total">Est. Total: ₹${totalEst}</div>
+          <div class="yaadi-actions-btns" style="display: flex; gap: 6px;">
+            ${getOrderBoxButtonsHtml(order)}
+          </div>
+        </div>
+      `;
+    }
+
     function renderPendingYaadiOrders() {
       const container = document.getElementById('yaadiOrdersFeedList');
       if (!container) return;
 
-      const orders = window.VyaparCore ? VyaparCore.getPendingOrders() : [];
+      const orders = window.VyaparCore && typeof VyaparCore.getPendingOrders === 'function'
+        ? VyaparCore.getPendingOrders()
+        : [];
+
       if (!orders || orders.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; padding: 24px; color: var(--text-tertiary); font-size: 0.82rem;">
-            No pending customer yaadi slips right now. Orders arriving on WhatsApp (+91 98230...) will appear here live.
-          </div>
-        `;
+        if (!container.querySelector('.yaadi-empty-placeholder')) {
+          container.innerHTML = `
+            <div class="yaadi-empty-placeholder" style="text-align: center; padding: 24px; color: var(--text-tertiary); font-size: 0.82rem;">
+              No pending customer yaadi slips right now. Orders arriving on WhatsApp (+91 98230...) will appear here live.
+            </div>
+          `;
+        }
         return;
       }
 
-      container.innerHTML = orders.map(order => {
+      // If placeholder exists, remove it
+      const placeholder = container.querySelector('.yaadi-empty-placeholder');
+      if (placeholder) {
+        container.innerHTML = '';
+      }
+
+      const activeOrderIds = new Set();
+
+      orders.forEach((order, index) => {
         const orderId = order.order_id || order.id;
+        if (!orderId) return;
+        activeOrderIds.add(orderId);
+
+        // Strict permanent anchor calculation
+        if (!order.timer_started_at) {
+          order.timer_started_at = order.created_at ? new Date(order.created_at).getTime() : Date.now();
+        }
+        const elapsed = Math.floor((Date.now() - order.timer_started_at) / 1000);
+        const remSecs = Math.max(0, 1800 - elapsed);
+        order.remaining_seconds = remSecs;
+
         const isFulfilled = order.status === 'PACKED' || order.status === 'FULFILLED';
         const isCancelled = order.status === 'CANCELLED' || order.status === 'EXPIRED_AUTO_CANCELLED' || order.status === 'EXPIRED';
-        const isConfirmed = (order.status === 'CONFIRMED' || order.confirmed_by_customer) && !isFulfilled && !isCancelled;
-        const isPending = !isFulfilled && !isCancelled && !isConfirmed;
+        const targetClass = `yaadi-order-box ${isFulfilled ? 'fulfilled' : (isCancelled ? 'cancelled' : '')}`;
 
-        const custName = order.customerName || order.customer_name || "व्यंकटेश पै (Venkatesh Pai)";
-        const custPhone = order.phone || order.customer_phone || "+91 98220 12345";
-        const totalEst = parseFloat(order.totalEstimated || order.total_amount || 0);
-        const orderItems = Array.isArray(order.items) ? order.items : [];
-        const remSecs = order.remaining_seconds !== undefined ? order.remaining_seconds : 1800;
-
-        let statusBadgeHtml = '';
-        if (isFulfilled) {
-          statusBadgeHtml = `
-            <span class="status-pill status-in" style="font-size: 0.70rem; background: rgba(52, 199, 89, 0.15); color: #28cd41; border: 1px solid rgba(52, 199, 89, 0.3); font-weight: 600;">
-              ✅ साठा वजा (Packed & Fulfilled)
-            </span>
-          `;
-        } else if (isCancelled) {
-          statusBadgeHtml = `
-            <span class="status-pill status-out" style="font-size: 0.70rem; background: rgba(255, 69, 58, 0.12); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.28); font-weight: 600;">
-              ↩ रद्द / साठा पूर्ववत (Cancelled & Restituted)
-            </span>
-          `;
-        } else if (isConfirmed) {
-          statusBadgeHtml = `
-            <span class="status-pill status-in" style="font-size: 0.70rem; background: rgba(0, 113, 227, 0.12); color: #0071e3; border: 1px solid rgba(0, 113, 227, 0.28); font-weight: 600;">
-              ✓ ग्राहक निश्चिती (Customer Confirmed)
-            </span>
-            <span class="order-timer-pill" id="order-timer-${orderId}" style="font-size: 0.70rem; padding: 2px 7px; border-radius: 999px; background: rgba(255, 149, 0, 0.12); color: #ff9500; font-weight: 700; border: 1px solid rgba(255, 149, 0, 0.28);">⏳ ${formatTimerSeconds(remSecs)}</span>
-          `;
+        let box = document.getElementById('yaadi-order-' + orderId);
+        if (box) {
+          // IN-PLACE DOM UPDATE:
+          if (box.dataset.orderStatus !== order.status) {
+            box.dataset.orderStatus = order.status;
+            box.className = targetClass;
+            const badges = box.querySelector('.yaadi-status-badges');
+            if (badges) badges.innerHTML = getOrderBoxBadgesHtml(order, remSecs);
+            const btns = box.querySelector('.yaadi-actions-btns');
+            if (btns) btns.innerHTML = getOrderBoxButtonsHtml(order);
+          } else {
+            // Status unchanged: ONLY update timer text in-place
+            const timerEl = document.getElementById('order-timer-' + orderId);
+            if (timerEl) {
+              timerEl.textContent = '⏳ ' + formatTimerSeconds(remSecs);
+            }
+          }
         } else {
-          // PENDING / Staged
-          statusBadgeHtml = `
-            <span class="status-pill status-low" style="font-size: 0.70rem; background: rgba(255, 149, 0, 0.12); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.28); font-weight: 600;">
-              📋 मागणी प्रलंबित (Pending Approval / Staged)
-            </span>
-            <span class="order-timer-pill" id="order-timer-${orderId}" style="font-size: 0.70rem; padding: 2px 7px; border-radius: 999px; background: rgba(255, 69, 58, 0.12); color: #ff453a; font-weight: 700; border: 1px solid rgba(255, 69, 58, 0.28);">⏳ ${formatTimerSeconds(remSecs)}</span>
-          `;
+          // Box doesn't exist yet: Create new card
+          box = document.createElement('div');
+          box.id = 'yaadi-order-' + orderId;
+          box.dataset.orderStatus = order.status;
+          box.className = targetClass;
+          box.innerHTML = getOrderBoxInnerHtml(order, remSecs);
+          container.appendChild(box);
         }
 
-        return `
-          <div class="yaadi-order-box ${isFulfilled ? 'fulfilled' : (isCancelled ? 'cancelled' : '')}" id="yaadi-order-${orderId}">
-            <div class="yaadi-order-header">
-              <div class="yaadi-cust-info">
-                <div class="yaadi-cust-avatar">${custName.charAt(0)}</div>
-                <div>
-                  <div class="yaadi-cust-name">${custName}</div>
-                  <div class="yaadi-cust-phone">${custPhone} • ${order.timestamp || order.time || 'Just now'}</div>
-                </div>
-              </div>
-              <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-                ${statusBadgeHtml}
-              </div>
-            </div>
-            
-            <div class="yaadi-items-list">
-              <strong>Order Slip:</strong> "${order.rawText || order.raw_message || order.items_text || 'किराणा यादी'}"<br/>
-              <span style="font-size: 0.75rem; color: var(--text-tertiary);">Parsed items: ${orderItems.map(i => `${i.qty || i.quantity || 1}x ${i.name || i.name_mr || 'सामान'}`).join(', ') || 'साखर २ किलो, तेल १ लिटर, पार्ले-जी ५ पुडे, गोकुळ दूध १ पिशवी'}</span>
-            </div>
+        // Maintain DOM order matching orders array
+        const currentBoxes = Array.from(container.children);
+        if (currentBoxes[index] !== box) {
+          if (index < currentBoxes.length) {
+            container.insertBefore(box, currentBoxes[index]);
+          } else {
+            container.appendChild(box);
+          }
+        }
+      });
 
-            <div class="yaadi-footer-row" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-              <div class="yaadi-est-total">Est. Total: ₹${totalEst}</div>
-              <div style="display: flex; gap: 6px;">
-                <button 
-                  class="btn-pack-order" 
-                  onclick="packCustomerOrder('${orderId}')"
-                  ${(isFulfilled || isCancelled) ? 'disabled style="opacity: 0.6; cursor: not-allowed;"' : ''}>
-                  ${isFulfilled ? '✓ Delivered' : (isCancelled ? '✕ Cancelled' : 'Pack & Fulfill ✓')}
-                </button>
-                ${(!isFulfilled && !isCancelled) ? `
-                <button 
-                  class="btn-stock" 
-                  style="font-size: 0.72rem; padding: 5px 10px; border-radius: 999px; background: rgba(255, 69, 58, 0.12); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.25); cursor: pointer;"
-                  onclick="cancelAndRestoreOrderStock('${orderId}')"
-                  title="30-min Auto-Undo: Cancel order and restitute reserved stock immediately">
-                  Undo Stock 🔄
-                </button>` : ''}
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
+      // Remove stale DOM boxes
+      const existingBoxes = container.querySelectorAll('.yaadi-order-box');
+      existingBoxes.forEach(b => {
+        const id = b.id.replace('yaadi-order-', '');
+        if (!activeOrderIds.has(id)) {
+          b.remove();
+        }
+      });
     }
 
     function cancelAndRestoreOrderStock(orderId) {
@@ -3693,19 +3742,27 @@
 
     // Auto-ticking live 30-min countdown timer for pending orders
     setInterval(() => {
-      const timerPills = document.querySelectorAll('.order-timer-pill');
-      timerPills.forEach(pill => {
-        const id = pill.id.replace('order-timer-', '');
-        if (window.VyaparCore && VyaparCore.getPendingOrders) {
-          const ord = VyaparCore.getPendingOrders().find(o => (o.order_id === id || o.id === id));
-          if (ord) {
-            if (ord.remaining_seconds === undefined) ord.remaining_seconds = 1800;
-            ord.remaining_seconds = Math.max(0, ord.remaining_seconds - 1);
-            pill.textContent = `⏳ ${formatTimerSeconds(ord.remaining_seconds)}`;
-            if (ord.remaining_seconds === 0 && ord.status === 'PENDING') {
-              pill.style.background = 'rgba(255, 69, 58, 0.25)';
-              pill.textContent = '⏳ Expired (Auto-Undo)';
-            }
+      const orders = (window.VyaparCore && typeof VyaparCore.getPendingOrders === 'function')
+        ? VyaparCore.getPendingOrders()
+        : [];
+      orders.forEach(ord => {
+        const orderId = ord.order_id || ord.id;
+        if (!orderId) return;
+
+        // Ensure permanent anchor timestamp
+        if (!ord.timer_started_at) {
+          ord.timer_started_at = ord.created_at ? new Date(ord.created_at).getTime() : Date.now();
+        }
+        const elapsed = Math.floor((Date.now() - ord.timer_started_at) / 1000);
+        const remSecs = Math.max(0, 1800 - elapsed);
+        ord.remaining_seconds = remSecs;
+
+        const timerEl = document.getElementById('order-timer-' + orderId);
+        if (timerEl) {
+          timerEl.textContent = '⏳ ' + formatTimerSeconds(remSecs);
+          if (remSecs === 0 && (ord.status === 'PENDING' || ord.status === 'CONFIRMED')) {
+            timerEl.style.background = 'rgba(255, 69, 58, 0.25)';
+            timerEl.textContent = '⏳ Expired (Auto-Undo)';
           }
         }
       });
