@@ -198,3 +198,18 @@ async def websocket_inventory(websocket: WebSocket):
     except Exception:
         ws_manager.disconnect(websocket)
 
+
+@app.websocket("/ws/core")
+@app.websocket("/ws/laptop")
+async def handle_external_ws_stub(websocket: WebSocket):
+    """
+    Graceful stub for sibling local workspaces to eliminate 403 reconnect spam storms.
+    """
+    try:
+        await websocket.accept()
+        while True:
+            await websocket.receive_text()
+    except Exception:
+        pass
+
+
